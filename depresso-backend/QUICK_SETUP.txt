@@ -1,0 +1,36 @@
+╔═══════════════════════════════════════════════════════════╗
+║  HUAWEI AGENT - FINAL SETUP (5 MINUTES)                  ║
+╚═══════════════════════════════════════════════════════════╝
+
+✅ What's Done:
+   • Auth token configured
+   • Backend service created  
+   • Environment variables set
+   • Agent created in Huawei Cloud
+
+🎯 What You Need to Do (In Huawei Console):
+
+1. Go to: https://console-intl.huaweicloud.com/agentapp/
+   Login: HIS_Developer_Competition / @Depresso123
+
+2. Click "Depression-ML-Agent"
+
+3. Copy prompt from: ../AGENT_PROMPT.txt
+   Paste into the "prompt" box
+   Click "Save"
+
+4. Select model: "qwen-32b" 
+   Click "Save"
+
+5. Select scheduling mode: "Model priority"
+   Click "Save"
+
+6. Click "Publish" button
+   Wait 30 seconds
+
+7. Come back here and test:
+   ./test-huawei-agent-full.sh
+
+Done! 🎉
+
+Full guide: ../HUAWEI_AGENT_COMPLETE_SETUP.md

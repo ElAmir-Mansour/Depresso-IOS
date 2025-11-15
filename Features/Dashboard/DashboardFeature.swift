@@ -1,0 +1,237 @@
+// In Features/Dashboard/DashboardFeature.swift
+import Foundation
+import ComposableArchitecture
+import SwiftData
+import Charts
+
+@Reducer
+struct DashboardFeature {
+    @ObservableState
+    struct State: Equatable {
+        // ✅ Added explicit Equatable now that StepData is defined and Equatable
+        static func == (lhs: DashboardFeature.State, rhs: DashboardFeature.State) -> Bool {
+            return lhs.healthMetrics == rhs.healthMetrics &&
+                   lhs.weeklySteps == rhs.weeklySteps &&
+                   lhs.weeklyEnergy == rhs.weeklyEnergy &&
+                   lhs.weeklyHeartRate == rhs.weeklyHeartRate &&
+                   lhs.isLoading == rhs.isLoading &&
+                   lhs.wellnessTasksState == rhs.wellnessTasksState &&
+                   lhs.assessmentHistory.map(\.id) == rhs.assessmentHistory.map(\.id) &&
+                   lhs.canTakeAssessmentToday == rhs.canTakeAssessmentToday &&
+                   lhs.currentStreak == rhs.currentStreak &&
+                   lhs.longestStreak == rhs.longestStreak &&
+                   lhs.aiInsights == rhs.aiInsights &&
+                   lhs.weeklyComparison?.thisWeekSteps == rhs.weeklyComparison?.thisWeekSteps &&
+                   lhs.destination == rhs.destination
+        }
+
+        var healthMetrics: [HealthMetric] = []
+        var weeklySteps: [StepData] = [] // StepData is now defined in HealthClient.swift
+        var weeklyEnergy: [EnergyData] = []
+        var weeklyHeartRate: [HeartRateData] = []
+        var isLoading: Bool = true
+        var wellnessTasksState = WellnessTasksFeature.State() // Assumes defined
+        var assessmentHistory: [DailyAssessment] = [] // Assumes defined
+        var canTakeAssessmentToday: Bool = true
+        var currentStreak: Int = 0
+        var longestStreak: Int = 0
+        var aiInsights: [HealthInsight] = []
+        var weeklyComparison: WeeklyComparison?
+        @Presents var destination: Destination.State?
+    }
+
+     enum Action {
+         case task
+         case refresh // NEW: Pull-to-refresh
+         case healthDataLoaded(Result<([HealthMetric], [StepData], [EnergyData], [HeartRateData]), Error>)
+         case wellnessTasks(WellnessTasksFeature.Action)
+         case assessmentHistoryLoaded(Result<[DailyAssessment], Error>)
+         case streakLoaded(Result<(current: Int, longest: Int), Error>) // NEW: Streak from backend
+         case takeAssessmentButtonTapped
+         case destination(PresentationAction<Destination.Action>)
+         case checkForAssessmentStatus
+     }
+     @Reducer(state: .equatable)
+     enum Destination {
+         case dailyAssessment(DailyAssessmentFeature) // Assumes defined
+     }
+     @Dependency(\.healthClient) var healthClient
+     @Dependency(\.modelContext) var modelContext
+     @Dependency(\.date.now) var now
+
+    @MainActor
+    var body: some Reducer<State, Action> {
+        Scope(state: \.wellnessTasksState, action: \.wellnessTasks) {
+            WellnessTasksFeature() // Assumes defined
+        }
+
+        Reduce { state, action in
+            switch action {
+             case .refresh:
+                // Pull-to-refresh: reload data without showing loading spinner
+                DSHaptics.light()
+                return .merge(
+                    .run { send in
+                        try? await healthClient.requestAuthorization()
+                        await send(.healthDataLoaded(Result {
+                            try await (healthClient.fetchHealthMetrics(), healthClient.fetchWeeklySteps(), healthClient.fetchWeeklyActiveEnergy(), healthClient.fetchWeeklyHeartRate())
+                        }))
+                    },
+                    .run { send in
+                        let sevenDaysAgo = Calendar.current.date(byAdding: .day, value: -7, to: now)!
+                        let predicate = #Predicate<DailyAssessment> { $0.date >= sevenDaysAgo }
+                        let descriptor = FetchDescriptor<DailyAssessment>(predicate: predicate, sortBy: [SortDescriptor(\.date)])
+                        await send(.assessmentHistoryLoaded(Result { try modelContext.context.fetch(descriptor) }))
+                    }
+                )
+            
+             case .task:
+                if state.healthMetrics.isEmpty {
+                    state.isLoading = true
+                    return .merge(
+                        .run { send in
+                            // Request auth first if needed
+                            try? await healthClient.requestAuthorization()
+                            // Then fetch data
+                            await send(.healthDataLoaded(Result {
+                                try await (healthClient.fetchHealthMetrics(), healthClient.fetchWeeklySteps(), healthClient.fetchWeeklyActiveEnergy(), healthClient.fetchWeeklyHeartRate())
+                            }))
+                        },
+                        .run { send in
+                            let sevenDaysAgo = Calendar.current.date(byAdding: .day, value: -7, to: now)!
+                            let predicate = #Predicate<DailyAssessment> { $0.date >= sevenDaysAgo }
+                            let descriptor = FetchDescriptor<DailyAssessment>(predicate: predicate, sortBy: [SortDescriptor(\.date)])
+                            // Use .context to access the actual ModelContext
+                            await send(.assessmentHistoryLoaded(Result { try modelContext.context.fetch(descriptor) }))
+                        },
+                        .send(.checkForAssessmentStatus)
+                    )
+                }
+                return .none
+
+             case .healthDataLoaded(.success(let (metrics, steps, energy, heartRate))):
+                 state.healthMetrics = metrics
+                 state.weeklySteps = steps
+                 state.weeklyEnergy = energy
+                 state.weeklyHeartRate = heartRate
+                 state.isLoading = false
+                 
+                 // Generate AI insights
+                 state.aiInsights = InsightGenerator.generateInsights(
+                     currentMetrics: metrics,
+                     weeklySteps: steps,
+                     weeklyEnergy: energy,
+                     assessmentHistory: state.assessmentHistory,
+                     currentStreak: state.currentStreak
+                 )
+                 
+                 // Calculate weekly comparison
+                 state.weeklyComparison = ComparisonCalculator.calculateWeeklyComparison(
+                     weeklySteps: steps,
+                     weeklyEnergy: energy,
+                     weeklyHeartRate: heartRate,
+                     assessmentHistory: state.assessmentHistory
+                 )
+                 
+                 return .none
+
+             case .healthDataLoaded(.failure(let error)):
+                 state.isLoading = false
+                 print("Error loading health data: \(error)")
+                 return .none
+
+             case .wellnessTasks: // Actions scoped to WellnessTasksFeature
+                 return .none
+
+             case .assessmentHistoryLoaded(.success(let history)):
+                  state.assessmentHistory = history
+                  // Fetch streak from backend instead of calculating locally
+                  return .run { send in
+                      do {
+                          let userId = try await UserManager.shared.getCurrentUserId()
+                          let streak = try await APIClient.getStreak(userId: userId)
+                          await send(.streakLoaded(.success(streak)))
+                          await send(.checkForAssessmentStatus)
+                      } catch {
+                          print("⚠️ Error fetching streak, calculating locally: \(error)")
+                          // Fallback to local calculation
+                          let current = StreakCalculator.calculateCurrentStreak(from: history)
+                          let longest = StreakCalculator.calculateLongestStreak(from: history)
+                          await send(.streakLoaded(.success((current, longest))))
+                          await send(.checkForAssessmentStatus)
+                      }
+                  }
+
+             case .assessmentHistoryLoaded(.failure(let error)):
+                  print("Error loading assessment history: \(error)")
+                  state.canTakeAssessmentToday = true // Default to allow if load fails
+                  return .none
+            
+             case .streakLoaded(.success(let streak)):
+                  state.currentStreak = streak.current
+                  state.longestStreak = streak.longest
+                  
+                  // Regenerate insights with updated streak
+                  state.aiInsights = InsightGenerator.generateInsights(
+                      currentMetrics: state.healthMetrics,
+                      weeklySteps: state.weeklySteps,
+                      weeklyEnergy: state.weeklyEnergy,
+                      assessmentHistory: state.assessmentHistory,
+                      currentStreak: state.currentStreak
+                  )
+                  return .none
+            
+             case .streakLoaded(.failure(let error)):
+                  print("Error loading streak: \(error)")
+                  return .none
+
+             case .checkForAssessmentStatus:
+                  let startOfToday = Calendar.current.startOfDay(for: now)
+                  // Check if any loaded assessment matches today's date
+                  state.canTakeAssessmentToday = !state.assessmentHistory.contains { Calendar.current.isDate($0.date, inSameDayAs: startOfToday) }
+                  return .none
+
+             case .takeAssessmentButtonTapped:
+                  state.destination = .dailyAssessment(.init()) // Assumes DailyAssessmentFeature exists
+                  return .none
+
+             // Handle result from the DailyAssessment sheet
+             case .destination(.presented(.dailyAssessment(.delegate(.assessmentCompleted(let assessment))))):
+                  // Insert and save the new assessment using .context
+                  modelContext.context.insert(assessment)
+                  do {
+                      try modelContext.context.save()
+                      print("✅ Daily assessment saved.")
+                      // Update local state *after* successful save
+                      state.assessmentHistory.append(assessment)
+                      state.assessmentHistory.sort { $0.date < $1.date } // Keep sorted
+                      state.destination = nil // Dismiss sheet state
+                      // Fetch updated streak from backend
+                      return .run { send in
+                          do {
+                              let userId = try await UserManager.shared.getCurrentUserId()
+                              let streak = try await APIClient.getStreak(userId: userId)
+                              await send(.streakLoaded(.success(streak)))
+                              await send(.checkForAssessmentStatus)
+                          } catch {
+                              print("⚠️ Error fetching streak after assessment: \(error)")
+                              await send(.checkForAssessmentStatus)
+                          }
+                      }
+                  } catch {
+                      print("❌ Failed to save daily assessment: \(error)")
+                       state.destination = nil // Dismiss sheet state even on error
+                      return .none
+                  }
+
+             case .destination(.dismiss):
+                  state.destination = nil
+                  return .none
+
+             case .destination:
+                  return .none
+            }
+        }
+        .ifLet(\.$destination, action: \.destination) // Manage the sheet presentation
+    }
+}

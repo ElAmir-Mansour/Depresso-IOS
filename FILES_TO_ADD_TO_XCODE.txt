@@ -1,0 +1,123 @@
+╔══════════════════════════════════════════════════════════════╗
+║                                                              ║
+║          📱 FILES TO ADD TO XCODE MANUALLY                   ║
+║                                                              ║
+╚══════════════════════════════════════════════════════════════╝
+
+Since Xcode doesn't auto-detect new Swift files, you need to
+add these manually:
+
+┌──────────────────────────────────────────────────────────────┐
+│  NEW FILES TO ADD                                            │
+└──────────────────────────────────────────────────────────────┘
+
+📁 Features/MLAnalysis/MLAnalysisModels.swift
+   Location: /Users/elamir/Desktop/Depresso-IOS-main/Features/MLAnalysis/MLAnalysisModels.swift
+   Purpose: ML analysis response models for Huawei Agent
+
+┌──────────────────────────────────────────────────────────────┐
+│  HOW TO ADD TO XCODE                                         │
+└──────────────────────────────────────────────────────────────┘
+
+STEP 1: Open Xcode
+   Open Depresso.xcodeproj
+
+STEP 2: Right-click Project
+   In the left sidebar, right-click on "Depresso" project
+
+STEP 3: Add Files
+   Click "Add Files to Depresso..."
+
+STEP 4: Navigate
+   Go to: Features/MLAnalysis/
+
+STEP 5: Select File
+   Select: MLAnalysisModels.swift
+
+STEP 6: Configure
+   ☑️ Copy items if needed
+   ☑️ Add to targets: Depresso
+
+STEP 7: Click Add
+   Done! ✓
+
+┌──────────────────────────────────────────────────────────────┐
+│  EXISTING FILES (Already in Xcode, Updated)                  │
+└──────────────────────────────────────────────────────────────┘
+
+✓ Features/Dashboard/APIClient.swift
+  Status: Already in project
+  Changes: Added ML analysis methods
+  Action: No need to re-add, just rebuild
+
+┌──────────────────────────────────────────────────────────────┐
+│  VERIFY IT WORKED                                            │
+└──────────────────────────────────────────────────────────────┘
+
+After adding the file:
+
+1. Press Cmd+B to build
+2. Should build successfully with no errors
+3. You can now use MLAnalysisResultDTO and other models
+
+┌──────────────────────────────────────────────────────────────┐
+│  TROUBLESHOOTING                                             │
+└──────────────────────────────────────────────────────────────┘
+
+If you get "Cannot find type MLAnalysisResultDTO":
+→ Make sure MLAnalysisModels.swift is added to Xcode
+→ Check it's in the correct target (Depresso)
+→ Clean build folder: Cmd+Shift+K
+→ Rebuild: Cmd+B
+
+If you get build errors about APIClient:
+→ The file is already updated, just needs rebuild
+→ Clean and rebuild should fix it
+
+┌──────────────────────────────────────────────────────────────┐
+│  WHAT'S IN MLAnalysisModels.swift                            │
+└──────────────────────────────────────────────────────────────┘
+
+struct MLAnalysisResult: Codable
+struct MLAnalysisResponse: Codable
+struct MLAnalysisRequest: Codable
+struct InsightsResponse: Codable
+struct InsightMetadata: Codable
+struct LatencyInfo: Codable
+struct AdviceResponse: Codable
+struct MLAnalysisHistoryResponse: Codable
+struct HistoricalAnalysis: Codable, Identifiable
+
+┌──────────────────────────────────────────────────────────────┐
+│  AFTER ADDING FILES                                          │
+└──────────────────────────────────────────────────────────────┘
+
+You can now use the Huawei Agent integration in your app:
+
+✓ Call APIClient.analyzeDepressionRisk()
+✓ Get ML insights with APIClient.getPersonalizedInsights()
+✓ Fetch analysis history
+✓ Display AI recommendations
+
+Example usage in DashboardFeature.swift:
+
+    case .analyzeRisk:
+        return .run { [state] send in
+            let analysis = try await APIClient.analyzeDepressionRisk(
+                userId: state.userId,
+                steps: Int(state.healthMetrics.steps),
+                heartRate: state.healthMetrics.heartRate,
+                sleepHours: state.healthMetrics.sleepHours,
+                activeEnergy: state.healthMetrics.activeEnergy,
+                phq8Score: state.phq8Score
+            )
+            await send(.analysisReceived(analysis))
+        }
+
+╔══════════════════════════════════════════════════════════════╗
+║                                                              ║
+║  That's it! Just one file to add manually. 🎉                ║
+║                                                              ║
+╚══════════════════════════════════════════════════════════════╝
+
+The backend is already fully configured and ready to use!

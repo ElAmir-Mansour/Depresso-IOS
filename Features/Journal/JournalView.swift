@@ -1,0 +1,116 @@
+// In Features/Journal/JournalView.swift
+import SwiftUI
+import ComposableArchitecture
+import SwiftData
+
+struct JournalView: View {
+    @Bindable var store: StoreOf<AICompanionJournalFeature>
+    @FocusState private var isTextFieldFocused: Bool
+
+    var body: some View {
+        VStack(spacing: 0) {
+            // Messages ScrollView
+            ScrollViewReader { scrollViewProxy in
+                ScrollView {
+                    LazyVStack(spacing: DesignSystem.Spacing.medium) {
+                        ForEach(store.messages) { message in
+                            MessageBubble(message: message)
+                               .id(message.id)
+                               .transition(.scale(scale: 0.95, anchor: message.isFromCurrentUser ? .bottomTrailing : .bottomLeading).combined(with: .opacity))
+                        }
+                        
+                        if store.isSendingMessage {
+                            TypingIndicator()
+                                .id("typingIndicator")
+                        }
+                        
+                        // Extra padding at bottom for input bar
+                        Color.clear.frame(height: 20)
+                    }
+                    .padding(.horizontal, DesignSystem.Spacing.medium)
+                    .padding(.top, DesignSystem.Spacing.small)
+                }
+                .background(Color.ds.backgroundPrimary)
+                .onTapGesture {
+                    isTextFieldFocused = false
+                }
+                .onChange(of: store.messages.count) {
+                    scrollToBottom(scrollViewProxy)
+                }
+                .onChange(of: isTextFieldFocused) {
+                    if isTextFieldFocused {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                            scrollToBottom(scrollViewProxy)
+                        }
+                    }
+                }
+            }
+            
+            // Input bar - fixed at bottom
+            inputBar
+                .background(.ultraThinMaterial)
+        }
+        .navigationTitle("Mindful Moments")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                if isTextFieldFocused {
+                    Button("Done") {
+                        isTextFieldFocused = false
+                    }
+                }
+            }
+        }
+        .alert($store.scope(state: \.alert, action: \.alert))
+        .task {
+            await store.send(.task).finish()
+        }
+    }
+    
+    private var inputBar: some View {
+        VStack(spacing: 0) {
+            Divider()
+                .background(Color(.systemGray4))
+            
+            HStack(spacing: 12) {
+                TextField("How are you feeling...", text: $store.textInput, axis: .vertical)
+                    .padding(12)
+                    .background(Color(.systemGray6))
+                    .clipShape(RoundedRectangle(cornerRadius: 20))
+                    .focused($isTextFieldFocused)
+                    .lineLimit(1...6)
+                    .frame(minHeight: 44)
+
+                Button {
+                    DSHaptics.buttonPress()
+                    store.send(.sendButtonTapped)
+                    isTextFieldFocused = false
+                } label: {
+                    Image(systemName: "paperplane.fill")
+                        .font(.title3)
+                        .foregroundStyle(.white)
+                        .frame(width: 44, height: 44)
+                        .background(
+                            Circle()
+                                .fill(store.textInput.isEmpty ? Color.gray : Color.accentColor)
+                        )
+                }
+                .disabled(store.textInput.isEmpty)
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+        }
+    }
+    
+    private func scrollToBottom(_ proxy: ScrollViewProxy) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            withAnimation(.easeOut(duration: 0.25)) {
+                if store.isSendingMessage {
+                    proxy.scrollTo("typingIndicator", anchor: .bottom)
+                } else if let lastMessage = store.messages.last {
+                    proxy.scrollTo(lastMessage.id, anchor: .bottom)
+                }
+            }
+        }
+    }
+}
