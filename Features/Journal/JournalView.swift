@@ -63,7 +63,7 @@ struct JournalView: View {
         }
         .alert($store.scope(state: \.alert, action: \.alert))
         .task {
-            await store.send(.task).finish()
+            store.send(.task)
         }
     }
     
@@ -80,6 +80,32 @@ struct JournalView: View {
                     .focused($isTextFieldFocused)
                     .lineLimit(1...6)
                     .frame(minHeight: 44)
+                
+                // Microphone Button
+                Button {
+                    DSHaptics.buttonPress()
+                    store.send(.recordButtonTapped)
+                } label: {
+                    Image(systemName: store.isRecording ? "stop.circle.fill" : "mic.circle.fill")
+                        .font(.title3)
+                        .foregroundStyle(store.isRecording ? .red : .secondary)
+                        .frame(width: 44, height: 44)
+                        .background(
+                            Circle()
+                                .fill(Color(.systemGray6))
+                        )
+                        .overlay(
+                            Group {
+                                if store.isRecording {
+                                    Circle()
+                                        .stroke(Color.red.opacity(0.5), lineWidth: 2)
+                                        .scaleEffect(1.2)
+                                        .opacity(0)
+                                        .animation(.easeInOut(duration: 1).repeatForever(autoreverses: false), value: store.isRecording)
+                                }
+                            }
+                        )
+                }
 
                 Button {
                     DSHaptics.buttonPress()

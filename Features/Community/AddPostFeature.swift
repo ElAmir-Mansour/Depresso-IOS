@@ -58,13 +58,18 @@ struct AddPostFeature {
                 guard state.isValid else { return .none }
                 state.isSaving = true
 
-                // Include imageData when creating the post
-                let newPost = CommunityPost(
-                    title: state.title,
-                    content: state.content,
-                    imageData: state.selectedImageData // Pass the image data
-                )
+                // Extract data BEFORE async operations (avoid capturing non-Sendable CommunityPost)
+                let postTitle = state.title
+                let postContent = state.content
+                let postImageData = state.selectedImageData
+                
                 return .run { send in
+                    // Create post inside the async context
+                    let newPost = CommunityPost(
+                        title: postTitle,
+                        content: postContent,
+                        imageData: postImageData
+                    )
                     await send(.delegate(.savePost(newPost)))
                     await self.dismiss()
                 }

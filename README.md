@@ -126,7 +126,7 @@
 │  └────┬─────┘  └────┬─────┘  └────┬─────┘  └────┬─────┘   │
 │       │             │              │             │          │
 │  ┌────┴─────────────┴──────────────┴─────────────┴─────┐   │
-│  │            MongoDB Database (Cloud)                  │   │
+│  │            PostgreSQL Database (Cloud)               │   │
 │  └──────────────────────────────────────────────────────┘   │
 │  ┌──────────────────────────────────────────────────────┐   │
 │  │         Huawei AI Service Integration                │   │
@@ -222,7 +222,7 @@ depresso-backend/
 
 **Backend:**
 - Node.js 18+ / Express.js
-- MongoDB (Cloud Atlas)
+- PostgreSQL (Cloud or Local)
 - Huawei Cloud Qwen API
 - JWT authentication
 - CORS enabled
@@ -241,7 +241,7 @@ depresso-backend/
 - Xcode 15.0+
 - iOS 15.0+ device or simulator
 - Node.js 18+ and npm
-- MongoDB account (Atlas)
+- PostgreSQL database
 - Huawei Cloud account with Qwen API access
 
 ### 1️⃣ Clone Repository
@@ -262,7 +262,11 @@ npm install
 Create `.env` file:
 ```env
 PORT=3000
-MONGODB_URI=your_mongodb_connection_string
+DB_USER=your_db_user
+DB_HOST=your_db_host
+DB_DATABASE=your_db_name
+DB_PASSWORD=your_db_password
+DB_PORT=5432
 
 # Huawei Cloud Configuration
 HUAWEI_API_KEY=your_qwen_api_key

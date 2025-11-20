@@ -65,7 +65,7 @@ struct CommunityView: View {
                 }
             }
             .task {
-                await store.send(.task).finish()
+                store.send(.task)
             }
             .sheet(item: $store.scope(state: \.destination?.addPost, action: \.destination.addPost)) { addPostStore in
                 AddPostView(store: addPostStore)
@@ -152,24 +152,23 @@ struct PostRowView: View {
 #Preview {
     let container = try! ModelContainer(for: CommunityPost.self, configurations: ModelConfiguration(isStoredInMemoryOnly: true))
     let context = container.mainContext
-
+    
     let previewImageData = UIImage(systemName: "photo")?.jpegData(compressionQuality: 0.8)
 
     let samplePosts = [
         CommunityPost(title: "Liked Post", content: "This one has some likes.", imageData: previewImageData, likeCount: 5),
         CommunityPost(title: "New Post", content: "This one has no likes yet.")
     ]
-    // Use let _ = ... to execute setup code correctly in preview builder
-    let _ = { samplePosts.forEach { context.insert($0) } }()
+    
+    let _ = samplePosts.forEach { context.insert($0) }
 
-    let store = Store(initialState: CommunityFeature.State(posts: samplePosts, isLoading: false, likedPostIDs: [samplePosts[0].id])) { // Pass posts to initial state
+    let store = Store(initialState: CommunityFeature.State(posts: samplePosts, isLoading: false, likedPostIDs: [samplePosts[0].id])) {
         CommunityFeature()
             .dependency(\.modelContext, try! ModelContextBox(context))
             .dependency(\.userDefaultsClient, .previewValue)
     }
 
-    // Wrap in NavigationStack for previewing NavigationLink behavior
-    return NavigationStack {
+    NavigationStack {
         CommunityView(store: store)
             .modelContainer(container)
     }

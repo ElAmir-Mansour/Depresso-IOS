@@ -1,8 +1,5 @@
 const pool = require('../../config/db');
-const axios = require('axios');
-
-// Correct Endpoint URL from HuaweiCredentials.swift
-const QWEN_API_URL = 'https://api-ap-southeast-1.modelarts-maas.com/v1/chat/completions';
+const aiService = require('../../services/aiService');
 
 // Create a new journal entry
 exports.createEntry = async (req, res) => {
@@ -70,37 +67,8 @@ exports.addMessageToEntry = async (req, res) => {
             [entryId]
         );
 
-        // Add system prompt to provide context for mental health conversations
-        const systemPrompt = {
-            role: 'system',
-            content: 'You are a compassionate AI companion for a mental wellness app. You provide supportive, empathetic responses to users sharing their thoughts and feelings. This is a safe, therapeutic context for discussing mental health, emotions, and personal challenges. Respond with care, validation, and encouragement.'
-        };
-
-        // Map roles: 'user' -> 'user', 'ai' -> 'assistant'
-        const messages = [
-            systemPrompt,
-            ...history.rows.map(msg => ({
-                role: msg.sender === 'ai' ? 'assistant' : 'user',
-                content: msg.content
-            }))
-        ];
-
-        // 3. Call the Huawei/Qwen API
-        const qwenResponse = await axios.post(QWEN_API_URL, {
-            model: 'qwen3-32b', // Correct model name
-            messages: messages      // Correct request structure
-        }, {
-            headers: {
-                'Authorization': `Bearer ${process.env.QWEN_API_KEY}`,
-                'Content-Type': 'application/json'
-            }
-        });
-
-        const aiContent = qwenResponse.data.choices[0]?.message?.content.trim();
-
-        if (!aiContent) {
-            throw new Error('Invalid AI response format');
-        }
+        // 3. Call the AI Service
+        const aiContent = await aiService.generateResponse(history.rows);
 
         // 4. Save AI's response with 'assistant' role
         const aiMessageResult = await client.query(
@@ -115,40 +83,37 @@ exports.addMessageToEntry = async (req, res) => {
 
     } catch (error) {
         await client.query('ROLLBACK');
-        console.error('Error processing AI chat message:', error.response ? error.response.data : error.message);
-        
+        console.error('Error processing AI chat message:', error);
+
         // Handle Qwen content filter errors specifically
-        if (error.response && error.response.data) {
-            const errorData = error.response.data;
-            
-            // Check for content moderation error
-            if (errorData.error_code === 'ModelArts.81011') {
-                // Save a friendly fallback message from "AI"
-                try {
-                    await client.query('BEGIN');
-                    const fallbackMessage = "I'm here to listen. Sometimes the system is extra cautious. Could you rephrase that, or tell me more about how you're feeling today?";
-                    
-                    const aiMessageResult = await client.query(
-                        'INSERT INTO AIChatMessages (entry_id, user_id, sender, content) VALUES ($1, $2, $3, $4) RETURNING *',
-                        [entryId, userId, 'assistant', fallbackMessage]
-                    );
-                    
-                    await client.query('COMMIT');
-                    return res.status(201).json(aiMessageResult.rows[0]);
-                } catch (fallbackError) {
-                    await client.query('ROLLBACK');
-                    console.error('Fallback message error:', fallbackError);
-                }
+        if (error.isContentFilter) {
+            // Save a friendly fallback message from "AI"
+            try {
+                await client.query('BEGIN');
+                const fallbackMessage = "I'm here to listen. Sometimes the system is extra cautious. Could you rephrase that, or tell me more about how you're feeling today?";
+
+                const aiMessageResult = await client.query(
+                    'INSERT INTO AIChatMessages (entry_id, user_id, sender, content) VALUES ($1, $2, $3, $4) RETURNING *',
+                    [entryId, userId, 'assistant', fallbackMessage]
+                );
+
+                await client.query('COMMIT');
+                return res.status(201).json(aiMessageResult.rows[0]);
+            } catch (fallbackError) {
+                await client.query('ROLLBACK');
+                console.error('Fallback message error:', fallbackError);
             }
-            
-            // Return the specific error to client
+        }
+
+        // Return the specific error to client
+        if (error.code) {
             return res.status(500).json({
                 error: 'AI service error',
-                details: errorData.error_msg || 'Please try again',
-                code: errorData.error_code
+                details: error.details || 'Please try again',
+                code: error.code
             });
         }
-        
+
         res.status(500).json({ error: 'Server error', message: 'Failed to process message' });
     } finally {
         client.release();

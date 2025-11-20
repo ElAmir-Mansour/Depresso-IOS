@@ -8,7 +8,13 @@ import FirebaseCore // ✅ ADD THIS IMPORT
 struct DepressoApp: App {
 
     private static var container: ModelContainer = {
-        let schema = Schema()
+        let schema = Schema([
+            ChatMessage.self,
+            WellnessTask.self,
+            CommunityPost.self,
+            DailyAssessment.self,
+            JournalEntry.self
+        ])
         let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
         do {
             return try ModelContainer(for: schema, configurations: [configuration])

@@ -1,0 +1,58 @@
+Depresso
+/Users/elamir/Desktop/Depresso-IOS-main/Features/Support/SupportFeature.swift
+/Users/elamir/Desktop/Depresso-IOS-main/Features/Support/SupportFeature.swift:49:13 Will never be executed
+
+/Users/elamir/Desktop/Depresso-IOS-main/Features/Community/AddPostFeature.swift
+/Users/elamir/Desktop/Depresso-IOS-main/Features/Community/AddPostFeature.swift:68:52 Capture of 'newPost' with non-sendable type 'CommunityPost' in a '@Sendable' closure; this is an error in the Swift 6 language mode
+
+/Users/elamir/Desktop/Depresso-IOS-main/Features/Community/CommunityFeature.swift
+/Users/elamir/Desktop/Depresso-IOS-main/Features/Community/CommunityFeature.swift:52:49 Conformance of 'CommunityPost' to 'Sendable' is unavailable: PersistentModels are not Sendable, consider utilizing a ModelActor or use CommunityPost's persistentModelID instead; this is an error in the Swift 6 language mode
+
+/Users/elamir/Desktop/Depresso-IOS-main/Features/Community/CommunityFeature.swift:148:24 Capture of 'newPost' with non-sendable type 'CommunityPost' in a '@Sendable' closure; this is an error in the Swift 6 language mode
+
+/Users/elamir/Desktop/Depresso-IOS-main/Features/Community/CommunityFeature.swift:153:58 Implicit capture of 'newPost' requires that 'CommunityPost' conforms to 'Sendable'; this is an error in the Swift 6 language mode
+
+/Users/elamir/Desktop/Depresso-IOS-main/Features/Community/CommunityView.swift
+/var/folders/y_/778pc6zx20n81kg314ktfbm40000gn/T/swift-generated-sources/@__swiftmacro_8Depresso0024CommunityViewswift_ynAHffMX151_0_33_406A56F9A21189242E20BBD0DF08DF7CLl7PreviewfMf_.swift:37:53 No calls to throwing functions occur within 'try' expression
+
+/Users/elamir/Desktop/Depresso-IOS-main/Features/Community/CommunityView.swift:68:17 No 'async' operations occur within 'await' expression
+
+/Users/elamir/Desktop/Depresso-IOS-main/Features/Journal/AICompanionJournalFeature.swift
+/Users/elamir/Desktop/Depresso-IOS-main/Features/Journal/AICompanionJournalFeature.swift:103:53 Conformance of 'ChatMessage' to 'Sendable' is unavailable: PersistentModels are not Sendable, consider utilizing a ModelActor or use ChatMessage's persistentModelID instead; this is an error in the Swift 6 language mode
+
+/Users/elamir/Desktop/Depresso-IOS-main/Features/Journal/AICompanionJournalFeature.swift:165:37 Capture of 'userMessage' with non-sendable type 'ChatMessage' in a '@Sendable' closure; this is an error in the Swift 6 language mode
+
+/Users/elamir/Desktop/Depresso-IOS-main/Features/Journal/AICompanionJournalFeature.swift:175:19 Conformance of 'ChatMessage' to 'Sendable' is unavailable: PersistentModels are not Sendable, consider utilizing a ModelActor or use ChatMessage's persistentModelID instead; this is an error in the Swift 6 language mode
+
+/Users/elamir/Desktop/Depresso-IOS-main/Features/Journal/AICompanionJournalFeature.swift:175:36 Conformance of 'ChatMessage' to 'Sendable' is unavailable: PersistentModels are not Sendable, consider utilizing a ModelActor or use ChatMessage's persistentModelID instead; this is an error in the Swift 6 language mode
+
+/Users/elamir/Desktop/Depresso-IOS-main/Features/Journal/AICompanionJournalFeature.swift:192:54 Conformance of 'ChatMessage' to 'Sendable' is unavailable: PersistentModels are not Sendable, consider utilizing a ModelActor or use ChatMessage's persistentModelID instead; this is an error in the Swift 6 language mode
+
+/Users/elamir/Desktop/Depresso-IOS-main/Features/Journal/AICompanionJournalFeature.swift:252:32 Conformance of 'ChatMessage' to 'Sendable' is unavailable: PersistentModels are not Sendable, consider utilizing a ModelActor or use ChatMessage's persistentModelID instead; this is an error in the Swift 6 language mode
+
+/Users/elamir/Desktop/Depresso-IOS-main/Features/Journal/AICompanionJournalFeature.swift:252:49 Conformance of 'ChatMessage' to 'Sendable' is unavailable: PersistentModels are not Sendable, consider utilizing a ModelActor or use ChatMessage's persistentModelID instead; this is an error in the Swift 6 language mode
+
+/Users/elamir/Desktop/Depresso-IOS-main/Features/Journal/AICompanionJournalFeature.swift:267:67 Conformance of 'ChatMessage' to 'Sendable' is unavailable: PersistentModels are not Sendable, consider utilizing a ModelActor or use ChatMessage's persistentModelID instead; this is an error in the Swift 6 language mode
+
+/Users/elamir/Desktop/Depresso-IOS-main/Features/Journal/AICompanionJournalFeature.swift:357:19 Case is already handled by previous patterns; consider removing it
+
+/Users/elamir/Desktop/Depresso-IOS-main/Features/Journal/JournalView.swift
+/Users/elamir/Desktop/Depresso-IOS-main/Features/Journal/JournalView.swift:66:13 No 'async' operations occur within 'await' expression
+
+/Users/elamir/Desktop/Depresso-IOS-main/Features/Dashboard/DailyAssessmentFeature.swift
+/Users/elamir/Desktop/Depresso-IOS-main/Features/Dashboard/DailyAssessmentFeature.swift:77:63 Capture of 'assessment' with non-sendable type 'DailyAssessment' in a '@Sendable' closure; this is an error in the Swift 6 language mode
+
+/Users/elamir/Desktop/Depresso-IOS-main/Features/Dashboard/DashboardFeature.swift
+/Users/elamir/Desktop/Depresso-IOS-main/Features/Dashboard/DashboardFeature.swift:158:87 Capture of 'history' with non-sendable type '[DailyAssessment]' in a '@Sendable' closure; this is an error in the Swift 6 language mode
+
+/Users/elamir/Desktop/Depresso-IOS-main/Features/Dashboard/DashboardView.swift
+/var/folders/y_/778pc6zx20n81kg314ktfbm40000gn/T/swift-generated-sources/@__swiftmacro_8Depresso0024DashboardViewswift_ynAHffMX401_0_33_29F50AF82BF9B032F71DC85F79676932Ll7PreviewfMf_.swift:50:53 No calls to throwing functions occur within 'try' expression
+
+/Users/elamir/Desktop/Depresso-IOS-main/Features/Dashboard/Core/Health/HealthKitManager.swift
+/Users/elamir/Desktop/Depresso-IOS-main/Features/Dashboard/Core/Health/HealthKitManager.swift:308:48 Conditional cast from 'HKCategorySample' to 'HKCategorySample' always succeeds
+
+/Users/elamir/Desktop/Depresso-IOS-main/Features/Dashboard/Core/AI/AIClient.swift
+/Users/elamir/Desktop/Depresso-IOS-main/Features/Dashboard/Core/AI/AIClient.swift:49:57 Cast from '(any Part)?' to unrelated type 'String' always fails
+
+/Users/elamir/Desktop/Depresso-IOS-main/App/ContentView.swift
+/Users/elamir/Desktop/Depresso-IOS-main/App/ContentView.swift:32:17 No 'async' operations occur within 'await' expression

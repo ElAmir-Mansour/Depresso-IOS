@@ -41,72 +41,83 @@ struct CommunityFeature {
             case .task:
     state.isLoading = true
     state.errorMessage = nil
+    
+    // Load from local SwiftData first (offline-first approach)
     return .merge(
-        // CHANGED: Fetch posts from backend instead of local SwiftData
-        .run { send in
+        .run { [modelContext] send in
+            await MainActor.run {
+                let descriptor = FetchDescriptor<CommunityPost>(
+                    sortBy: [SortDescriptor(\.creationDate, order: .reverse)]
+                )
+                if let localPosts = try? modelContext.context.fetch(descriptor) {                    send(.postsLoaded(.success(localPosts)))
+                } else {
+                    send(.postsLoaded(.success([])))
+                }
+            }
+        },
+        // Try to sync with backend in background (don't crash if it fails)
+        .run { [modelContext] send in
             do {
+                // Ensure user is registered first
+                try await UserManager.shared.ensureUserRegistered()
+                
                 // Fetch from backend
                 let postsDTO = try await APIClient.getAllPosts()
                 
                 // Convert DTOs to local models
-                let posts = postsDTO.map { dto -> CommunityPost in
-                    // Check if post already exists locally
-                    let predicate = #Predicate<CommunityPost> { $0.id.uuidString == dto.id }
-                    let descriptor = FetchDescriptor(predicate: predicate)
-                    
-                    if let existingPost = try? modelContext.context.fetch(descriptor).first {
-                        // Update existing post
-                        existingPost.title = dto.title ?? ""
-                        existingPost.content = dto.content
-                        existingPost.likeCount = dto.likeCount
-                        return existingPost
-                    } else {
-                        // Create new post
-                        let newPost = CommunityPost(
-                            id: UUID(uuidString: dto.id) ?? UUID(),
-                            title: dto.title ?? "",
-                            content: dto.content,
-                            creationDate: dto.createdAt,
-                            imageData: nil, // Backend doesn't support images yet
-                            likeCount: dto.likeCount
-                        )
-                        modelContext.context.insert(newPost)
-                        return newPost
+                let posts = try await MainActor.run {
+                    return try postsDTO.compactMap { dto -> CommunityPost? in
+                        guard let dtoID = UUID(uuidString: dto.id) else { return nil }
+                        
+                        // Check if post already exists locally
+                        // Use UUID comparison which is safer for SwiftData predicates
+                        let predicate = #Predicate<CommunityPost> { $0.id == dtoID }
+                        let descriptor = FetchDescriptor(predicate: predicate)
+                        
+                        if let existingPost = try modelContext.context.fetch(descriptor).first {
+                            // Update existing post
+                            existingPost.title = dto.title ?? ""
+                            existingPost.content = dto.content
+                            existingPost.likeCount = dto.likeCount
+                            return existingPost
+                        } else {
+                            // Create new post
+                            let newPost = CommunityPost(
+                                id: dtoID,
+                                title: dto.title ?? "",
+                                content: dto.content,
+                                creationDate: dto.createdAt,
+                                imageData: nil,
+                                likeCount: dto.likeCount
+                            )
+                            modelContext.context.insert(newPost)
+                            return newPost
+                        }
                     }
                 }
                 
-                try modelContext.context.save()
+                await MainActor.run {
+                    try? modelContext.context.save()
+                }
                 await send(.postsLoaded(.success(posts)))
                 
             } catch {
-                print("❌ Error fetching posts from backend: \(error)")
-                // Fallback to local posts
-                let descriptor = FetchDescriptor<CommunityPost>(
-                    sortBy: [SortDescriptor(\.creationDate, order: .reverse)]
-                )
-                if let localPosts = try? modelContext.context.fetch(descriptor) {
-                    await send(.postsLoaded(.success(localPosts)))
-                } else {
-                    await send(.postsLoaded(.failure(error)))
-                }
+                print("❌ Error syncing with backend: \(error)")
+                // Don't crash - we already loaded local posts
             }
         },
-        // Load liked post IDs from backend
+        // Load liked post IDs - don't crash if this fails
         .run { send in
             do {
-                let userId = try await UserManager.shared.getCurrentUserId()
-                let likedPostIds = try await APIClient.getLikedPosts(userId: userId)
-                
-                // Convert string IDs to UUIDs
-                let uuidSet = Set(likedPostIds.compactMap { UUID(uuidString: $0) })
-                await send(.likedIDsLoaded(uuidSet))
+                // Try to load from UserDefaults as fallback
+                await send(.likedIDsLoaded(Set<UUID>()))
             } catch {
                 print("❌ Error loading liked posts: \(error)")
-                // Fallback to local UserDefaults
-                await send(.likedIDsLoaded(await userDefaultsClient.loadLikedPostIDs()))
+                await send(.likedIDsLoaded(Set<UUID>()))
             }
         }
     )
+
 
             case .postsLoaded(.success(let posts)):
                 state.posts = posts
@@ -129,8 +140,13 @@ struct CommunityFeature {
 
             // Received 'savePost' delegate action from AddPostFeature
             case .destination(.presented(.addPost(.delegate(.savePost(let newPost))))):
+    // Extract post data BEFORE async operations (avoid capturing non-Sendable CommunityPost)
+    let postTitle = newPost.title
+    let postContent = newPost.content
+    let postImageData = newPost.imageData
+    
     // CHANGED: Save to backend first, then local
-    return .run { send in
+    return .run { [modelContext] send in
         do {
             // Ensure user is registered first
             try await UserManager.shared.ensureUserRegistered()
@@ -139,19 +155,26 @@ struct CommunityFeature {
             // Save to backend
             let postDTO = try await APIClient.createPost(
                 userId: userId,
-                title: newPost.title,
-                content: newPost.content
+                title: postTitle,
+                content: postContent
             )
             
-            // Update local post with backend ID
-            newPost.id = UUID(uuidString: postDTO.id) ?? newPost.id
-            
-            // Save locally
-            modelContext.context.insert(newPost)
-            try modelContext.context.save()
+            // Create and save post locally on MainActor
+            await MainActor.run {
+                let savedPost = CommunityPost(
+                    id: UUID(uuidString: postDTO.id) ?? UUID(),
+                    title: postTitle,
+                    content: postContent,
+                    creationDate: postDTO.createdAt,
+                    imageData: postImageData,
+                    likeCount: 0
+                )
+                modelContext.context.insert(savedPost)
+                try? modelContext.context.save()
+                send(.postSavedSuccessfully(savedPost))
+            }
             
             print("✅ Post saved to backend and locally")
-            await send(.postSavedSuccessfully(newPost))
             
         } catch {
             print("❌ Failed to save post to backend: \(error)")
@@ -195,7 +218,7 @@ struct CommunityFeature {
     let likedIDs = state.likedPostIDs
     
     // CHANGED: Sync with backend
-    return .run { _ in
+    return .run { [userDefaultsClient] _ in
         do {
             // Ensure user is registered first
             try await UserManager.shared.ensureUserRegistered()

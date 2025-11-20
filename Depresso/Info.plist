@@ -11,5 +11,11 @@
 	<string>Depresso needs access to your health data to provide personalized mental health insights, track your wellness journey, and detect patterns that may affect your mood.</string>
 	<key>NSHealthUpdateUsageDescription</key>
 	<string>Depresso will sync your health metrics to provide better mental health analysis and personalized recommendations.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>We need access to your microphone to let you dictate your journal entries.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>We need speech recognition to convert your voice into text for your journal.</string>
+	<key>NSMotionUsageDescription</key>
+	<string>Depresso uses device motion to analyze your movement patterns and provide insights into your wellbeing.</string>
 </dict>
 </plist>

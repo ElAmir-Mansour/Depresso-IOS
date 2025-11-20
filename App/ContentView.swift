@@ -29,7 +29,7 @@ struct ContentView: View {
                 }
             }
             .task {
-                await viewStore.send(.task).finish()
+                viewStore.send(.task)
             }
         }
     }
