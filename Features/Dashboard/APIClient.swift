@@ -7,7 +7,7 @@ import ComposableArchitecture
 enum APIConfig {
   //   static let baseURL = "http://localhost:3000/api/v1"
     // When testing on physical device, use your Mac's IP:
-   static let baseURL = "http://192.168.1.11:3000/api/v1"
+   static let baseURL = "http://192.168.1.2:3000/api/v1"
 }
 
 // MARK: - API Errors
@@ -51,8 +51,12 @@ struct APIClient {
             request.httpBody = try JSONEncoder().encode(body)
         }
         
-        // Step 4: Make the network call
-        let (data, response) = try await URLSession.shared.data(for: request)
+        // Step 4: Make the network call with timeout
+        let configuration = URLSessionConfiguration.default
+        configuration.timeoutIntervalForRequest = 30
+        configuration.timeoutIntervalForResource = 60
+        let session = URLSession(configuration: configuration)
+        let (data, response) = try await session.data(for: request)
         
         // Step 5: Check response status
         guard let httpResponse = response as? HTTPURLResponse else {
@@ -309,6 +313,53 @@ body: Request(userId: userId)
             body: Request(name: name, avatarUrl: avatarUrl, bio: bio)
         )
     }
+    
+    // MARK: - Analytics
+    static func trackAnalytics(userId: String, eventType: String, postId: String?) async throws {
+        struct Request: Codable {
+            let userId: String
+            let eventType: String
+            let postId: String?
+        }
+        
+        let _: EmptyResponse = try await request(
+            endpoint: "/metrics/analytics",
+            method: .post,
+            body: Request(userId: userId, eventType: eventType, postId: postId)
+        )
+    }
+    
+    // MARK: - Research
+    static func submitResearchEntry(
+        userId: String,
+        promptId: String,
+        content: String,
+        sentimentLabel: String,
+        tags: [String],
+        metadata: ResearchMetadataDTO
+    ) async throws {
+        struct Request: Codable {
+            let userId: String
+            let promptId: String
+            let content: String
+            let sentimentLabel: String
+            let tags: [String]
+            let metadata: ResearchMetadataDTO
+        }
+        
+        let _: EmptyResponse = try await request(
+            endpoint: "/research/entries",
+            method: .post,
+            body: Request(
+                userId: userId,
+                promptId: promptId,
+                content: content,
+                sentimentLabel: sentimentLabel,
+                tags: tags,
+                metadata: metadata
+            )
+        )
+    }
 }
 
 // MARK: - Data Transfer Objects (DTOs)
@@ -417,4 +468,11 @@ struct UserProfileDTO: Codable {
         case createdAt = "created_at"
         case updatedAt = "updated_at"
     }
+}
+
+struct ResearchMetadataDTO: Codable {
+    let typingSpeed: Double
+    let sessionDuration: Double
+    let timeOfDay: String
+    let deviceModel: String
 }

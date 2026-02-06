@@ -65,7 +65,7 @@ struct AICompanionJournalFeature {
           }
       }
 
-      @Dependency(\.aiClient) var aiClient
+
       @Dependency(\.backendAIClient) var backendAIClient
       @Dependency(\.motionClient) var motionClient
       @Dependency(\.speechClient) var speechClient // Added dependency

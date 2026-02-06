@@ -14,10 +14,10 @@ extension BackendAIClient: DependencyKey {
         let generateResponse: @Sendable (_ history: [ModelContent], _ prompt: String, _ systemPrompt: String?) async throws -> String = { history, prompt, systemPrompt in
             
             // EXPLANATION:
-            // Instead of calling Huawei API directly, we'll:
+            // Instead of calling External AI APIs directly from the client, we:
             // 1. Create a journal entry on backend
             // 2. Send the user's message
-            // 3. Backend handles AI call and returns response
+            // 3. Backend handles the Google Vertex/Gemini AI call and returns response
             
             do {
                 // Ensure user is registered first
@@ -32,7 +32,7 @@ extension BackendAIClient: DependencyKey {
                 // Step 2: Send message to backend
                 // Backend will:
                 // - Save user message
-                // - Call Qwen API
+                // - Call Google Gemini 1.5 Flash (or Gemma if configured)
                 // - Save AI response
                 // - Return AI response to us
                 let aiMessage = try await APIClient.addMessageToEntry(

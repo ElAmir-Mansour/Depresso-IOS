@@ -45,12 +45,14 @@ struct ContentView: View {
                 case 1:
                     NavigationStack {
                         JournalView(store: store.scope(state: \.journalState, action: \.journal))
-                            .padding(.bottom, keyboardHeight == 0 ? 80 : 0)
                     }
                 case 2:
                     CommunityView(store: store.scope(state: \.communityState, action: \.community))
                         .padding(.bottom, 80) // Space for tab bar
                 case 3:
+                    ResearchDashboardView(store: store.scope(state: \.communityState, action: \.community))
+                        .padding(.bottom, 80) // Space for tab bar
+                case 4:
                     SupportView(store: store.scope(state: \.supportState, action: \.support))
                         .padding(.bottom, 80) // Space for tab bar
                 default:

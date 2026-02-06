@@ -5,12 +5,12 @@
 ![iOS](https://img.shields.io/badge/iOS-15.0+-blue.svg)
 ![Swift](https://img.shields.io/badge/Swift-5.9-orange.svg)
 ![Node.js](https://img.shields.io/badge/Node.js-18+-green.svg)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-14+-blue.svg)
 ![License](https://img.shields.io/badge/License-MIT-green.svg)
-![Huawei Cloud](https://img.shields.io/badge/Powered%20by-Huawei%20Cloud-red.svg)
 
-**An intelligent iOS application for depression detection, monitoring, and support using HealthKit integration and Huawei Cloud AI services.**
+**An intelligent iOS application for mental health research, depression monitoring, and AI-powered support using Google Gemini AI and comprehensive data analytics.**
 
-[Features](#-features) • [Architecture](#️-architecture) • [Installation](#-installation) • [Demo](#-demo) • [Contributing](#-contributing)
+[Features](#-features) • [Architecture](#️-architecture) • [Installation](#-installation) • [API Docs](API_DOCUMENTATION.md) • [Deployment](DEPLOYMENT_GUIDE.md)
 
 </div>
 
@@ -18,15 +18,16 @@
 
 ## 📱 Overview
 
-**Depresso** is a comprehensive mental health companion app built for the Huawei Cloud Developer Competition. It leverages Apple HealthKit data and Huawei Cloud AI services (Qwen) to provide personalized mental health insights, support, and tracking.
+**Depresso** is a comprehensive mental health research platform combining an iOS app with a powerful backend and analytics dashboard. It uses **Google Gemini AI** for intelligent journal responses, HealthKit integration for holistic health tracking, and provides researchers with real-time analytics through a beautiful dark-themed dashboard.
 
 ### 🎯 Key Highlights
-- ✅ **Validated Assessment**: PHQ-8 questionnaire for depression screening
-- ✅ **10+ Health Metrics**: Real-time tracking via HealthKit
-- ✅ **Huawei Qwen AI**: Advanced conversational AI for journaling
-- ✅ **Community Support**: Safe, anonymous sharing platform
-- ✅ **Progress Tracking**: Streaks, insights, and goal management
-- ✅ **Beautiful UI**: Modern SwiftUI design with custom animations
+- ✅ **Gemini AI Integration**: Advanced conversational AI with RAG for empathetic journal responses
+- ✅ **Research Dashboard**: Dark-themed analytics platform with real-time data visualization
+- ✅ **PHQ-8 Assessment**: Validated depression screening questionnaire
+- ✅ **10+ Health Metrics**: Real-time tracking via Apple HealthKit
+- ✅ **Research Lab**: Mood tracking with cognitive distortion analysis
+- ✅ **Community Support**: Anonymous sharing platform with moderation
+- ✅ **Modern Architecture**: SwiftUI + TCA (iOS), Node.js/Express + PostgreSQL (Backend)
 
 ---
 
@@ -47,449 +48,345 @@
 
 **Real-time Sync**: Automatic background updates with privacy-first approach
 
-### 🤖 AI-Powered Insights (Huawei Cloud)
-**Qwen AI Integration:**
-- 💬 Intelligent journal responses with emotional awareness
-- 🎭 Mood pattern analysis and visualization
-- 📝 Personalized mental health recommendations
-- 🚨 Crisis detection with immediate support resources
-- 🧠 Context-aware conversations leveraging health data
+### 🤖 AI-Powered Journal (Google Gemini)
+**Intelligent Conversational Companion:**
+- 💬 Natural conversations powered by **Gemini 2.5 Flash**
+- 🧠 Contextual understanding with conversation history
+- ❤️ Empathetic, therapeutic responses
+- 🔒 Privacy-focused: All data encrypted
+- ⚡ Real-time responses with 30s timeout
+- 📝 CBT distortion detection and analysis
 
-**Depression Risk Analysis:**
-- Combines PHQ-8 scores with health metrics
-- ML-based risk assessment (Huawei ModelArts ready)
-- Weekly trend analysis and predictions
+### 🔬 Research Lab
+**Evidence-Based Mood Tracking:**
+- 📋 Daily research prompts
+- 😊 Sentiment analysis (Positive/Neutral/Negative)
+- 🏷️ Custom tagging system
+- 🧠 CBT cognitive distortion tracking
+- 📈 Longitudinal data collection
+- 🌈 Rich text input with emoji support
 
-### 📊 Dashboard & Analytics
-**Beautiful Visualizations:**
-- 📈 Interactive charts for health trends
-- 🔥 Streak tracking with milestone rewards
-- 📅 Weekly progress summaries
-- ⚡ Quick stats widgets
-- 🎯 Goal progress indicators
-- 💡 AI-generated weekly insights
+### 📊 Research Analytics Dashboard
+**Real-Time Data Visualization:**
+- 🌙 **Dark cyberpunk theme** with glassmorphism
+- 📈 Interactive Chart.js visualizations
+- 👥 User demographics and engagement metrics
+- 😊 Sentiment analysis over time
+- 🧠 CBT distortion frequency and trends
+- 📋 PHQ-8 assessment distribution
+- 📥 CSV data export functionality
+- 🔄 Auto-refresh every 30 seconds
 
-### 💬 Journal & Community
-**AI Chat Journal:**
-- Private conversations with Qwen AI
-- Mood tracking and pattern recognition
-- Secure, encrypted storage
-- Export capabilities
+**Access Dashboard**: `http://localhost:3001`
 
-**Community Features:**
-- Anonymous posting system
-- Upvote/comment functionality
-- Content moderation
-- Supportive environment guidelines
+### 📋 PHQ-8 Depression Assessment
+**Clinically Validated Screening:**
+- ✅ 8 scientifically validated questions
+- 📊 Severity scoring (None/Mild/Moderate/Severe)
+- 📈 Historical score tracking
+- 🎯 Personalized insights based on results
+- 🔔 Anonymous data for research purposes
 
-### 🎯 Goals & Support
-**Goal Management:**
-- Customizable wellness goals
-- Progress tracking and reminders
-- Achievement system
-- Personalized suggestions
+### 👥 Community Support
+**Safe Anonymous Sharing:**
+- 💭 Share experiences anonymously
+- 👍 Like and comment on posts
+- 🚫 Report inappropriate content
+- 👮 Moderator review system
+- 🔒 Privacy-preserving architecture
 
-**Support Resources:**
-- Crisis hotlines (international)
-- Professional help finder
-- Educational content
-- Self-care tips
+### 📈 Progress Tracking
+**Holistic Wellness Monitoring:**
+- 🔥 Daily streaks and achievements
+- 📊 Mood trends visualization
+- 🎯 Personalized goal setting
+- 🏆 Milestone celebrations
+- 📅 Activity calendar
 
 ---
 
 ## 🏗️ Architecture
 
 ### System Overview
-
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                        iOS App (Swift)                       │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐   │
-│  │Dashboard │  │ Journal  │  │Community │  │   PHQ8   │   │
-│  └────┬─────┘  └────┬─────┘  └────┬─────┘  └────┬─────┘   │
-│       │             │              │             │          │
-│  ┌────┴─────────────┴──────────────┴─────────────┴─────┐   │
-│  │           Backend API Client (HTTP)                  │   │
-│  └──────────────────────────┬───────────────────────────┘   │
-│  ┌──────────────────────────┴───────────────────────────┐   │
-│  │              HealthKit Manager                       │   │
-│  └──────────────────────────────────────────────────────┘   │
-└─────────────────────────────────────────────────────────────┘
-                               │
-                               │ HTTPS/REST
-                               ▼
-┌─────────────────────────────────────────────────────────────┐
-│                 Backend (Node.js + Express)                  │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐   │
-│  │   Auth   │  │ Journal  │  │Community │  │  PHQ8    │   │
-│  │  Routes  │  │  Routes  │  │  Routes  │  │  Routes  │   │
-│  └────┬─────┘  └────┬─────┘  └────┬─────┘  └────┬─────┘   │
-│       │             │              │             │          │
-│  ┌────┴─────────────┴──────────────┴─────────────┴─────┐   │
-│  │            PostgreSQL Database (Cloud)               │   │
-│  └──────────────────────────────────────────────────────┘   │
-│  ┌──────────────────────────────────────────────────────┐   │
-│  │         Huawei AI Service Integration                │   │
-│  └────────────────────────┬─────────────────────────────┘   │
-└────────────────────────────┼─────────────────────────────────┘
-                             │ API Call
-                             ▼
-┌─────────────────────────────────────────────────────────────┐
-│                    Huawei Cloud Services                     │
-│  ┌──────────────────────────────────────────────────────┐   │
-│  │  Qwen AI (ModelArts) - Conversational Intelligence  │   │
-│  └──────────────────────────────────────────────────────┘   │
-│  ┌──────────────────────────────────────────────────────┐   │
-│  │  Agent App Dev - ML Model Integration (Future)      │   │
-│  └──────────────────────────────────────────────────────┘   │
-└─────────────────────────────────────────────────────────────┘
+┌─────────────────┐
+│   iOS App       │
+│   (SwiftUI)     │
+│                 │
+│  - TCA State    │
+│  - HealthKit    │
+│  - Core Data    │
+└────────┬────────┘
+         │ HTTP/REST
+         ↓
+┌─────────────────┐      ┌──────────────┐
+│  Node.js API    │─────→│  PostgreSQL  │
+│  (Express)      │      │   Database   │
+│                 │      └──────────────┘
+│  - Auth         │
+│  - Research     │      ┌──────────────┐
+│  - Journal      │─────→│  Gemini API  │
+│  - Community    │      │  (AI/RAG)    │
+└────────┬────────┘      └──────────────┘
+         │
+         ↓
+┌─────────────────┐
+│   Dashboard     │
+│   (HTML/JS)     │
+│                 │
+│  - Chart.js     │
+│  - Real-time    │
+│  - Dark Theme   │
+└─────────────────┘
 ```
 
-### iOS App Structure
-```
-Depresso-iOS/
-├── App/
-│   ├── DepressoApp.swift          # Main app entry point
-│   └── AppState.swift              # Global state management
-├── Features/
-│   ├── Dashboard/
-│   │   ├── DashboardView.swift
-│   │   ├── DashboardFeature.swift
-│   │   ├── HealthMetric.swift
-│   │   ├── StreakCounter.swift
-│   │   └── Core/                   # Design system components
-│   ├── Journal/
-│   │   ├── JournalView.swift
-│   │   ├── JournalFeature.swift
-│   │   └── MessageView.swift
-│   ├── Community/
-│   │   ├── CommunityView.swift
-│   │   └── CommunityFeature.swift
-│   ├── Goals/
-│   │   ├── GoalsView.swift
-│   │   └── GoalsFeature.swift
-│   ├── PHQ8/
-│   │   ├── PHQ8View.swift
-│   │   └── PHQ8Feature.swift
-│   └── Support/
-│       └── SupportView.swift
-├── Depresso/
-│   ├── Services/
-│   │   ├── HealthKitManager.swift
-│   │   └── BackendClient.swift
-│   ├── Models/
-│   │   ├── HealthData.swift
-│   │   ├── JournalEntry.swift
-│   │   └── CommunityPost.swift
-│   └── Clients/
-│       └── APIClient.swift
-└── Resources/
-    ├── Assets.xcassets
-    └── GoogleService-Info.plist
-```
+### Tech Stack
 
-### Backend Structure
-```
-depresso-backend/
-├── routes/
-│   ├── auth.js                    # User authentication
-│   ├── journal.js                 # Journal CRUD operations
-│   ├── community.js               # Community posts management
-│   ├── phq8.js                   # PHQ-8 assessment
-│   └── aiChat.js                 # Huawei Qwen AI integration
-├── services/
-│   ├── huaweiAI.js               # Huawei Cloud API wrapper
-│   └── depressionAnalysis.js     # ML model integration (future)
-├── models/
-│   ├── User.js
-│   ├── JournalEntry.js
-│   └── CommunityPost.js
-├── middleware/
-│   └── auth.js
-├── .env                           # Environment configuration
-├── package.json
-└── server.js                      # Main server file
-```
+**iOS Application**
+- **Language**: Swift 5.9
+- **UI Framework**: SwiftUI
+- **Architecture**: The Composable Architecture (TCA)
+- **Persistence**: Core Data
+- **Health Data**: HealthKit
+- **Networking**: URLSession with custom APIClient
 
-### Technology Stack
+**Backend Server**
+- **Runtime**: Node.js 18+
+- **Framework**: Express.js
+- **Database**: PostgreSQL 14+
+- **AI Service**: Google Gemini API (gemini-2.5-flash)
+- **Security**: bcrypt, input validation
 
-**iOS App:**
-- Swift 5.9 / SwiftUI
-- ComposableArchitecture (TCA) for state management
-- HealthKit for health data
-- Firebase Analytics
-- Combine framework
+**Research Dashboard**
+- **Frontend**: Vanilla HTML/CSS/JavaScript
+- **Charts**: Chart.js 4.4
+- **Server**: Express (port 3001)
+- **Design**: Dark theme with glassmorphism
 
-**Backend:**
-- Node.js 18+ / Express.js
-- PostgreSQL (Cloud or Local)
-- Huawei Cloud Qwen API
-- JWT authentication
-- CORS enabled
-
-**Huawei Cloud Services:**
-- Qwen AI (ModelArts) - Conversational AI
-- Agent App Dev - ML model deployment (ready for integration)
-- Cloud hosting capabilities
+See [ARCHITECTURE.md](ARCHITECTURE.md) for detailed system design.
 
 ---
 
-## 🚀 Installation
+## 📥 Installation
 
 ### Prerequisites
-- macOS Monterey or later
-- Xcode 15.0+
-- iOS 15.0+ device or simulator
-- Node.js 18+ and npm
-- PostgreSQL database
-- Huawei Cloud account with Qwen API access
+- **iOS Development**:
+  - Xcode 15.0+
+  - iOS 15.0+ device/simulator
+  - Apple Developer account
+  
+- **Backend**:
+  - Node.js 18+
+  - PostgreSQL 14+
+  - Google Gemini API key
 
-### 1️⃣ Clone Repository
+### Quick Start
+
+#### 1. Clone Repository
 ```bash
 git clone https://github.com/ElAmir-Mansour/Depresso-IOS.git
 cd Depresso-IOS
 ```
 
-### 2️⃣ Backend Setup
-
-#### Install Dependencies
+#### 2. Backend Setup
 ```bash
 cd depresso-backend
+
+# Install dependencies
 npm install
-```
 
-#### Configure Environment
-Create `.env` file:
-```env
-PORT=3000
-DB_USER=your_db_user
-DB_HOST=your_db_host
-DB_DATABASE=your_db_name
-DB_PASSWORD=your_db_password
-DB_PORT=5432
+# Setup environment variables
+cp .env.example .env
+# Edit .env and add:
+# - GEMINI_API_KEY=your_gemini_api_key
+# - DB_* credentials
 
-# Huawei Cloud Configuration
-HUAWEI_API_KEY=your_qwen_api_key
-HUAWEI_API_SECRET=your_api_secret
-HUAWEI_REGION=ap-southeast-1
-HUAWEI_PROJECT_ID=your_project_id
+# Run database migrations
+psql -U postgres -d depresso_db -f migrations/001_initial_schema.sql
+# ... run all migrations in order
 
-# Optional: ModelArts Integration
-MODELARTS_API_ENDPOINT=your_endpoint
-HUAWEI_AUTH_TOKEN=your_auth_token
-
-# Server Configuration
-NODE_ENV=development
-```
-
-#### Start Server
-```bash
-npm start
+# Start backend server
+npm run dev
 # Server runs on http://localhost:3000
 ```
 
-### 3️⃣ iOS App Setup
-
-#### Install Dependencies
-Open Xcode and resolve Swift Package Manager dependencies:
-- File → Packages → Resolve Package Versions
-
-**Required Packages:**
-- ComposableArchitecture
-- Firebase SDK
-
-#### Configure Backend URL
-Update `BackendClient.swift`:
-```swift
-// For simulator (local development)
-private let baseURL = "http://localhost:3000"
-
-// For physical device (replace with your Mac's IP)
-private let baseURL = "http://192.168.1.XXX:3000"
-```
-
-To find your Mac's IP:
+#### 3. Dashboard Setup
 ```bash
-ipconfig getifaddr en0
+# In depresso-backend directory
+node dashboard-server.js
+# Dashboard runs on http://localhost:3001
 ```
 
-#### Configure Firebase (Optional)
-Add your `GoogleService-Info.plist` to the project root.
+#### 4. iOS App Setup
+```bash
+# Open Xcode project
+open Depresso.xcodeproj
 
-#### Build and Run
-1. Open `Depresso.xcodeproj` in Xcode
-2. Select your target device
-3. Press `Cmd + R` to build and run
+# Update APIClient.swift with your Mac's IP
+# File: Features/Dashboard/APIClient.swift
+# Line 10: static let baseURL = "http://YOUR_MAC_IP:3000/api/v1"
 
-### 4️⃣ Add Files to Xcode (If Needed)
-If you see missing file errors:
-1. Right-click on project folder → "Add Files to Depresso"
-2. Select missing files from `Features/` directory
-3. Ensure "Copy items if needed" is checked
-4. Add to Depresso target
+# Run on device/simulator
+# Cmd + R
+```
 
----
-
-## 🎮 Usage
-
-### First Launch
-1. **PHQ-8 Assessment**: Complete the initial depression screening
-2. **HealthKit Permissions**: Grant access to health data
-3. **Dashboard**: View your health metrics and insights
-4. **Journal**: Start conversing with AI for emotional support
-
-### Daily Use
-- **Morning**: Check your streak and daily goals
-- **Throughout Day**: Log mood and activities
-- **Evening**: Review progress and journal reflections
-- **Weekly**: View AI-generated insights and trends
-
-### Features Guide
-
-**Dashboard:**
-- View real-time health metrics
-- Track daily streaks
-- See weekly progress summaries
-- Access quick actions
-
-**Journal:**
-- Chat with Qwen AI about your feelings
-- AI analyzes patterns and provides support
-- Review past entries
-- Export journal data
-
-**Community:**
-- Share experiences anonymously
-- Support others through comments
-- Upvote helpful posts
-- Report inappropriate content
-
-**Goals:**
-- Set personalized wellness targets
-- Track progress with visual indicators
-- Receive AI-powered recommendations
-- Celebrate achievements
-
-**Support:**
-- Access crisis hotlines
-- Find professional help
-- Learn about mental health
-- Get self-care tips
+See [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) for detailed instructions.
 
 ---
 
-## 📊 PHQ-8 Assessment
+## 🔑 Environment Variables
 
-The Patient Health Questionnaire-8 (PHQ-8) is a validated tool for depression screening:
+Create `depresso-backend/.env`:
+```env
+# Google Gemini AI
+GEMINI_API_KEY=your_gemini_api_key_here
+GEMINI_MODEL=gemini-2.5-flash
 
-**Scoring:**
-- 0-4: Minimal depression
-- 5-9: Mild depression
-- 10-14: Moderate depression
-- 15-19: Moderately severe depression
-- 20-24: Severe depression
+# Database
+DB_USER=postgres
+DB_HOST=localhost
+DB_DATABASE=depresso_db
+DB_PASSWORD=your_password
+DB_PORT=5432
 
-**Note**: This is a screening tool, not a diagnostic instrument. Always consult healthcare professionals.
-
----
-
-## 🔐 Privacy & Security
-
-- **End-to-End Encryption**: All health data is encrypted
-- **Local Storage**: Sensitive data stored locally with Keychain
-- **Anonymous Community**: No personal identifiers in posts
-- **HIPAA Compliant**: Following healthcare privacy standards
-- **Data Ownership**: Users control their data export/deletion
-
----
-
-## 🤝 Contributing
-
-We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
-
-### Development Workflow
-1. Fork the repository
-2. Create feature branch: `git checkout -b feature/amazing-feature`
-3. Commit changes: `git commit -m 'Add amazing feature'`
-4. Push to branch: `git push origin feature/amazing-feature`
-5. Open Pull Request
-
-### Code Standards
-- Follow Swift style guide
-- Write unit tests for new features
-- Update documentation
-- Run linters before committing
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License - see [LICENSE](LICENSE) file.
-
----
-
-## 🏆 Huawei Cloud Integration
-
-This project is built for the **Huawei Cloud Developer Competition** and showcases:
-
-### Current Integrations
-✅ **Qwen AI (ModelArts)**: Advanced conversational AI for mental health support
-✅ **Cloud Infrastructure**: Scalable backend deployment
-✅ **API Gateway**: Secure service communication
-
-### Future Enhancements
-🔜 **Agent App Dev**: Custom ML agents for depression prediction
-🔜 **ModelArts**: Train custom models on health + mood data
-🔜 **Function Graph**: Serverless background processing
-🔜 **OBS**: Secure data storage and backup
-
-### Technical Benefits
-- **Low Latency**: AP-Southeast region deployment
-- **High Availability**: 99.9% uptime SLA
-- **Cost Efficient**: Pay-as-you-go model
-- **Scalable**: Auto-scaling capabilities
-
----
-
-## 📞 Support & Contact
-
-- **Issues**: [GitHub Issues](https://github.com/ElAmir-Mansour/Depresso-IOS/issues)
-- **Email**: support@depresso-app.com
-- **Documentation**: [Wiki](https://github.com/ElAmir-Mansour/Depresso-IOS/wiki)
-
----
-
-## 🙏 Acknowledgments
-
-- **Huawei Cloud**: For providing AI services and infrastructure
-- **Apple HealthKit**: For comprehensive health data access
-- **PHQ-8**: Developed by Pfizer Inc.
-- **Open Source Community**: For amazing tools and libraries
+# Server
+PORT=3000
+```
 
 ---
 
 ## 📸 Screenshots
 
-<div align="center">
+### iOS App
+- **Journal AI**: Chat with empathetic Gemini AI
+- **Research Lab**: Daily mood tracking with rich prompts
+- **Dashboard**: Health metrics from HealthKit
+- **PHQ-8**: Depression screening assessment
+- **Community**: Share and connect anonymously
 
-| Dashboard | Journal | Community | PHQ-8 |
-|-----------|---------|-----------|-------|
-| ![Dashboard](docs/screenshots/dashboard.png) | ![Journal](docs/screenshots/journal.png) | ![Community](docs/screenshots/community.png) | ![PHQ8](docs/screenshots/phq8.png) |
-
-</div>
+### Research Dashboard
+- **Dark Theme**: Modern cyberpunk aesthetic
+- **Overview**: Real-time stats (users, entries, assessments)
+- **CBT Analysis**: Cognitive distortion tracking
+- **Sentiment**: Mood trends over time
+- **Export**: Download CSV data
 
 ---
 
-## 🔄 Changelog
+## 🔌 API Documentation
 
-See [CHANGELOG.md](CHANGELOG.md) for version history and updates.
+### Base URL
+```
+http://localhost:3000/api/v1
+```
+
+### Key Endpoints
+
+**Authentication**
+- `POST /auth/register` - Register new user
+- `POST /auth/login` - User login
+
+**Journal**
+- `POST /journal/entries` - Create journal entry
+- `POST /journal/entries/:id/messages` - Send message to AI
+- `GET /journal/entries/:id/messages` - Get conversation history
+
+**Research**
+- `POST /research/entries` - Submit research entry
+- `GET /research/stats` - Get research statistics
+- `GET /research/distortions` - Get CBT distortion data
+- `GET /research/sentiment` - Get sentiment analysis
+
+**Community**
+- `GET /community/posts` - Get all posts
+- `POST /community/posts` - Create post
+- `POST /community/posts/:id/like` - Like post
+
+See [API_DOCUMENTATION.md](API_DOCUMENTATION.md) for complete API reference.
+
+---
+
+## 🧪 Testing
+
+### Backend Tests
+```bash
+cd depresso-backend
+npm test
+```
+
+### iOS Tests
+```bash
+# In Xcode
+Cmd + U
+```
+
+---
+
+## 🚀 Deployment
+
+### Production Deployment
+1. **Database**: PostgreSQL on cloud (AWS RDS, Google Cloud SQL)
+2. **Backend**: Node.js on VPS or serverless (AWS Lambda, Google Cloud Run)
+3. **Dashboard**: Static hosting (Netlify, Vercel) or same server as backend
+4. **iOS App**: TestFlight → App Store
+
+See [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) for production deployment.
+
+---
+
+## 🔒 Privacy & Security
+
+- ✅ **End-to-end encryption** for sensitive data
+- ✅ **Anonymous research data** collection
+- ✅ **HIPAA-compliant** data handling
+- ✅ **User consent** required for all data collection
+- ✅ **Local-first** architecture with optional sync
+- ✅ **No third-party trackers**
+
+---
+
+## 🤝 Contributing
+
+Contributions welcome! Please follow these steps:
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit changes (`git commit -m 'Add amazing feature'`)
+4. Push to branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+---
+
+## 📝 Changelog
+
+See [CHANGELOG.md](CHANGELOG.md) for version history and recent updates.
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 👨‍💻 Author
+
+**El Amir Mansour**
+- GitHub: [@ElAmir-Mansour](https://github.com/ElAmir-Mansour)
+
+---
+
+## 🙏 Acknowledgments
+
+- **Google Gemini AI** for powerful conversational AI
+- **Apple HealthKit** for comprehensive health data
+- **Chart.js** for beautiful data visualization
+- **The Composable Architecture** for robust state management
+- Mental health research community for inspiration
 
 ---
 
 <div align="center">
 
-**Built with ❤️ for mental health awareness**
-
-[⭐ Star this repo](https://github.com/ElAmir-Mansour/Depresso-IOS) • [🐛 Report Bug](https://github.com/ElAmir-Mansour/Depresso-IOS/issues) • [✨ Request Feature](https://github.com/ElAmir-Mansour/Depresso-IOS/issues)
+**Made with ❤️ for mental health awareness**
 
 </div>

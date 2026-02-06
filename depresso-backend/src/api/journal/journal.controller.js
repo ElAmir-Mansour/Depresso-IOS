@@ -47,7 +47,12 @@ exports.addMessageToEntry = async (req, res) => {
     const { userId, sender, content } = req.body;
 
     if (!userId || !sender || !content) {
-        return res.status(400).send('userId, sender, and content are required.');
+        return res.status(400).json({ error: 'userId, sender, and content are required.' });
+    }
+
+    // Validate entryId format
+    if (!entryId || entryId === 'undefined' || entryId === 'null') {
+        return res.status(400).json({ error: 'Valid entryId is required.' });
     }
 
     const client = await pool.connect();

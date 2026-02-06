@@ -13,10 +13,41 @@ struct JournalView: View {
             ScrollViewReader { scrollViewProxy in
                 ScrollView {
                     LazyVStack(spacing: DesignSystem.Spacing.medium) {
-                        ForEach(store.messages) { message in
-                            MessageBubble(message: message)
-                               .id(message.id)
-                               .transition(.scale(scale: 0.95, anchor: message.isFromCurrentUser ? .bottomTrailing : .bottomLeading).combined(with: .opacity))
+                        if store.messages.isEmpty {
+                            VStack(spacing: 20) {
+                                Spacer(minLength: 100)
+                                
+                                ZStack {
+                                    Circle()
+                                        .fill(Color.ds.accent.opacity(0.1))
+                                        .frame(width: 120, height: 120)
+                                    
+                                    Image(systemName: "sun.max.fill")
+                                        .font(.system(size: 60))
+                                        .foregroundStyle(Color.orange.opacity(0.8))
+                                }
+                                
+                                VStack(spacing: 8) {
+                                    Text("How are you feeling?")
+                                        .font(.system(.title2, design: .rounded).weight(.semibold))
+                                        .foregroundStyle(Color.primary)
+                                    
+                                    Text("I'm here to listen. Share your thoughts...")
+                                        .font(.body)
+                                        .foregroundStyle(Color.secondary)
+                                        .multilineTextAlignment(.center)
+                                }
+                                
+                                Spacer()
+                            }
+                            .frame(maxWidth: .infinity)
+                            .transition(.opacity)
+                        } else {
+                            ForEach(store.messages) { message in
+                                MessageBubble(message: message)
+                                   .id(message.id)
+                                   .transition(.scale(scale: 0.95, anchor: message.isFromCurrentUser ? .bottomTrailing : .bottomLeading).combined(with: .opacity))
+                            }
                         }
                         
                         if store.isSendingMessage {
@@ -125,6 +156,11 @@ struct JournalView: View {
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
+            
+            // Filler for Tab Bar (only when keyboard is NOT focused)
+            if !isTextFieldFocused {
+                Color.clear.frame(height: 80)
+            }
         }
     }
     

@@ -13,7 +13,8 @@ struct DepressoApp: App {
             WellnessTask.self,
             CommunityPost.self,
             DailyAssessment.self,
-            JournalEntry.self
+            JournalEntry.self,
+            ResearchEntry.self
         ])
         let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
         do {

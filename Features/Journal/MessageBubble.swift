@@ -44,7 +44,7 @@ struct MessageBubble: View {
                                     endPoint: .bottomTrailing
                                 )
                             } else {
-                                Color(UIColor.systemGray6)
+                                Color.ds.accent.opacity(0.1) // Subtle tint instead of gray
                             }
                         }
                     )
@@ -70,26 +70,11 @@ struct MessageBubble: View {
                     .foregroundStyle(.secondary)
                     .padding(.horizontal, 4)
             }
-            .frame(maxWidth: UIScreen.main.bounds.width * 0.7, alignment: message.isFromCurrentUser ? .trailing : .leading)
+            .frame(maxWidth: UIScreen.main.bounds.width * 0.75, alignment: message.isFromCurrentUser ? .trailing : .leading) // Increased width slightly
 
+            // Removed User Avatar logic for cleaner look
             if !message.isFromCurrentUser { 
                 Spacer(minLength: 50) 
-            } else {
-                // User Avatar
-                Circle()
-                    .fill(
-                        LinearGradient(
-                            colors: [Color.blue.opacity(0.3), Color.purple.opacity(0.3)],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-                    .frame(width: 32, height: 32)
-                    .overlay(
-                        Image(systemName: "person.fill")
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundStyle(Color.blue)
-                    )
             }
         }
         .padding(.horizontal, 12)

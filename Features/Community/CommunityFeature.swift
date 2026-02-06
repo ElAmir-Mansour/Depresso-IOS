@@ -12,7 +12,18 @@ struct CommunityFeature {
         var isLoading: Bool = true
         var errorMessage: String?
         var likedPostIDs: Set<UUID> = []
+        var viewedPostIDs: Set<UUID> = [] // De-duplication for session views
         @Presents var destination: Destination.State?
+        
+        // Comment management
+        var comments: [UUID: [Comment]] = [:] // Map post ID to comments
+        var showCommentsForPost: UUID?
+        @Presents var alert: AlertState<Action.Alert>?
+    }
+
+    @Reducer(state: .equatable)
+    enum Destination {
+        case addPost(AddPostFeature)
     }
 
     enum Action {
@@ -24,12 +35,16 @@ struct CommunityFeature {
         case postSavedSuccessfully(CommunityPost)
         case saveFailed(Error)
         case likeButtonTapped(id: CommunityPost.ID)
+        case viewPost(id: CommunityPost.ID)
+        case reportPostTapped(id: CommunityPost.ID)
+        case alert(PresentationAction<Alert>)
+        
+        enum Alert: Equatable {
+            case confirmReport(id: CommunityPost.ID)
+        }
     }
 
-    @Reducer(state: .equatable)
-    enum Destination {
-        case addPost(AddPostFeature)
-    }
+
 
     @Dependency(\.modelContext) var modelContext
     @Dependency(\.userDefaultsClient) var userDefaultsClient
@@ -242,6 +257,43 @@ struct CommunityFeature {
         }
     }
 
+            case .viewPost(let id):
+                if state.viewedPostIDs.contains(id) { return .none }
+                state.viewedPostIDs.insert(id)
+                
+                return .run { _ in
+                    do {
+                        try await UserManager.shared.ensureUserRegistered()
+                        let userId = try await UserManager.shared.getCurrentUserId()
+                        try await APIClient.trackAnalytics(userId: userId, eventType: "view", postId: id.uuidString)
+                    } catch {}
+                }
+                
+            case .reportPostTapped(let id):
+                state.alert = AlertState {
+                    TextState("Report Content")
+                } actions: {
+                    ButtonState(role: .destructive, action: .confirmReport(id: id)) {
+                        TextState("Report")
+                    }
+                    ButtonState(role: .cancel) {
+                        TextState("Cancel")
+                    }
+                } message: {
+                    TextState("Are you sure you want to report this content? It will be reviewed by our moderation team.")
+                }
+                return .none
+                
+            case .alert(.presented(.confirmReport(let id))):
+                // Handle report confirmation
+                return .run { _ in
+                    // Call report API
+                    print("reported post \(id)")
+                }
+                
+            case .alert:
+                return .none
+
             case .destination(.dismiss):
                  state.destination = nil
                  return .none
@@ -251,5 +303,6 @@ struct CommunityFeature {
             }
         }
         .ifLet(\.$destination, action: \.destination)
+        .ifLet(\.$alert, action: \.alert)
     }
 }

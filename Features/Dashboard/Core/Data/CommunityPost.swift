@@ -27,3 +27,17 @@ final class CommunityPost {
         self.likeCount = likeCount // Initialize the new property
     }
 }
+
+struct Comment: Identifiable, Equatable, Codable {
+    var id: UUID
+    var author: String
+    var content: String
+    var date: Date
+    
+    init(id: UUID = UUID(), author: String, content: String, date: Date = .now) {
+        self.id = id
+        self.author = author
+        self.content = content
+        self.date = date
+    }
+}

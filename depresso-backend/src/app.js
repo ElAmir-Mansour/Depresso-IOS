@@ -9,6 +9,7 @@ const assessmentRoutes = require('./api/assessments/assessments.routes');
 const journalRoutes = require('./api/journal/journal.routes');
 const wellnessRoutes = require('./api/wellness/wellness.routes');
 const supportRoutes = require('./api/support/support.routes');
+const researchRoutes = require('./api/research/research.routes');
 
 const app = express();
 
@@ -27,5 +28,6 @@ app.use('/api/v1/assessments', assessmentRoutes);
 app.use('/api/v1/journal', journalRoutes);
 app.use('/api/v1/wellness', wellnessRoutes);
 app.use('/api/v1/support', supportRoutes);
+app.use('/api/v1/research', researchRoutes);
 
 module.exports = app;
