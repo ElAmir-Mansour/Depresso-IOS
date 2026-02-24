@@ -37,9 +37,8 @@ struct CommunityView: View {
                     List {
                         ForEach(store.posts) { post in
                             NavigationLink {
-                                // Pass the store to the detail view if it needs actions
-                                // For now, just pass the post data
-                                PostDetailView(post: post)
+                                // Pass the store to the detail view for interactivity
+                                PostDetailView(store: store, post: post)
                             } label: {
                                 // Pass the store down to the row for actions
                                 PostRowView(store: store, post: post)
@@ -76,9 +75,8 @@ struct CommunityView: View {
 
 // --- Updated PostRowView ---
 struct PostRowView: View {
-    // ✅ Receive the store to send actions
-    // Use an unowned let because the store's lifetime is managed by the parent view
-    @State var store: StoreOf<CommunityFeature>
+    // ✅ Use 'let' instead of '@State' to prevent state forking
+    let store: StoreOf<CommunityFeature>
     let post: CommunityPost
 
     private var postImage: Image? {
@@ -132,11 +130,11 @@ struct PostRowView: View {
                     }
                     .buttonStyle(.plain) // Use plain style
 
-                    // Reply/Share Button (Placeholder)
-                    Button {} label: {
-                        Image(systemName: "arrowshape.turn.up.forward")
-                    }
-                    .buttonStyle(.plain)
+                    // Reply/Share Button (Placeholder) - Hidden until implemented
+                    // Button {} label: {
+                    //    Image(systemName: "arrowshape.turn.up.forward")
+                    // }
+                    // .buttonStyle(.plain)
 
                     Spacer()
                 }

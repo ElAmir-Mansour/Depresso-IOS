@@ -52,45 +52,38 @@
 │  │  • Journals  • Community Posts                     │        │
 │  └────────────────────────────────────────────────────┘        │
 └─────────────────────────┬───────────────────────────────────────┘
-                          │ HTTPS (Huawei Cloud API)
-                          │ X-Auth-Token Authentication
+                          │ HTTPS (Google Gemini API)
+                          │ API Key Authentication
                           ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│                    Huawei Cloud Services                        │
-│                   (ap-southeast-1 region)                       │
+│                    Google Cloud Services                        │
+│                                                                 │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
 │  ┌───────────────────────────────────────────────────────┐    │
-│  │          Agent App Dev Service                        │    │
-│  │  Agent ID: 7c35277d-520d-4e6c-920d-046367b09a3e      │    │
-│  │  Name: Depression-ML-Agent                            │    │
+│  │          Gemini API Service                           │    │
+│  │  Model: gemini-2.5-flash / gemini-1.5-pro             │    │
+│  │                                                       │    │
 │  │  ┌─────────────────────────────────────────────────┐  │    │
 │  │  │  Conversation Manager                           │  │    │
 │  │  │  • Creates conversation sessions               │  │    │
-│  │  │  • Maintains context (7-day expiry)            │  │    │
-│  │  │  • Routes queries to ML model                  │  │    │
+│  │  │  • Maintains context                           │  │    │
+│  │  │  • Routes queries to Gemini model              │  │    │
 │  │  └────────────────────┬────────────────────────────┘  │    │
 │  │                       │                                │    │
 │  │  ┌────────────────────▼────────────────────────────┐  │    │
-│  │  │       ML Model (qwen-32b / Distill-llama-8b)   │  │    │
+│  │  │       Gemini AI Model                          │  │    │
 │  │  │  • Analyzes health + behavioral metrics        │  │    │
-│  │  │  • Generates risk scores (0-100)               │  │    │
+│  │  │  • Generates risk scores                       │  │    │
 │  │  │  • Identifies patterns and trends              │  │    │
 │  │  │  • Creates personalized recommendations        │  │    │
 │  │  └────────────────────┬────────────────────────────┘  │    │
 │  │                       │                                │    │
 │  │  ┌────────────────────▼────────────────────────────┐  │    │
 │  │  │       Response Parser & Formatter              │  │    │
-│  │  │  • Structures ML output as JSON                │  │    │
+│  │  │  • Structures AI output as JSON                │  │    │
 │  │  │  • Extracts risk scores, factors, recs         │  │    │
 │  │  └────────────────────────────────────────────────┘  │    │
-│  └───────────────────────────────────────────────────────┘    │
-│                                                                 │
-│  ┌───────────────────────────────────────────────────────┐    │
-│  │         ModelArts (Future Integration)                │    │
-│  │  • Custom model training                              │    │
-│  │  • Advanced depression detection                      │    │
-│  │  • Transfer learning from agent data                  │    │
 │  └───────────────────────────────────────────────────────┘    │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -112,12 +105,12 @@
 3. Backend Processing
    ├── Receives metrics via POST /api/ml-analysis/analyze
    ├── Stores in PostgreSQL database
-   ├── Formats data for Huawei Agent
+   ├── Formats data for Gemini Agent
    └── Creates/retrieves conversation session
 
-4. Huawei Agent Analysis
+4. Gemini AI Analysis
    ├── Receives formatted prompt with all metrics
-   ├── ML model processes multimodal health data
+   ├── AI model processes multimodal health data
    ├── Generates structured analysis response
    └── Returns JSON with risk assessment
 
@@ -147,15 +140,14 @@
 - **Express Server**: RESTful API
 - **PostgreSQL**: Relational database for all data
 - **Services**:
-  - `huaweiAgentService.js`: Huawei Agent integration
+  - `aiService.js`: Google Gemini integration
   - `metricsService.js`: Health data processing
   - `journalService.js`: Journal sentiment analysis
   
-### Huawei Cloud
-- **Agent App Dev**: AI agent for depression risk analysis
-- **Authentication**: X-Auth-Token (24-hour validity)
-- **Models Available**: qwen-32b, Distill-llama-8b
-- **Region**: ap-southeast-1 (Singapore)
+### Google Cloud
+- **Gemini API**: AI agent for depression risk analysis
+- **Authentication**: API Key
+- **Models Available**: gemini-2.5-flash, gemini-1.5-pro
 
 ## Security & Privacy
 
@@ -179,14 +171,13 @@
 │     ├── User data isolation                            │
 │     └── Regular backups                                 │
 │                                                         │
-│  4. Huawei Cloud Security                               │
-│     ├── X-Auth-Token authentication                    │
-│     ├── Conversation isolation per user                │
+│  4. Google Cloud Security                               │
+│     ├── API Key authentication                         │
 │     ├── Data encryption in transit                     │
 │     └── Compliance with HIPAA/GDPR guidelines          │
 │                                                         │
 │  5. Privacy Measures                                    │
-│     ├── No PII sent to ML agent                        │
+│     ├── No PII sent to AI agent                        │
 │     ├── Anonymized training data                       │
 │     ├── User consent for data usage                    │
 │     └── Right to delete data                            │
@@ -198,11 +189,11 @@
 ```
 Production Setup:
 
-iOS App Store                      Huawei Cloud (ap-southeast-1)
+iOS App Store                      Google Cloud Services
       │                                    │
       │                                    │
       ▼                                    ▼
-  iPhone Users                    Agent App Dev Service
+  iPhone Users                    Gemini API Service
       │                                    │
       │ HTTPS                              │
       ▼                                    │
@@ -223,7 +214,7 @@ iOS App Store                      Huawei Cloud (ap-southeast-1)
    - Stateless API design
    - Database connection pooling
 
-2. **Huawei Agent**
+2. **Gemini AI**
    - Conversation caching
    - Batch analysis for efficiency
    - Fallback to rule-based system if agent unavailable
@@ -235,26 +226,26 @@ iOS App Store                      Huawei Cloud (ap-southeast-1)
 
 4. **Caching**
    - Redis for frequent queries
-   - ML results caching (time-limited)
+   - AI results caching (time-limited)
    - User session caching
 
 ## Monitoring & Observability
 
 ```
 Logs:
-├── Backend: app.log, error.log, huawei-agent.log
+├── Backend: app.log, error.log, ai-service.log
 ├── Database: query.log, slow-query.log
-└── Huawei Agent: API call logs, response times
+└── Gemini API: API call logs, response times
 
 Metrics:
 ├── API response times
-├── Huawei Agent call success rate
+├── Gemini API call success rate
 ├── Database query performance
 ├── User engagement metrics
-└── ML analysis accuracy (when ground truth available)
+└── AI analysis accuracy (when ground truth available)
 
 Alerts:
-├── Huawei Agent connection failures
+├── AI Service connection failures
 ├── Database connection issues
 ├── High error rates
 ├── Token expiration warnings

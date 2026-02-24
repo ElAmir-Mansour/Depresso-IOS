@@ -56,8 +56,10 @@ exports.addMessageToEntry = async (req, res) => {
     }
 
     const client = await pool.connect();
+    let historyRows = [];
 
     try {
+        // --- PHASE 1: Save User Message & Fetch Context (Fast DB Lock) ---
         await client.query('BEGIN');
 
         // 1. Save the user's message
@@ -66,62 +68,62 @@ exports.addMessageToEntry = async (req, res) => {
             [entryId, userId, sender, content]
         );
 
-        // 2. Fetch conversation history
-        const history = await client.query(
-            'SELECT sender, content FROM AIChatMessages WHERE entry_id = $1 ORDER BY created_at ASC',
+        // 2. Fetch conversation history (Limit to last 20 for speed/context window)
+        // We fetch DESC to get the recent ones, then reverse them for the AI
+        const historyResult = await client.query(
+            'SELECT sender, content FROM AIChatMessages WHERE entry_id = $1 ORDER BY created_at DESC LIMIT 20',
             [entryId]
         );
-
-        // 3. Call the AI Service
-        const aiContent = await aiService.generateResponse(history.rows);
-
-        // 4. Save AI's response with 'assistant' role
-        const aiMessageResult = await client.query(
-            'INSERT INTO AIChatMessages (entry_id, user_id, sender, content) VALUES ($1, $2, $3, $4) RETURNING *',
-            [entryId, userId, 'assistant', aiContent]
-        );
+        historyRows = historyResult.rows.reverse();
 
         await client.query('COMMIT');
-
-        // 5. Send AI's response back to the client
-        res.status(201).json(aiMessageResult.rows[0]);
-
     } catch (error) {
         await client.query('ROLLBACK');
-        console.error('Error processing AI chat message:', error);
+        console.error('Error saving user message:', error);
+        return res.status(500).json({ error: 'Server error', message: 'Failed to save message' });
+    } finally {
+        client.release(); // Release connection while waiting for AI
+    }
 
-        // Handle Qwen content filter errors specifically
+    // --- PHASE 2: Generate AI Response (Slow External Call - No DB Lock) ---
+    let aiContent;
+    try {
+        aiContent = await aiService.generateResponse(historyRows);
+    } catch (error) {
+        console.error('AI Service Error:', error);
+        
+        // Handle specific AI errors (like content filters)
         if (error.isContentFilter) {
-            // Save a friendly fallback message from "AI"
-            try {
-                await client.query('BEGIN');
-                const fallbackMessage = "I'm here to listen. Sometimes the system is extra cautious. Could you rephrase that, or tell me more about how you're feeling today?";
-
-                const aiMessageResult = await client.query(
-                    'INSERT INTO AIChatMessages (entry_id, user_id, sender, content) VALUES ($1, $2, $3, $4) RETURNING *',
-                    [entryId, userId, 'assistant', fallbackMessage]
-                );
-
-                await client.query('COMMIT');
-                return res.status(201).json(aiMessageResult.rows[0]);
-            } catch (fallbackError) {
-                await client.query('ROLLBACK');
-                console.error('Fallback message error:', fallbackError);
-            }
-        }
-
-        // Return the specific error to client
-        if (error.code) {
+            aiContent = "I'm here to listen. Sometimes the system is extra cautious. Could you rephrase that, or tell me more about how you're feeling today?";
+        } else {
             return res.status(500).json({
                 error: 'AI service error',
                 details: error.details || 'Please try again',
                 code: error.code
             });
         }
+    }
 
-        res.status(500).json({ error: 'Server error', message: 'Failed to process message' });
+    // --- PHASE 3: Save AI Response (Fast DB Lock) ---
+    const client2 = await pool.connect();
+    try {
+        await client2.query('BEGIN');
+        
+        const aiMessageResult = await client2.query(
+            'INSERT INTO AIChatMessages (entry_id, user_id, sender, content) VALUES ($1, $2, $3, $4) RETURNING *',
+            [entryId, userId, 'assistant', aiContent]
+        );
+
+        await client2.query('COMMIT');
+        
+        // Send success response
+        res.status(201).json(aiMessageResult.rows[0]);
+    } catch (error) {
+        await client2.query('ROLLBACK');
+        console.error('Error saving AI response:', error);
+        res.status(500).json({ error: 'Server error', message: 'Failed to save AI response' });
     } finally {
-        client.release();
+        client2.release();
     }
 };
 

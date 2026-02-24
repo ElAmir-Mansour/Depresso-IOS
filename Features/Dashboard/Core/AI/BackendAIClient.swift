@@ -1,92 +1,86 @@
-
 // Features/Dashboard/Core/AI/BackendAIClient.swift
 import Foundation
 import ComposableArchitecture
-import FirebaseAI
 
-// This is the NEW AI client that uses your backend
-struct BackendAIClient {
-    var generateResponse: (_ history: [ModelContent], _ prompt: String, _ systemPrompt: String?) async throws -> String
+// MARK: - 1. Unified Data Models & Interface
+
+// Renamed to avoid conflict with FirebaseAI.ModelContent
+struct AIModelContent: Equatable, Sendable {
+    let role: String // "user" or "model"
+    let parts: [String]
 }
 
-extension BackendAIClient: DependencyKey {
+@DependencyClient
+struct AIClient {
+    var generateResponse: @Sendable (_ history: [AIModelContent], _ prompt: String, _ systemPrompt: String?) async throws -> String
+}
+
+extension AIClient: DependencyKey {
     static let liveValue: Self = {
-        let generateResponse: @Sendable (_ history: [ModelContent], _ prompt: String, _ systemPrompt: String?) async throws -> String = { history, prompt, systemPrompt in
-            
-            // EXPLANATION:
-            // Instead of calling External AI APIs directly from the client, we:
-            // 1. Create a journal entry on backend
-            // 2. Send the user's message
-            // 3. Backend handles the Google Vertex/Gemini AI call and returns response
-            
+        return Self(
+            generateResponse: { history, prompt, systemPrompt in
+                @Dependency(\.cloudAIClient) var cloudClient
+                return try await cloudClient.generateResponse(history, prompt, systemPrompt)
+            }
+        )
+    }()
+}
+
+extension DependencyValues {
+    var aiClient: AIClient {
+        get { self[AIClient.self] }
+        set { self[AIClient.self] = newValue }
+    }
+}
+
+// MARK: - 2. Cloud AI Client (Existing Logic)
+
+struct CloudAIClient {
+    var generateResponse: (_ history: [AIModelContent], _ prompt: String, _ systemPrompt: String?) async throws -> String
+}
+
+extension CloudAIClient: DependencyKey {
+    static let liveValue: Self = {
+        let generateResponse: @Sendable (_ history: [AIModelContent], _ prompt: String, _ systemPrompt: String?) async throws -> String = { history, prompt, systemPrompt in
             do {
-                // Ensure user is registered first
                 try await UserManager.shared.ensureUserRegistered()
                 let userId = try await UserManager.shared.getCurrentUserId()
-                
-                // Step 1: Create journal entry if needed
-                // For now, we'll use a single entry per session
-                // You can modify this to create new entries as needed
                 let entryId = try await getOrCreateJournalEntry(userId: userId)
-                
-                // Step 2: Send message to backend
-                // Backend will:
-                // - Save user message
-                // - Call Google Gemini 1.5 Flash (or Gemma if configured)
-                // - Save AI response
-                // - Return AI response to us
                 let aiMessage = try await APIClient.addMessageToEntry(
                     entryId: entryId,
                     userId: userId,
                     sender: "user",
                     content: prompt
                 )
-                
-                // Step 3: Return AI's response
                 return aiMessage.content
-                
             } catch {
                 print("❌ Backend AI error: \(error)")
                 throw error
             }
         }
-        
         return Self(generateResponse: generateResponse)
     }()
     
-    // Helper function to get or create a journal entry
     private static func getOrCreateJournalEntry(userId: String) async throws -> Int {
-        // EXPLANATION:
-        // We'll store the current entry ID in UserDefaults
-        // This creates one journal entry per day
-        
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd"
         let todayKey = "journal_entry_\(dateFormatter.string(from: Date()))"
-        
-        // Check if we already have an entry for today
         if let storedId = UserDefaults.standard.object(forKey: todayKey) as? Int {
             return storedId
         }
-        
-        // Create new entry
         let entry = try await APIClient.createJournalEntry(
             userId: userId,
             title: "Journal - \(dateFormatter.string(from: Date()))",
             content: ""
         )
-        
-        // Store for future use today
         UserDefaults.standard.set(entry.id, forKey: todayKey)
-        
         return entry.id
     }
 }
 
-// Add to DependencyValues
 extension DependencyValues {
-    var backendAIClient: BackendAIClient {
-        get { self[BackendAIClient.self] }
-        set { self[BackendAIClient.self] = newValue }
+    var cloudAIClient: CloudAIClient {
+        get { self[CloudAIClient.self] }
+        set { self[CloudAIClient.self] = newValue }
     }
 }

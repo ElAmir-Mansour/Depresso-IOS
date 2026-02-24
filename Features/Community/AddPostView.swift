@@ -1,7 +1,7 @@
 // In Features/Community/AddPostView.swift
 import SwiftUI
 import ComposableArchitecture
-import PhotosUI // ✅ Import PhotosUI
+import PhotosUI 
 
 struct AddPostView: View {
     @Bindable var store: StoreOf<AddPostFeature>
@@ -9,37 +9,67 @@ struct AddPostView: View {
     var body: some View {
         NavigationStack {
             Form {
-                TextField("Title", text: $store.title)
-                
-                Section("Your Story") {
-                    TextEditor(text: $store.content)
-                        .frame(minHeight: 200, alignment: .top)
-                        .multilineTextAlignment(.leading)
+                Section {
+                    TextField("Title", text: $store.title)
+                        .font(.ds.headline)
+                } header: {
+                    Text("Title")
                 }
                 
-                // ✅ ADDED: Section for Image Picker and Preview
-                Section("Add Image (Optional)") {
-                    // The PhotosPicker bound to the state's selectedPhotoItem
-                    PhotosPicker(selection: $store.selectedPhotoItem, matching: .images) {
-                        Label("Select Photo", systemImage: "photo")
+                Section {
+                    ZStack(alignment: .topLeading) {
+                        if store.content.isEmpty {
+                            Text("Share your story...")
+                                .foregroundStyle(Color.ds.textTertiary)
+                                .padding(.top, 8)
+                                .padding(.leading, 5)
+                        }
+                        
+                        TextEditor(text: $store.content)
+                            .frame(minHeight: 200)
+                            .scrollContentBackground(.hidden) // Make background transparent
                     }
-                    
-                    // Show preview if an image is selected
-                    if let image = store.selectedImage {
-                        image
-                            .resizable()
-                            .scaledToFit()
-                            .frame(maxHeight: 200) // Limit preview size
-                            .cornerRadius(8)
-                            .padding(.vertical) // Add some padding around the preview
-                    }
-                    
-                    // Button to clear selection
-                    if store.selectedImageData != nil {
-                        Button("Remove Image", role: .destructive) {
-                            store.selectedPhotoItem = nil // Triggers the binding action
+                } header: {
+                    Text("Your Story")
+                }
+                
+                Section {
+                    if let data = store.selectedImageData, let uiImage = UIImage(data: data) {
+                        ZStack(alignment: .topTrailing) {
+                            Image(uiImage: uiImage)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(maxHeight: 250)
+                                .cornerRadius(12)
+                            
+                            Button {
+                                store.selectedPhotoItem = nil // Triggers binding action to clear
+                                store.selectedImageData = nil
+                            } label: {
+                                Image(systemName: "xmark.circle.fill")
+                                    .font(.title2)
+                                    .foregroundStyle(.white)
+                                    .background(Circle().fill(Color.black.opacity(0.6)))
+                            }
+                            .padding(8)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 8)
+                    } else {
+                        PhotosPicker(selection: $store.selectedPhotoItem, matching: .images) {
+                            HStack {
+                                Image(systemName: "photo.on.rectangle")
+                                    .font(.title3)
+                                Text("Select Photo")
+                                    .font(.ds.body)
+                                Spacer()
+                            }
+                            .padding(.vertical, 4)
+                            .foregroundStyle(Color.ds.accent)
                         }
                     }
+                } header: {
+                    Text("Add Image (Optional)")
                 }
             }
             .navigationTitle("New Story")
@@ -61,9 +91,12 @@ struct AddPostView: View {
             }
             .overlay {
                 if store.isSaving {
-                    ProgressView()
-                        .padding()
-                        .background(.ultraThickMaterial, in: RoundedRectangle(cornerRadius: 8))
+                    ZStack {
+                        Color.black.opacity(0.4).ignoresSafeArea()
+                        ProgressView()
+                            .padding(24)
+                            .background(.ultraThickMaterial, in: RoundedRectangle(cornerRadius: 12))
+                    }
                 }
             }
         }

@@ -40,7 +40,7 @@ struct OnboardingFeature {
         }
     }
     
-    @Dependency(\.backendAIClient) var backendAIClient
+    @Dependency(\.aiClient) var aiClient
     
     var body: some Reducer<State, Action> {
         Reduce {
@@ -82,7 +82,10 @@ struct OnboardingFeature {
                         send in
                         do {
                             print("📊 Generating PHQ-8 analysis for score: \(score), severity: \(severity)")
-                            let response = try await backendAIClient.generateResponse([], prompt, nil)
+                            // Use unified aiClient
+                            // Construct simple history for this one-shot prompt
+                            let history = [AIModelContent(role: "user", parts: [prompt])]
+                            let response = try await aiClient.generateResponse(history, prompt, nil)
                             print("✅ PHQ-8 analysis generated successfully")
                             await send(.analysisResponse(.success(response)))
                         } catch {

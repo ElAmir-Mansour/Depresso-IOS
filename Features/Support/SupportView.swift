@@ -3,32 +3,41 @@ import SwiftUI
 import ComposableArchitecture
 
 struct SupportView: View {
-    let store: StoreOf<SupportFeature>
+    @Bindable var store: StoreOf<SupportFeature>
 
     var body: some View {
         NavigationStack {
-            // Use WithViewStore to observe the state
-            WithViewStore(self.store, observe: { $0 }) { viewStore in
-                List {
-                    // Section for Emergency Hotlines
-                    Section("Immediate Help") {
-                        ForEach(viewStore.hotlines) { hotline in
-                            HotlineRowView(hotline: hotline)
-                        }
-                    }
-                    
-                    // Section for Resources
-                    Section("Resources & Information") {
-                        ForEach(viewStore.resources) { resource in
-                            ResourceRowView(resource: resource)
-                        }
+            List {
+                // Section for Emergency Hotlines
+                Section("Immediate Help") {
+                    ForEach(store.hotlines) { hotline in
+                        HotlineRowView(hotline: hotline)
                     }
                 }
-                .listStyle(.insetGrouped)
-                .safeAreaInset(edge: .bottom) {
-                    Color.clear.frame(height: 80) // Tab bar spacing
+                
+                // Section for Resources
+                Section("Resources & Information") {
+                    ForEach(store.resources) { resource in
+                        ResourceRowView(resource: resource)
+                    }
                 }
-                .navigationTitle("Support & Resources")
+            }
+            .listStyle(.insetGrouped)
+            .safeAreaInset(edge: .bottom) {
+                Color.clear.frame(height: 80) // Tab bar spacing
+            }
+            .navigationTitle("Support & Resources")
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        store.send(.settingsButtonTapped)
+                    } label: {
+                        Image(systemName: "gearshape")
+                    }
+                }
+            }
+            .sheet(item: $store.scope(state: \.destination?.settings, action: \.destination.settings)) { settingsStore in
+                SettingsView(store: settingsStore)
             }
         }
     }

@@ -1,11 +1,14 @@
 // In Features/Support/SupportFeature.swift
 import Foundation
 import ComposableArchitecture
+import SwiftUI // Added for View conformance if needed
+
+// MARK: - Support Feature
 
 @Reducer
 struct SupportFeature {
     @ObservableState
-    struct State: Equatable {
+    struct State: Equatable, Sendable {
         var resources: [SupportResource] = [
             // --- NEW: Links to Therapist Directories ---
             .init(title: "Shezlong",
@@ -38,15 +41,38 @@ struct SupportFeature {
              .init(name: "Ambulance", phoneNumber: "123", description: "For medical emergencies.", iconName: "cross.fill")
              // Add other verified hotlines
         ]
+        @Presents var destination: Destination.State?
+        
+        static func == (lhs: State, rhs: State) -> Bool {
+            return lhs.resources == rhs.resources &&
+                   lhs.hotlines == rhs.hotlines
+                   // lhs.destination == rhs.destination // Temporarily ignored to fix build
+        }
     }
     
-    enum Action { /* No actions needed yet */ }
+    enum Action: Sendable {
+        case settingsButtonTapped
+        case destination(PresentationAction<Destination.Action>)
+    }
+    
+    @Reducer
+    enum Destination: Sendable {
+        case settings(SettingsFeature)
+    }
     
     // Use MainActor isolation for safe context access if needed later
     @MainActor
     var body: some Reducer<State, Action> {
         Reduce { state, action in
-            return .none
+            switch action {
+            case .settingsButtonTapped:
+                state.destination = .settings(SettingsFeature.State())
+                return .none
+                
+            case .destination:
+                return .none
+            }
         }
+        .ifLet(\.$destination, action: \.destination)
     }
 }

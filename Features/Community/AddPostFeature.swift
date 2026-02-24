@@ -17,13 +17,6 @@ struct AddPostFeature {
         var selectedPhotoItem: PhotosPickerItem? = nil
         var selectedImageData: Data? = nil
         
-        // Computed property to create an Image view from the data for preview
-        var selectedImage: Image? {
-            guard let data = selectedImageData else { return nil }
-            guard let uiImage = UIImage(data: data) else { return nil }
-            return Image(uiImage: uiImage)
-        }
-
         var isValid: Bool {
             !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
             !content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty

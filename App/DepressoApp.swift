@@ -2,7 +2,7 @@
 import SwiftUI
 import SwiftData
 import ComposableArchitecture
-import FirebaseCore // ✅ ADD THIS IMPORT
+// import FirebaseCore // ✅ ADD THIS IMPORT
 
 @main
 struct DepressoApp: App {
@@ -33,7 +33,7 @@ struct DepressoApp: App {
     // ✅ ADD THIS ENTIRE BLOCK
     // This initializer is called once when the app launches.
     init() {
-        FirebaseApp.configure()
+        // FirebaseApp.configure()
     }
 
     var body: some Scene {

@@ -2,7 +2,6 @@
 import Foundation
 import ComposableArchitecture
 import CoreMotion
-import FirebaseAI
 import SwiftData
 import SwiftUI
 import Speech // Added import
@@ -66,7 +65,7 @@ struct AICompanionJournalFeature {
       }
 
 
-      @Dependency(\.backendAIClient) var backendAIClient
+      @Dependency(\.aiClient) var aiClient // CHANGED
       @Dependency(\.motionClient) var motionClient
       @Dependency(\.speechClient) var speechClient // Added dependency
       @Dependency(\.healthClient) var healthClient
@@ -74,10 +73,10 @@ struct AICompanionJournalFeature {
       @Dependency(\.uuid) var uuid
       @Dependency(\.modelContext) var modelContext
 
-      private func history(from messages: [ChatMessage]) -> [ModelContent] {
+      private func history(from messages: [ChatMessage]) -> [AIModelContent] {
            return messages.map { message in
                 let role = message.isFromCurrentUser ? "user" : "model"
-                return ModelContent(role: role, parts: [message.content])
+                return AIModelContent(role: role, parts: [message.content])
            }
       }
 
@@ -152,7 +151,9 @@ struct AICompanionJournalFeature {
     state.editCount = 0
     state.motionSamples = []
     
-    return .run { [modelContext, backendAIClient, healthClient] send in
+    let history = self.history(from: state.messages)
+
+    return .run { [modelContext, aiClient, healthClient] send in
         // Create and save user message on MainActor
         await MainActor.run {
             let userMessage = ChatMessage(content: messageContent, isFromCurrentUser: true)
@@ -167,7 +168,7 @@ struct AICompanionJournalFeature {
 
         // Fetch AI response and health metrics
         do {
-            let responseText = try await backendAIClient.generateResponse([], prompt, nil)
+            let responseText = try await aiClient.generateResponse(history, prompt, nil) // CHANGED
             let metricsArray = try await healthClient.fetchHealthMetrics()
             let steps = metricsArray.first(where: { $0.type == .steps })?.value ?? 0.0
             let energy = metricsArray.first(where: { $0.type == .calories })?.value ?? 0.0
@@ -235,11 +236,19 @@ struct AICompanionJournalFeature {
                  guard let lastUserMessage = state.messages.last(where: { $0.isFromCurrentUser }) else { return .none }
                  state.isSendingMessage = true
                  let prompt = lastUserMessage.content
+                 let history = self.history(from: state.messages.dropLast()) // History without the last message? Or full history?
+                 // Usually prompt is new, history is past. 
+                 // If lastUserMessage is the prompt, history should be everything before it.
+                 // The 'history' function takes all messages.
+                 // Let's assume we want to re-send the prompt with context up to that point.
                  
-                 return .run { [backendAIClient, healthClient, modelContext] send in
+                 let previousMessages = state.messages.dropLast(1).filter { $0.id != lastUserMessage.id } // Filter just in case
+                 let historyContext = self.history(from: Array(previousMessages))
+
+                 return .run { [aiClient, healthClient, modelContext] send in
                      // Start concurrent operations (Retry Logic)
                      async let aiResponseTask = Task {
-                         let responseText = try await backendAIClient.generateResponse([], prompt, nil)
+                         let responseText = try await aiClient.generateResponse(historyContext, prompt, nil) // CHANGED
                          return ChatMessage(content: responseText, isFromCurrentUser: false)
                      }
 

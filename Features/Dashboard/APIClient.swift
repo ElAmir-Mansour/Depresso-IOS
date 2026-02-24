@@ -1,4 +1,3 @@
-
 // Features/Dashboard/Core/Network/APIClient.swift
 import Foundation
 import ComposableArchitecture
@@ -7,7 +6,7 @@ import ComposableArchitecture
 enum APIConfig {
   //   static let baseURL = "http://localhost:3000/api/v1"
     // When testing on physical device, use your Mac's IP:
-   static let baseURL = "http://192.168.1.2:3000/api/v1"
+   static let baseURL = "http://192.168.1.6:3000/api/v1"
 }
 
 // MARK: - API Errors
@@ -29,6 +28,14 @@ enum HTTPMethod: String {
 
 // MARK: - API Client
 struct APIClient {
+    // Custom session with longer timeout for AI requests
+    private static let session: URLSession = {
+        let config = URLSessionConfiguration.default
+        config.timeoutIntervalForRequest = 120 // 2 minutes
+        config.timeoutIntervalForResource = 300 // 5 minutes
+        return URLSession(configuration: config)
+    }()
+
     // Generic request function
     // This is the core function that all API calls will use
     private static func request<T: Decodable>(
@@ -51,11 +58,7 @@ struct APIClient {
             request.httpBody = try JSONEncoder().encode(body)
         }
         
-        // Step 4: Make the network call with timeout
-        let configuration = URLSessionConfiguration.default
-        configuration.timeoutIntervalForRequest = 30
-        configuration.timeoutIntervalForResource = 60
-        let session = URLSession(configuration: configuration)
+        // Step 4: Make the network call using custom session
         let (data, response) = try await session.data(for: request)
         
         // Step 5: Check response status

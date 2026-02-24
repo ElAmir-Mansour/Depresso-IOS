@@ -75,19 +75,37 @@ struct DashboardView: View {
     
     private var chartsSection: some View {
         VStack(spacing: Layout.cardSpacing) {
-            chartCard(weeklyStepsSection)
-            chartCard(weeklyEnergySection)
-            chartCard(weeklyHeartRateSection)
+            DashboardCard(title: "Weekly Steps") {
+                if store.isLoading {
+                    ProgressView().frame(height: 150)
+                } else if store.weeklySteps.isEmpty {
+                    Text("No step data available.").font(.ds.caption).foregroundStyle(.secondary).frame(maxWidth: .infinity, alignment: .center)
+                } else {
+                    StepsChartView(stepsData: store.weeklySteps).frame(height: 150)
+                }
+            }
+            
+            DashboardCard(title: "Weekly Active Energy") {
+                if store.isLoading {
+                    ProgressView().frame(height: 150)
+                } else if store.weeklyEnergy.isEmpty {
+                    Text("No energy data available.").font(.ds.caption).foregroundStyle(.secondary).frame(maxWidth: .infinity, alignment: .center)
+                } else {
+                    EnergyChartView(energyData: store.weeklyEnergy).frame(height: 150)
+                }
+            }
+            
+            DashboardCard(title: "Weekly Heart Rate") {
+                if store.isLoading {
+                    ProgressView().frame(height: 150)
+                } else if store.weeklyHeartRate.isEmpty {
+                    Text("No heart rate data available.").font(.ds.caption).foregroundStyle(.secondary).frame(maxWidth: .infinity, alignment: .center)
+                } else {
+                    HeartRateChartView(heartRateData: store.weeklyHeartRate).frame(height: 150)
+                }
+            }
         }
         .padding(.horizontal, Layout.screenPadding)
-    }
-    
-    private func chartCard(_ content: some View) -> some View {
-        content
-            .padding(Layout.cardPadding)
-            .background(Color(UIColor.secondarySystemGroupedBackground))
-            .clipShape(RoundedRectangle(cornerRadius: Layout.cardCornerRadius))
-            .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 2)
     }
     
     private var goalsSection: some View {
@@ -142,14 +160,16 @@ struct DashboardView: View {
                     )
             }
             
-            // Streak Badge - Full width, more prominent
+            // Streak Badge
             StreakBannerView(
                 currentStreak: store.currentStreak,
                 longestStreak: store.longestStreak
             )
         }
         .padding(Layout.cardPadding)
-        .background(Color(UIColor.secondarySystemGroupedBackground)).clipShape(RoundedRectangle(cornerRadius: Layout.cardCornerRadius)).shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 2)
+        .background(Color(UIColor.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: Layout.cardCornerRadius))
+        .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 2)
     }
     
     private var motivationalText: String {
@@ -179,7 +199,8 @@ struct DashboardView: View {
             let calories = store.healthMetrics.first(where: { $0.type == .calories })?.value ?? 0
             let heartRate = store.healthMetrics.first(where: { $0.type == .heartRate })?.value ?? 0
             
-            VStack(spacing: 0) {
+            // ✅ Wrapped in a DashboardCard for consistent styling
+            DashboardCard(title: "Daily Goals") {
                 ProgressRingsView(
                     stepsProgress: ProgressGoals.stepsProgress(current: steps),
                     caloriesProgress: ProgressGoals.caloriesProgress(current: calories),
@@ -191,8 +212,9 @@ struct DashboardView: View {
                     currentCalories: Int(calories),
                     currentHeartRate: Int(heartRate)
                 )
+                .frame(height: 220)
+                .padding(.top, 8)
             }
-            .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 2)
         }
     }
     
@@ -245,6 +267,7 @@ struct DashboardView: View {
              }
          }
     }
+    
     @ViewBuilder private var dailyAssessmentSection: some View {
          VStack(alignment: .leading, spacing: 16) {
              HStack {
@@ -299,48 +322,36 @@ struct DashboardView: View {
              }
          }
      }
-    @ViewBuilder private var weeklyStepsSection: some View {
-           VStack(alignment: .leading) {
-              Text("Weekly Steps").font(.ds.headline)
-              if store.isLoading {
-                   RoundedRectangle(cornerRadius: 8).fill(Color(UIColor.systemGray6)).frame(height: 150).overlay(ProgressView())
-              } else if store.weeklySteps.isEmpty {
-                   Text("No step data available.").font(.ds.caption).foregroundStyle(.secondary).padding().frame(maxWidth: .infinity, alignment: .center)
-              } else {
-                  StepsChartView(stepsData: store.weeklySteps).frame(height: 150)
-              }
-          }
-      }
-    @ViewBuilder private var weeklyEnergySection: some View {
-        VStack(alignment: .leading) {
-            Text("Weekly Active Energy").font(.ds.headline)
-            if store.isLoading {
-                RoundedRectangle(cornerRadius: 8).fill(Color(UIColor.systemGray6)).frame(height: 150).overlay(ProgressView())
-            } else if store.weeklyEnergy.isEmpty {
-                Text("No energy data available.").font(.ds.caption).foregroundStyle(.secondary).padding().frame(maxWidth: .infinity, alignment: .center)
-            } else {
-                EnergyChartView(energyData: store.weeklyEnergy).frame(height: 150)
-            }
-        }
+}
+
+// MARK: - Reusable Dashboard Card
+struct DashboardCard<Content: View>: View {
+    let title: String
+    let content: Content
+
+    init(title: String, @ViewBuilder content: () -> Content) {
+        self.title = title
+        self.content = content()
     }
 
-    @ViewBuilder private var weeklyHeartRateSection: some View {
-        VStack(alignment: .leading) {
-            Text("Weekly Heart Rate").font(.ds.headline)
-            if store.isLoading {
-                RoundedRectangle(cornerRadius: 8).fill(Color(UIColor.systemGray6)).frame(height: 150).overlay(ProgressView())
-            } else if store.weeklyHeartRate.isEmpty {
-                Text("No heart rate data available.").font(.ds.caption).foregroundStyle(.secondary).padding().frame(maxWidth: .infinity, alignment: .center)
-            } else {
-                HeartRateChartView(heartRateData: store.weeklyHeartRate).frame(height: 150)
-            }
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text(title)
+                .font(.ds.headline)
+                .foregroundStyle(.primary)
+            
+            content
         }
+        .padding(Layout.cardPadding)
+        .background(Color(UIColor.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: Layout.cardCornerRadius))
+        .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 2)
     }
 }
 
 // MARK: - Chart Views
 struct StepsChartView: View {
-     let stepsData: [StepData] // Defined in HealthClient.swift
+     let stepsData: [StepData]
      var body: some View {
          Chart(stepsData) { data in BarMark(x: .value("Day", data.date, unit: .day), y: .value("Steps", data.count)).foregroundStyle(Color.ds.accent.gradient) }
          .chartXAxis { AxisMarks(values: .stride(by: .day)) { _ in AxisValueLabel(format: .dateTime.weekday(.narrow), centered: true) } }
@@ -381,11 +392,19 @@ struct HeartRateChartView: View {
 }
 
 struct AssessmentChartView: View {
-     let history: [DailyAssessment] // Defined in Core/Data
+     let history: [DailyAssessment]
+     
+     // ✅ Dynamic Y-axis Domain Logic
      private var yDomain: ClosedRange<Int> {
-          let scores = history.map { $0.score }; let minScore = scores.min() ?? 0; let maxScore = scores.max() ?? 24
-          return (minScore > 2 ? minScore - 2 : 0)...(maxScore < 22 ? maxScore + 2 : 24)
+          let scores = history.map { $0.score }
+          let minScore = scores.min() ?? 0
+          let maxScore = scores.max() ?? 24
+          
+          let lower = max(0, minScore - 2)
+          let upper = min(24, maxScore + 2)
+          return lower...upper
      }
+     
      var body: some View {
          Chart(history) { assessment in
              LineMark(x: .value("Date", assessment.date, unit: .day), y: .value("Score", assessment.score)).interpolationMethod(.catmullRom).foregroundStyle(Color.ds.accent)
@@ -397,11 +416,10 @@ struct AssessmentChartView: View {
      }
  }
 
-
-// MARK: - Preview (Corrected)
+// MARK: - Preview (Fixed)
 #Preview {
     let container = try! ModelContainer(
-        // ✅ Pass individual types correctly, NOT an array literal
+        // ✅ Passed types individually to avoid crash
         for: WellnessTask.self, DailyAssessment.self,
         configurations: ModelConfiguration(isStoredInMemoryOnly: true)
     )
@@ -412,24 +430,24 @@ struct AssessmentChartView: View {
         let date = Calendar.current.date(byAdding: .day, value: -index, to: today)!
         return DailyAssessment(date: date, score: Int.random(in: 5...15))
     }.reversed()
-    let _ = { sampleHistory.forEach { context.insert($0) } }() // Insert sample data
+    let _ = { sampleHistory.forEach { context.insert($0) } }()
 
     let initialState = DashboardFeature.State(
-        healthMetrics: HealthMetric.mock, // Assumes defined in HealthMetric.swift
-        weeklySteps: StepData.mock, // Assumes defined in HealthClient.swift
+        healthMetrics: HealthMetric.mock,
+        weeklySteps: StepData.mock,
         weeklyEnergy: EnergyData.mock,
         weeklyHeartRate: HeartRateData.mock,
         isLoading: false,
-        wellnessTasksState: .init(), // Provide default state
+        wellnessTasksState: .init(),
         assessmentHistory: Array(sampleHistory)
     )
 
     let store = Store(initialState: initialState) {
         DashboardFeature()
             .dependency(\.healthClient, .previewValue)
-            .dependency(\.modelContext, try! ModelContextBox(context)) // Assumes ModelContextBox exists
+            .dependency(\.modelContext, try! ModelContextBox(context))
     }
 
     DashboardView(store: store)
-        .modelContainer(container) // Keep this modifier
+        .modelContainer(container)
 }

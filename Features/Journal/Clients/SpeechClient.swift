@@ -54,7 +54,11 @@ extension SpeechClient: DependencyKey {
                 Task {
                     do {
                         // Request microphone permission if needed
-                        let micPermission = await AVAudioApplication.requestRecordPermission()
+                        let micPermission = await withCheckedContinuation { continuation in
+                            audioSession.requestRecordPermission { granted in
+                                continuation.resume(returning: granted)
+                            }
+                        }
                         guard micPermission else {
                             continuation.finish(throwing: NSError(
                                 domain: "SpeechClient",
