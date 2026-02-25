@@ -1,4 +1,4 @@
-# Depresso App Architecture with Huawei Cloud Integration
+# Depresso App Architecture with Google Gemini Integration
 
 ## System Architecture
 
@@ -22,7 +22,7 @@
 │  └─────────────────────────────────────────────────┘          │
 └─────────────────────────┬───────────────────────────────────────┘
                           │ HTTPS/REST API
-                          │ (http://192.168.1.100:3000)
+                          │ (http://192.168.1.6:3000)
                           ▼
 ┌─────────────────────────────────────────────────────────────────┐
 │                    Node.js Backend Server                       │
@@ -39,8 +39,8 @@
 │  └──────────────────────┬─────────────────────────────┘        │
 │                         │                                       │
 │  ┌──────────────────────▼─────────────────────────────┐        │
-│  │      Huawei Agent Service                          │        │
-│  │  (src/services/huaweiAgentService.js)              │        │
+│  │          AI Agent Service (Gemini)                 │        │
+│  │  (src/services/aiService.js)                       │        │
 │  │  • Formats health metrics                          │        │
 │  │  • Manages conversations                           │        │
 │  │  • Parses ML responses                             │        │
