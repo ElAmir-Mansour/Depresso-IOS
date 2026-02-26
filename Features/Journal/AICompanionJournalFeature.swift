@@ -35,6 +35,8 @@ struct AICompanionJournalFeature {
           // Voice Journaling State
           var isRecording: Bool = false
           var speechAuthStatus: SFSpeechRecognizerAuthorizationStatus = .notDetermined
+          
+          @Presents var destination: Destination.State?
       }
 
       enum Action: BindableAction {
@@ -56,12 +58,20 @@ struct AICompanionJournalFeature {
           case speechError(String)
           case checkSpeechAuthorization
 
-          case retryLastMessage // ADDED
-
+          case retryLastMessage
+          case syncUnsyncedMessages
+          case guidedJournalButtonTapped // NEW
+          case destination(PresentationAction<Destination.Action>)
+          
           @CasePathable
           enum Alert: Equatable {
               case retry
           }
+      }
+      
+      @Reducer(state: .equatable)
+      enum Destination {
+          case guidedJournal(GuidedJournalFeature)
       }
 
 
@@ -87,32 +97,70 @@ struct AICompanionJournalFeature {
             switch action {
              case .task:
                 // Load messages and start motion updates if empty
+                let initialMerge = .merge(
+                    .run { [modelContext] send in
+                        let descriptor = FetchDescriptor<ChatMessage>(sortBy: [SortDescriptor(\.timestamp)])
+                        await send(.messagesLoaded(Result { 
+                            try await MainActor.run {
+                                try modelContext.context.fetch(descriptor)
+                            }
+                        }))
+                    },
+                    .run { [motionClient] send in
+                        for await motionData in motionClient.start() {
+                            await send(.motionUpdate(motionData))
+                        }
+                    }
+                    .cancellable(id: CancelID.motion)
+                )
+                
                 if state.messages.isEmpty {
                     state.journalSessionStartDate = Date()
-                    return .merge(
-                        .run { [modelContext] send in
-                            let descriptor = FetchDescriptor<ChatMessage>(sortBy: [SortDescriptor(\.timestamp)])
-                            await send(.messagesLoaded(Result { 
-                                try await MainActor.run {
-                                    try modelContext.context.fetch(descriptor)
-                                }
-                            }))
-                        },
-                        .run { [motionClient] send in
-                            for await motionData in motionClient.start() {
-                                await send(.motionUpdate(motionData))
-                            }
-                        }
-                        .cancellable(id: CancelID.motion)
-                    )
+                    return .merge(initialMerge, .send(.syncUnsyncedMessages))
                 }
                 
-                return .none
+                return .send(.syncUnsyncedMessages)
+                
+             case .syncUnsyncedMessages:
+                let unsynced = state.messages.filter { $0.isFromCurrentUser && !$0.isSynced }
+                guard !unsynced.isEmpty else { return .none }
+                
+                return .run { [aiClient, modelContext] send in
+                    for message in unsynced {
+                        do {
+                            // Simple retry: send the content as prompt
+                            // Context might be tricky for old messages, but better than nothing
+                            let responseText = try await aiClient.generateResponse([], message.content, nil)
+                            
+                            await MainActor.run {
+                                message.isSynced = true
+                                let aiMessage = ChatMessage(content: responseText, isFromCurrentUser: false, isSynced: true)
+                                modelContext.context.insert(aiMessage)
+                                try? modelContext.context.save()
+                                send(.aiMessageSaved(.success(aiMessage)))
+                            }
+                        } catch {
+                            print("⚠️ Failed to sync message \(message.id): \(error)")
+                        }
+                    }
+                }
                 
              case .checkSpeechAuthorization:
                 return .run { [speechClient] send in
                     _ = await speechClient.requestAuthorization()
                 }
+                
+             case .guidedJournalButtonTapped:
+                state.destination = .guidedJournal(.init(template: GuidedJournalFeature.gratitudeTemplate))
+                return .none
+                
+             case .destination(.presented(.guidedJournal(.submissionCompleted(.success)))):
+                state.destination = nil
+                return .none
+                
+             case .destination:
+                return .none
+
              case .messagesLoaded(.success(let messages)):
                  state.messages = messages
                  if messages.isEmpty {
@@ -154,43 +202,38 @@ struct AICompanionJournalFeature {
     let history = self.history(from: state.messages)
 
     return .run { [modelContext, aiClient, healthClient] send in
-        // Create and save user message on MainActor
-        await MainActor.run {
-            let userMessage = ChatMessage(content: messageContent, isFromCurrentUser: true)
-            modelContext.context.insert(userMessage)
-            do {
-                try modelContext.context.save()
-                send(.userMessageSaved(.success(userMessage)))
-            } catch {
-                send(.userMessageSaved(.failure(error)))
-            }
+        // 1. Create and save user message locally (unsynced)
+        let userMessage = await MainActor.run {
+            let message = ChatMessage(content: messageContent, isFromCurrentUser: true, isSynced: false)
+            modelContext.context.insert(message)
+            try? modelContext.context.save()
+            send(.userMessageSaved(.success(message)))
+            return message
         }
 
         // Fetch AI response and health metrics
         do {
-            let responseText = try await aiClient.generateResponse(history, prompt, nil) // CHANGED
+            let responseText = try await aiClient.generateResponse(history, prompt, nil)
             let metricsArray = try await healthClient.fetchHealthMetrics()
             let steps = metricsArray.first(where: { $0.type == .steps })?.value ?? 0.0
             let energy = metricsArray.first(where: { $0.type == .calories })?.value ?? 0.0
             let heartRate = metricsArray.first(where: { $0.type == .heartRate })?.value ?? 0.0
             let dailyMetrics = DailyMetrics(steps: steps, activeEnergy: energy, heartRate: heartRate)
 
-            // Save AI message on MainActor
+            // 2. Mark user message as synced and save AI response
             await MainActor.run {
-                let aiMessage = ChatMessage(content: responseText, isFromCurrentUser: false)
+                userMessage.isSynced = true
+                let aiMessage = ChatMessage(content: responseText, isFromCurrentUser: false, isSynced: true)
                 modelContext.context.insert(aiMessage)
-                do {
-                    try modelContext.context.save()
-                    send(.aiMessageSaved(.success(aiMessage)))
-                } catch {
-                    send(.aiMessageSaved(.failure(error)))
-                }
+                try? modelContext.context.save()
+                send(.aiMessageSaved(.success(aiMessage)))
             }
 
             await send(.submissionDataLoaded(.success(dailyMetrics)))
 
         } catch {
-            print("❌ Error during concurrent fetch/save: \(error)")
+            print("❌ Sync/AI Error: \(error)")
+            // 3. User message remains isSynced = false for retry logic later
             await send(.aiMessageSaved(.failure(error)))
             await send(.submissionDataLoaded(.failure(error)))
         }
@@ -366,5 +409,6 @@ struct AICompanionJournalFeature {
             }
         }
         .ifLet(\.$alert, action: \.alert)
+        .ifLet(\.$destination, action: \.destination)
     }
 }

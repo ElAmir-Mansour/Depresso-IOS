@@ -13,6 +13,7 @@ struct WelcomeOnboardingView: View {
     @State private var currentPage = 0
     @State private var isAnimating = false
     let onComplete: () -> Void
+    let onSignIn: () -> Void
     
     let pages: [OnboardingPage] = [
         OnboardingPage(
@@ -190,6 +191,19 @@ struct WelcomeOnboardingView: View {
                         .shadow(color: .black.opacity(0.15), radius: 20, x: 0, y: 10)
                     }
                     .padding(.horizontal, 30)
+                    
+                    if currentPage == pages.count - 1 {
+                        Button {
+                            onSignIn()
+                        } label: {
+                            Text("Already have an account? Sign in")
+                                .font(.system(size: 16, weight: .medium))
+                                .foregroundColor(.white.opacity(0.9))
+                                .underline()
+                        }
+                        .padding(.top, 10)
+                        .transition(.opacity)
+                    }
                 }
                 .padding(.bottom, 40)
             }
@@ -204,7 +218,8 @@ struct WelcomeOnboardingView: View {
 
 // Preview
 #Preview {
-    WelcomeOnboardingView(onComplete: {
-        print("Onboarding completed")
-    })
+    WelcomeOnboardingView(
+        onComplete: { print("Onboarding completed") },
+        onSignIn: { print("Sign in tapped") }
+    )
 }

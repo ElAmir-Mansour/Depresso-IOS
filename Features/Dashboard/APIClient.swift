@@ -317,6 +317,68 @@ body: Request(userId: userId)
         )
     }
     
+    // NEW: Delete user account
+    static func deleteAccount(userId: String) async throws {
+        let _: EmptyResponse = try await request(
+            endpoint: "/users/\(userId)",
+            method: .delete
+        )
+    }
+    
+    // MARK: - Authentication (Apple Sign In)
+    static func appleLogin(appleUserId: String, email: String?, fullName: String?, identityToken: String?) async throws -> (userId: String, isNewUser: Bool) {
+        struct Request: Codable {
+            let appleUserId: String
+            let email: String?
+            let fullName: String?
+            let identityToken: String?
+        }
+        
+        struct Response: Codable {
+            let userId: String
+            let isNewUser: Bool
+        }
+        
+        let response: Response = try await request(
+            endpoint: "/users/auth/apple",
+            method: .post,
+            body: Request(
+                appleUserId: appleUserId,
+                email: email,
+                fullName: fullName,
+                identityToken: identityToken
+            )
+        )
+        
+        return (response.userId, response.isNewUser)
+    }
+    
+    static func linkAppleAccount(userId: String, appleUserId: String, email: String?, fullName: String?, identityToken: String?) async throws {
+        struct Request: Codable {
+            let userId: String
+            let appleUserId: String
+            let email: String?
+            let fullName: String?
+            let identityToken: String?
+        }
+        
+        struct Response: Codable {
+            let success: Bool
+        }
+        
+        let _: Response = try await request(
+            endpoint: "/users/auth/apple/link",
+            method: .post,
+            body: Request(
+                userId: userId,
+                appleUserId: appleUserId,
+                email: email,
+                fullName: fullName,
+                identityToken: identityToken
+            )
+        )
+    }
+    
     // MARK: - Analytics
     static func trackAnalytics(userId: String, eventType: String, postId: String?) async throws {
         struct Request: Codable {

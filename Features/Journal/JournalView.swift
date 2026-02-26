@@ -91,14 +91,25 @@ struct JournalView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
-                if isTextFieldFocused {
-                    Button("Done") {
-                        isTextFieldFocused = false
+                HStack {
+                    Button {
+                        store.send(.guidedJournalButtonTapped)
+                    } label: {
+                        Image(systemName: "sparkles")
+                    }
+                    
+                    if isTextFieldFocused {
+                        Button("Done") {
+                            isTextFieldFocused = false
+                        }
                     }
                 }
             }
         }
         .alert($store.scope(state: \.alert, action: \.alert))
+        .sheet(item: $store.scope(state: \.destination?.guidedJournal, action: \.destination.guidedJournal)) { guidedStore in
+            GuidedJournalView(store: guidedStore)
+        }
         .task {
             store.send(.task)
         }

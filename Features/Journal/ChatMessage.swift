@@ -9,11 +9,13 @@ final class ChatMessage {
     var timestamp: Date
     var content: String
     var isFromCurrentUser: Bool
+    var isSynced: Bool
 
-    init(id: UUID = UUID(), timestamp: Date = .now, content: String, isFromCurrentUser: Bool) {
+    init(id: UUID = UUID(), timestamp: Date = .now, content: String, isFromCurrentUser: Bool, isSynced: Bool = true) {
         self.id = id
         self.timestamp = timestamp
         self.content = content
         self.isFromCurrentUser = isFromCurrentUser
+        self.isSynced = isSynced
     }
 }

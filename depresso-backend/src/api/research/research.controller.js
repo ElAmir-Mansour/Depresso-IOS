@@ -6,13 +6,33 @@ exports.getStats = async (req, res) => {
         const stats = await pool.query(`
             SELECT 
                 (SELECT COUNT(*) FROM users) as total_users,
-                (SELECT COUNT(*) FROM journalentries) as total_entries,
+                (SELECT COUNT(*) FROM journalentries) as total_journal_entries,
+                (SELECT COUNT(*) FROM researchentries) as total_research_entries,
                 (SELECT COUNT(*) FROM assessments) as total_assessments,
                 (SELECT COUNT(*) FROM aichatmessages) as total_messages,
-                (SELECT AVG(sentiment_score) FROM journalentries WHERE sentiment_score IS NOT NULL) as avg_sentiment,
-                (SELECT COUNT(*) FROM journalentries WHERE analysis_json->>'risk_flag' = 'true') as risk_flags
+                (SELECT AVG(
+                    CASE 
+                        WHEN sentiment_label ~ '^[0-9\\.]+$' THEN CAST(sentiment_label AS FLOAT)
+                        WHEN sentiment_label ILIKE 'positive' THEN 1.0
+                        WHEN sentiment_label ILIKE 'neutral' THEN 0.5
+                        WHEN sentiment_label ILIKE 'negative' THEN 0.0
+                        ELSE NULL 
+                    END
+                ) FROM researchentries WHERE sentiment_label IS NOT NULL) as avg_sentiment
         `);
-        res.json(stats.rows[0]);
+        
+        // Map to frontend expected keys (or update frontend)
+        const row = stats.rows[0];
+        const result = {
+            total_users: row.total_users,
+            total_entries: parseInt(row.total_journal_entries) + parseInt(row.total_research_entries), // Combine or keep separate? Dashboard expects 'total_entries'
+            total_assessments: row.total_assessments,
+            total_messages: row.total_messages,
+            avg_sentiment: row.avg_sentiment,
+            risk_flags: 0 // Placeholder until risk logic is finalized
+        };
+        
+        res.json(result);
     } catch (error) {
         console.error('Research stats error:', error);
         res.status(500).json({ error: 'Failed to fetch stats' });
@@ -23,13 +43,22 @@ exports.getStats = async (req, res) => {
 exports.getSentimentData = async (req, res) => {
     try {
         const { days = 30 } = req.query;
+        // Use ResearchEntries and safe cast sentiment_label
         const result = await pool.query(`
             SELECT 
                 DATE(created_at) as date,
-                AVG(sentiment_score) as avg_sentiment,
+                AVG(
+                    CASE 
+                        WHEN sentiment_label ~ '^[0-9\\.]+$' THEN CAST(sentiment_label AS FLOAT)
+                        WHEN sentiment_label ILIKE 'positive' THEN 1.0
+                        WHEN sentiment_label ILIKE 'neutral' THEN 0.5
+                        WHEN sentiment_label ILIKE 'negative' THEN 0.0
+                        ELSE NULL 
+                    END
+                ) as avg_sentiment,
                 COUNT(*) as entry_count
-            FROM journalentries 
-            WHERE sentiment_score IS NOT NULL 
+            FROM ResearchEntries 
+            WHERE sentiment_label IS NOT NULL 
               AND created_at >= NOW() - INTERVAL '${parseInt(days)} days'
             GROUP BY DATE(created_at)
             ORDER BY date ASC
@@ -39,13 +68,18 @@ exports.getSentimentData = async (req, res) => {
         const distribution = await pool.query(`
             SELECT 
                 CASE 
-                    WHEN sentiment_score < -0.3 THEN 'negative'
-                    WHEN sentiment_score > 0.3 THEN 'positive'
+                    -- Numeric handling
+                    WHEN sentiment_label ~ '^[0-9\\.]+$' AND CAST(sentiment_label AS FLOAT) < 0.3 THEN 'negative'
+                    WHEN sentiment_label ~ '^[0-9\\.]+$' AND CAST(sentiment_label AS FLOAT) > 0.7 THEN 'positive'
+                    WHEN sentiment_label ~ '^[0-9\\.]+$' THEN 'neutral'
+                    -- Text handling
+                    WHEN sentiment_label ILIKE 'negative' THEN 'negative'
+                    WHEN sentiment_label ILIKE 'positive' THEN 'positive'
                     ELSE 'neutral'
                 END as category,
                 COUNT(*) as count
-            FROM journalentries 
-            WHERE sentiment_score IS NOT NULL
+            FROM ResearchEntries 
+            WHERE sentiment_label IS NOT NULL
             GROUP BY category
         `);
 

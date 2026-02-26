@@ -77,8 +77,13 @@ Base URL: `/api/v1`
     - [ ] CI/CD Pipeline (GitHub Actions) for auto-testing and deployment.
     - [ ] Dockerize backend for consistent environments (Dockerfile exists).
 
-## 6. Next Steps (Immediate)
-1.  **Authentication**: Implement robust "Sign in with Apple" to prevent data loss.
-2.  **Data Deletion**: Add "Delete Account" endpoint and UI to comply with App Store rules.
-3.  **Offline Support**: Implement `SwiftData` queue for offline journal entries.
-4.  **Research Dashboard**: Enhance visualizations for aggregated user data.
+## 6. Next Steps (Current)
+1.  [x] **Authentication**: Backend plumbing + iOS AuthenticationClient implemented.
+2.  [x] **Data Deletion**: Implemented in Settings and Backend.
+3.  [x] **Offline Support**: SwiftData sync queue and visual indicators added.
+4.  [ ] **Phase 2: Content Expansion**:
+    - [x] **Breathing Exercise**: Box breathing tool added to Dashboard.
+    - [ ] **Structured CBT Templates**: Add "Guided Journaling" for Gratitude and Thought records.
+    - [ ] **Analytics Insights**: Deepen the correlation between Health data and Mood scores on the backend.
+    - [ ] **Push Notifications**: Daily reminders for check-ins.
+

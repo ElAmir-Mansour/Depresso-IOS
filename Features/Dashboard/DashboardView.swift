@@ -40,6 +40,9 @@ struct DashboardView: View {
             .sheet(item: $store.scope(state: \.destination?.dailyAssessment, action: \.destination.dailyAssessment)) { assessmentStore in
                  DailyAssessmentView(store: assessmentStore)
             }
+            .sheet(item: $store.scope(state: \.destination?.breathing, action: \.destination.breathing)) { breathingStore in
+                 BreathingView(store: breathingStore)
+            }
         }
     }
     
@@ -70,6 +73,53 @@ struct DashboardView: View {
             
             dailyAssessmentSection
                 .padding(.horizontal, Layout.screenPadding)
+            
+            quickReliefSection
+                .padding(.horizontal, Layout.screenPadding)
+        }
+    }
+    
+    @ViewBuilder private var quickReliefSection: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack {
+                Image(systemName: "wind")
+                    .font(.title3)
+                    .foregroundStyle(Color.ds.accent)
+                
+                Text("Quick Relief")
+                    .font(.system(.title3, design: .rounded).weight(.semibold))
+                    .foregroundStyle(.primary)
+                
+                Spacer()
+            }
+            
+            DashboardCard(title: "Box Breathing") {
+                HStack {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Calm your nervous system in 2 minutes.")
+                            .font(.ds.body)
+                            .foregroundStyle(.secondary)
+                        
+                        Button {
+                            store.send(.breathingButtonTapped)
+                        } label: {
+                            Text("Start Exercise")
+                                .font(.ds.subheadline.weight(.semibold))
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 8)
+                                .background(Color.ds.accent)
+                                .foregroundColor(.white)
+                                .cornerRadius(12)
+                        }
+                    }
+                    
+                    Spacer()
+                    
+                    Image(systemName: "lungs.fill")
+                        .font(.system(size: 40))
+                        .foregroundStyle(Color.ds.accent.opacity(0.3))
+                }
+            }
         }
     }
     

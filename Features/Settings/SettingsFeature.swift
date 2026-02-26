@@ -6,71 +6,115 @@ import ComposableArchitecture
 struct SettingsFeature {
     @ObservableState
     struct State: Equatable {
-        var isPrivacyModeEnabled: Bool = UserDefaults.standard.bool(forKey: "isPrivacyModeEnabled")
-        var isModelDownloaded: Bool = false
-        var isDownloading: Bool = false
-        var downloadProgress: Double = 0.0
+        var isDeletingAccount: Bool = false
+        var isLinkingAccount: Bool = false
+        @Presents var alert: AlertState<Action.Alert>?
     }
     
     enum Action: BindableAction {
         case binding(BindingAction<State>)
-        case task
-        case togglePrivacyMode(Bool)
-        case downloadModel
-        case downloadCompleted
-        case downloadFailed(Error)
+        case deleteAccountButtonTapped
+        case deleteAccountConfirmed
+        case deleteAccountCompleted(Result<Void, Error>)
+        case linkAccountButtonTapped
+        case linkAccountCompleted(Result<Void, Error>)
+        case alert(PresentationAction<Alert>)
+        case delegate(Delegate)
+        
+        enum Alert: Equatable {
+            case confirmDeletion
+        }
+        
+        enum Delegate: Equatable {
+            case accountDeleted
+        }
     }
     
     @Dependency(\.aiClient) var aiClient
+    @Dependency(\.authenticationClient) var authenticationClient
     
     var body: some Reducer<State, Action> {
         BindingReducer()
         
         Reduce { state, action in
             switch action {
-            case .task:
-                // Check if model exists
-                state.isModelDownloaded = aiClient.isModelAvailable()
-                return .none
-                
-            case .binding(\.isPrivacyModeEnabled):
-                let isEnabled = state.isPrivacyModeEnabled
+            case .linkAccountButtonTapped:
+                state.isLinkingAccount = true
                 return .run { send in
-                    await send(.togglePrivacyMode(isEnabled))
+                    do {
+                        let credentials = try await authenticationClient.signInWithApple()
+                        let currentUserId = try await UserManager.shared.getCurrentUserId()
+                        let fullName = [credentials.fullName?.givenName, credentials.fullName?.familyName]
+                            .compactMap { $0 }
+                            .joined(separator: " ")
+                        
+                        try await APIClient.linkAppleAccount(
+                            userId: currentUserId,
+                            appleUserId: credentials.userId,
+                            email: credentials.email,
+                            fullName: fullName.isEmpty ? nil : fullName,
+                            identityToken: credentials.identityToken
+                        )
+                        
+                        await send(.linkAccountCompleted(.success(())))
+                    } catch {
+                        await send(.linkAccountCompleted(.failure(error)))
+                    }
                 }
                 
-            case .togglePrivacyMode(let isEnabled):
-                UserDefaults.standard.set(isEnabled, forKey: "isPrivacyModeEnabled")
-                if isEnabled && !state.isModelDownloaded {
-                    return .send(.downloadModel)
+            case .linkAccountCompleted(.success):
+                state.isLinkingAccount = false
+                state.alert = AlertState { TextState("Success") } message: { TextState("Your account has been successfully linked to Apple ID.") }
+                return .none
+                
+            case .linkAccountCompleted(.failure(let error)):
+                state.isLinkingAccount = false
+                state.alert = AlertState { TextState("Linking Failed") } message: { TextState(error.localizedDescription) }
+                return .none
+
+            case .deleteAccountButtonTapped:
+                state.alert = AlertState {
+                    TextState("Delete Account")
+                } actions: {
+                    ButtonState(role: .destructive, action: .confirmDeletion) {
+                        TextState("Delete")
+                    }
+                    ButtonState(role: .cancel) {
+                        TextState("Cancel")
+                    }
+                } message: {
+                    TextState("Are you sure? This will permanently delete all your journal entries, metrics, and data. This action cannot be undone.")
                 }
                 return .none
                 
-            case .downloadModel:
-                state.isDownloading = true
+            case .alert(.presented(.confirmDeletion)):
+                return .send(.deleteAccountConfirmed)
+                
+            case .deleteAccountConfirmed:
+                state.isDeletingAccount = true
                 return .run { send in
-                    // In a real app, track progress here
-                    try await aiClient.downloadModel()
-                    await send(.downloadCompleted)
-                } catch: { error, send in
-                    await send(.downloadFailed(error))
+                    do {
+                        let userId = try await UserManager.shared.getCurrentUserId()
+                        try await APIClient.deleteAccount(userId: userId)
+                        await send(.deleteAccountCompleted(.success(())))
+                    } catch {
+                        await send(.deleteAccountCompleted(.failure(error)))
+                    }
                 }
                 
-            case .downloadCompleted:
-                state.isDownloading = false
-                state.isModelDownloaded = true
-                state.isPrivacyModeEnabled = true // Auto-enable on success
+            case .deleteAccountCompleted(.success):
+                state.isDeletingAccount = false
+                return .send(.delegate(.accountDeleted))
+                
+            case .deleteAccountCompleted(.failure(let error)):
+                state.isDeletingAccount = false
+                print("Failed to delete account: \(error)")
                 return .none
                 
-            case .downloadFailed(let error):
-                state.isDownloading = false
-                state.isPrivacyModeEnabled = false // Revert
-                print("Download failed: \(error)")
-                return .none
-                
-            case .binding:
+            case .delegate, .binding, .alert:
                 return .none
             }
         }
+        .ifLet(\.$alert, action: \.alert)
     }
 }

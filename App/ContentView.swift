@@ -18,9 +18,14 @@ struct ContentView: View {
                         viewStore.send(.splashCompleted)
                     }
                 } else if viewStore.showingWelcome {
-                    WelcomeOnboardingView {
-                        viewStore.send(.welcomeCompleted)
-                    }
+                    WelcomeOnboardingView(
+                        onComplete: {
+                            viewStore.send(.welcomeCompleted)
+                        },
+                        onSignIn: {
+                            viewStore.send(.signInWelcomeButtonTapped)
+                        }
+                    )
                 } else {
                     mainContent
                         .sheet(store: self.store.scope(state: \.$onboardingState, action: \.onboarding)) { store in

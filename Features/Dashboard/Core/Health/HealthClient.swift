@@ -56,6 +56,7 @@ struct HealthClient {
     var fetchWeeklyActiveEnergy: @Sendable () async throws -> [EnergyData]
     var fetchWeeklyHeartRate: @Sendable () async throws -> [HeartRateData]
     var requestAuthorization: @Sendable () async throws -> Void
+    var saveMindfulSession: @Sendable (_ startDate: Date, _ endDate: Date) async throws -> Void
 }
 
 extension HealthClient: DependencyKey {
@@ -81,6 +82,10 @@ extension HealthClient: DependencyKey {
         requestAuthorization: {
              let manager = HealthKitManager()
              try await manager.requestAuthorization()
+        },
+        saveMindfulSession: { startDate, endDate in
+            let manager = HealthKitManager()
+            try await manager.saveMindfulSession(startDate: startDate, endDate: endDate)
         }
     )
 
@@ -89,7 +94,8 @@ extension HealthClient: DependencyKey {
          fetchWeeklySteps: { StepData.mock },
          fetchWeeklyActiveEnergy: { EnergyData.mock },
          fetchWeeklyHeartRate: { HeartRateData.mock },
-         requestAuthorization: { }
+         requestAuthorization: { },
+         saveMindfulSession: { _, _ in }
      )
 
      static let unimplemented = Self(
@@ -97,7 +103,8 @@ extension HealthClient: DependencyKey {
           fetchWeeklySteps: { XCTFail("Unimplemented: HealthClient.fetchWeeklySteps"); return [] },
           fetchWeeklyActiveEnergy: { XCTFail("Unimplemented: HealthClient.fetchWeeklyActiveEnergy"); return [] },
           fetchWeeklyHeartRate: { XCTFail("Unimplemented: HealthClient.fetchWeeklyHeartRate"); return [] },
-          requestAuthorization: { XCTFail("Unimplemented: HealthClient.requestAuthorization") }
+          requestAuthorization: { XCTFail("Unimplemented: HealthClient.requestAuthorization") },
+          saveMindfulSession: { _, _ in XCTFail("Unimplemented: HealthClient.saveMindfulSession") }
      )
 }
 

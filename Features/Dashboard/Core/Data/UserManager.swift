@@ -41,6 +41,15 @@ class UserManager: ObservableObject {
         }
         return id
     }
+    
+    // Manually set user ID (e.g. after login)
+    nonisolated func setUserId(_ id: String) {
+        Task { @MainActor in
+            self.userId = id
+        }
+        UserDefaults.standard.set(id, forKey: userDefaultsKey)
+        print("✅ User ID updated to: \(id)")
+    }
 }
 
 enum UserError: Error {

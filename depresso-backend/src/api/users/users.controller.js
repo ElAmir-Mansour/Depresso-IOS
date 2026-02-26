@@ -68,3 +68,108 @@ exports.updateProfile = async (req, res) => {
         res.status(500).send('Server error');
     }
 };
+
+// NEW: Delete user account
+exports.deleteAccount = async (req, res) => {
+    const { userId } = req.params;
+
+    if (!userId) {
+        return res.status(400).send('userId is required.');
+    }
+
+    try {
+        // Cascade delete in schema handles related data
+        const result = await pool.query('DELETE FROM Users WHERE id = $1 RETURNING id', [userId]);
+
+        if (result.rowCount === 0) {
+            return res.status(404).send('User not found.');
+        }
+
+        res.status(204).send(); // No Content
+    } catch (error) {
+        console.error('Error deleting user account:', error);
+        res.status(500).send('Server error');
+    }
+};
+
+// NEW: Apple Sign In
+exports.appleLogin = async (req, res) => {
+    const { appleUserId, email, fullName, identityToken } = req.body;
+
+    if (!appleUserId) {
+        return res.status(400).json({ error: 'appleUserId is required' });
+    }
+
+    try {
+        // TODO: Verify identityToken with Apple (skipped for MVP)
+        
+        // Check if user exists
+        const result = await pool.query(
+            'SELECT id FROM Users WHERE apple_user_id = $1',
+            [appleUserId]
+        );
+
+        if (result.rows.length > 0) {
+            // User exists, return ID
+            return res.json({ userId: result.rows[0].id, isNewUser: false });
+        } else {
+            // Create new user
+            const newUserId = uuidv4();
+            // Full name might be structured "Given Family" or object, client should send string
+            await pool.query(
+                'INSERT INTO Users (id, apple_user_id, email, name) VALUES ($1, $2, $3, $4)',
+                [newUserId, appleUserId, email, fullName]
+            );
+            return res.status(201).json({ userId: newUserId, isNewUser: true });
+        }
+    } catch (error) {
+        console.error('Apple login error:', error);
+        res.status(500).json({ error: 'Login failed' });
+    }
+};
+
+// NEW: Link existing anonymous account to Apple ID
+exports.linkAppleAccount = async (req, res) => {
+    const { userId, appleUserId, email, fullName } = req.body;
+
+    if (!userId || !appleUserId) {
+        return res.status(400).json({ error: 'userId and appleUserId are required' });
+    }
+
+    try {
+        // Check if apple ID is already taken
+        const existing = await pool.query(
+            'SELECT id FROM Users WHERE apple_user_id = $1',
+            [appleUserId]
+        );
+
+        if (existing.rows.length > 0) {
+            // Conflict: Apple ID is already associated with a different user
+            // Strategy: Return the existing user ID so the client can switch
+            return res.status(409).json({ 
+                error: 'Apple ID already linked to another account',
+                existingUserId: existing.rows[0].id 
+            });
+        }
+
+        // Update current user
+        const result = await pool.query(
+            `UPDATE Users 
+             SET apple_user_id = $1, 
+                 email = COALESCE(email, $2), 
+                 name = COALESCE(name, $3) 
+             WHERE id = $4 
+             RETURNING id`,
+            [appleUserId, email, fullName, userId]
+        );
+
+        if (result.rowCount === 0) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Link account error:', error);
+        res.status(500).json({ error: 'Failed to link account' });
+    }
+};

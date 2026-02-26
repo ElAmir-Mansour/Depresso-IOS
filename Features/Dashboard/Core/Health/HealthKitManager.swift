@@ -39,10 +39,29 @@ class HealthKitManager {
             HKObjectType.categoryType(forIdentifier: .sleepAnalysis)!
         ]
         
-        let typesToShare: Set<HKSampleType> = []
+        let typesToShare: Set<HKSampleType> = [
+            HKObjectType.categoryType(forIdentifier: .mindfulSession)!
+        ]
         
         try await healthStore.requestAuthorization(toShare: typesToShare, read: typesToRead)
         print("HealthKit Authorization Requested.") // Added log
+    }
+
+    // Function to save mindful session
+    func saveMindfulSession(startDate: Date, endDate: Date) async throws {
+        guard let mindfulType = HKObjectType.categoryType(forIdentifier: .mindfulSession) else {
+            return
+        }
+        
+        let mindfulSample = HKCategorySample(
+            type: mindfulType,
+            value: HKCategoryValue.notApplicable.rawValue,
+            start: startDate,
+            end: endDate
+        )
+        
+        try await healthStore.save(mindfulSample)
+        print("✅ Saved mindful session to HealthKit: \(endDate.timeIntervalSince(startDate) / 60) minutes")
     }
 
     // ✅ Renamed function to match HealthClient expectation: fetchDailyMetrics

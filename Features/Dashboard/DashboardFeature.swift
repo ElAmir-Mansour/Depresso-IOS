@@ -48,12 +48,14 @@ struct DashboardFeature {
          case assessmentHistoryLoaded(Result<[DailyAssessment], Error>)
          case streakLoaded(Result<(current: Int, longest: Int), Error>) // NEW: Streak from backend
          case takeAssessmentButtonTapped
+         case breathingButtonTapped // NEW
          case destination(PresentationAction<Destination.Action>)
          case checkForAssessmentStatus
      }
      @Reducer(state: .equatable)
      enum Destination {
          case dailyAssessment(DailyAssessmentFeature) // Assumes defined
+         case breathing(BreathingFeature) // NEW
      }
      @Dependency(\.healthClient) var healthClient
      @Dependency(\.modelContext) var modelContext
@@ -193,6 +195,10 @@ struct DashboardFeature {
 
              case .takeAssessmentButtonTapped:
                   state.destination = .dailyAssessment(.init()) // Assumes DailyAssessmentFeature exists
+                  return .none
+
+             case .breathingButtonTapped:
+                  state.destination = .breathing(.init())
                   return .none
 
              // Handle result from the DailyAssessment sheet

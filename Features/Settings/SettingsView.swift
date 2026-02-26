@@ -21,11 +21,35 @@ struct SettingsView: View {
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             }
+            
+            Section("Data & Account") {
+                Button {
+                    store.send(.linkAccountButtonTapped)
+                } label: {
+                    HStack {
+                        if store.isLinkingAccount {
+                            ProgressView()
+                        } else {
+                            Image(systemName: "apple.logo")
+                            Text("Link with Apple")
+                        }
+                    }
+                    .foregroundColor(.primary)
+                }
+                
+                Button(role: .destructive) {
+                    store.send(.deleteAccountButtonTapped)
+                } label: {
+                    if store.isDeletingAccount {
+                        ProgressView()
+                    } else {
+                        Text("Delete Account")
+                    }
+                }
+            }
         }
         .navigationTitle("Settings")
-        .task {
-            store.send(.task)
-        }
+        .alert($store.scope(state: \.alert, action: \.alert))
     }
 }
 

@@ -35,10 +35,18 @@ struct MessageBubble: View {
                         y: 2
                     )
                 
-                Text(message.timestamp, style: .time)
-                    .font(.ds.caption2)
-                    .foregroundStyle(message.isFromCurrentUser ? .white.opacity(0.7) : .secondary)
-                    .padding(.horizontal, 4)
+                HStack(spacing: 4) {
+                    Text(message.timestamp, style: .time)
+                        .font(.ds.caption2)
+                        .foregroundStyle(message.isFromCurrentUser ? .white.opacity(0.7) : .secondary)
+                    
+                    if !message.isSynced && message.isFromCurrentUser {
+                        Image(systemName: "cloud.slash")
+                            .font(.system(size: 10))
+                            .foregroundStyle(.white.opacity(0.7))
+                    }
+                }
+                .padding(.horizontal, 4)
             }
             .frame(maxWidth: UIScreen.main.bounds.width * 0.75, alignment: message.isFromCurrentUser ? .trailing : .leading)
 

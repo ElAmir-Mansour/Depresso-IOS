@@ -1,28 +1,24 @@
 // In Features/Support/SupportFeature.swift
 import Foundation
 import ComposableArchitecture
-import SwiftUI // Added for View conformance if needed
-
-// MARK: - Support Feature
+import SwiftUI
 
 @Reducer
 struct SupportFeature {
     @ObservableState
-    struct State: Equatable, Sendable {
+    struct State: Equatable {
         var resources: [SupportResource] = [
-            // --- NEW: Links to Therapist Directories ---
             .init(title: "Shezlong",
                   description: "Online platform to find and book sessions with licensed therapists in Egypt.",
-                  url: URL(string: "https://www.shezlong.com/en")!, // Verify URL
+                  url: URL(string: "https://www.shezlong.com/en")!,
                   iconName: "magnifyingglass"),
             .init(title: "O7 Therapy",
                   description: "Another platform connecting users with mental health professionals in the region.",
-                  url: URL(string: "https://o7therapy.com/")!, // Verify URL
+                  url: URL(string: "https://o7therapy.com/")!,
                   iconName: "person.crop.circle.badge.questionmark"),
-            // --- Existing Resources ---
             .init(title: "GSMHAT Website",
                   description: "Official information from the General Secretariat of Mental Health.",
-                  url: URL(string: "http://www.gsmhat.gov.eg")!, // Verify URL
+                  url: URL(string: "http://www.gsmhat.gov.eg")!,
                   iconName: "network"),
             .init(title: "World Health Organization (WHO) - Depression",
                   description: "Global information on understanding depression.",
@@ -32,44 +28,46 @@ struct SupportFeature {
                   description: "General tips for improving mental wellness (HelpGuide).",
                   url: URL(string: "https://www.helpguide.org/articles/healthy-living/building-better-mental-health.htm")!,
                   iconName: "heart.text.square")
-            // Add other verified NGOs or resources here
         ]
         
         var hotlines: [Hotline] = [
              .init(name: "Ministry of Health Mental Health Hotline", phoneNumber: "16328", description: "General Secretariat of Mental Health and Addiction Treatment (GSMHAT) hotline.", iconName: "phone.fill"),
              .init(name: "Emergency Police", phoneNumber: "122", description: "General emergency number.", iconName: "exclamationmark.bubble.fill"),
              .init(name: "Ambulance", phoneNumber: "123", description: "For medical emergencies.", iconName: "cross.fill")
-             // Add other verified hotlines
         ]
         @Presents var destination: Destination.State?
+    }
+    
+    enum Action {
+        case settingsButtonTapped
+        case destination(PresentationAction<Destination.Action>)
+        case delegate(Delegate)
         
-        static func == (lhs: State, rhs: State) -> Bool {
-            return lhs.resources == rhs.resources &&
-                   lhs.hotlines == rhs.hotlines
-                   // lhs.destination == rhs.destination // Temporarily ignored to fix build
+        enum Delegate: Equatable {
+            case accountDeleted
         }
     }
     
-    enum Action: Sendable {
-        case settingsButtonTapped
-        case destination(PresentationAction<Destination.Action>)
-    }
-    
-    @Reducer
-    enum Destination: Sendable {
+    @Reducer(state: .equatable)
+    enum Destination {
         case settings(SettingsFeature)
     }
     
-    // Use MainActor isolation for safe context access if needed later
-    @MainActor
-    var body: some Reducer<State, Action> {
-        Reduce { state, action in
+    var body: some ReducerOf<Self> {
+        Reduce<State, Action> { state, action in
             switch action {
             case .settingsButtonTapped:
                 state.destination = .settings(SettingsFeature.State())
                 return .none
                 
+            case .destination(.presented(.settings(.delegate(.accountDeleted)))):
+                state.destination = nil
+                return .send(.delegate(.accountDeleted))
+                
             case .destination:
+                return .none
+                
+            case .delegate:
                 return .none
             }
         }
