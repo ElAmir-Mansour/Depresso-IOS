@@ -1,0 +1,65 @@
+# 📦 NEW FILES TO ADD TO XCODE
+
+**Location:** Features/Dashboard/Core/Design System/Components/
+
+**Files:**
+1. DSSyncIndicator.swift
+2. DSFirstTimeExperience.swift
+
+## Quick Add Instructions:
+
+### Option 1: Using Xcode GUI
+1. Open Depresso.xcworkspace
+2. In Project Navigator, navigate to:
+   Depresso → Features → Dashboard → Core → Design System → Components
+3. Right-click on "Components" folder
+4. Select "Add Files to Depresso..."
+5. Navigate to the files above
+6. Select both files
+7. ✅ UNCHECK "Copy items if needed" (files already in correct location)
+8. ✅ CHECK "Depresso" target
+9. Click "Add"
+
+### Option 2: Using Terminal (Automated)
+Run this command from project root:
+
+```bash
+# This will open Xcode with the files ready to add
+open -a "Xcode" \
+  "Features/Dashboard/Core/Design System/Components/DSSyncIndicator.swift" \
+  "Features/Dashboard/Core/Design System/Components/DSFirstTimeExperience.swift"
+```
+
+Then drag the open files into the Components folder in Project Navigator.
+
+---
+
+## Files Already Modified (No action needed):
+- ✅ DS+Color.swift (enhanced semantic colors)
+- ✅ DSButton.swift (added success variant)
+- ✅ DashboardFeature.swift (added sync & FTUE logic)
+- ✅ DashboardView.swift (integrated sync indicator & FTUE)
+
+---
+
+## After Adding Files:
+
+1. Clean build folder: Cmd+Shift+K
+2. Build: Cmd+B
+3. Run on simulator: Cmd+R
+4. Test first-time experience:
+   - Delete app from simulator
+   - Run again
+   - Should see FTUE overlay on Dashboard
+
+---
+
+## Verification Checklist:
+
+- [ ] Files appear in Project Navigator under Components/
+- [ ] Files have target membership checkbox checked
+- [ ] Build succeeds without errors
+- [ ] Sync indicator visible in Dashboard toolbar
+- [ ] FTUE overlay shows for first-time users
+- [ ] All buttons have proper variants
+

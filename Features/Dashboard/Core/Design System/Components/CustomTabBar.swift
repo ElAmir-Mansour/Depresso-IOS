@@ -1,16 +1,15 @@
 import SwiftUI
 
-// Custom animated tab bar with modern design
+// Custom animated tab bar with modern design (Optimized to 4 tabs)
 struct CustomTabBar: View {
     @Binding var selectedTab: Int
     @Namespace private var animation
     
     let tabs: [TabItem] = [
-        TabItem(icon: "chart.line.uptrend.xyaxis", title: "Dashboard", index: 0),
+        TabItem(icon: "house.fill", title: "Dashboard", index: 0),
         TabItem(icon: "book.pages.fill", title: "Journal", index: 1),
         TabItem(icon: "person.3.fill", title: "Community", index: 2),
-        TabItem(icon: "flask", title: "Research", index: 3),
-        TabItem(icon: "heart.text.square.fill", title: "Support", index: 4)
+        TabItem(icon: "lifepreserver.fill", title: "Support", index: 3)
     ]
     
     var body: some View {

@@ -2,6 +2,7 @@ import SwiftUI
 
 struct MessageBubble: View {
     let message: ChatMessage
+    var onDelete: (() -> Void)? = nil
 
     var body: some View {
         HStack(alignment: .bottom, spacing: 8) {
@@ -22,7 +23,7 @@ struct MessageBubble: View {
             // MARK: - Text Bubble
             VStack(alignment: message.isFromCurrentUser ? .trailing : .leading, spacing: 4) {
                 Text(message.content)
-                    .font(.ds.body) // Use Design System font
+                    .font(.ds.body)
                     .padding(.vertical, 12)
                     .padding(.horizontal, 16)
                     .foregroundStyle(message.isFromCurrentUser ? .white : Color.ds.textPrimary)
@@ -34,6 +35,19 @@ struct MessageBubble: View {
                         x: 0,
                         y: 2
                     )
+                    .contextMenu {
+                        Button {
+                            UIPasteboard.general.string = message.content
+                        } label: {
+                            Label("Copy", systemImage: "doc.on.doc")
+                        }
+                        
+                        Button(role: .destructive) {
+                            onDelete?()
+                        } label: {
+                            Label("Delete", systemImage: "trash")
+                        }
+                    }
                 
                 HStack(spacing: 4) {
                     Text(message.timestamp, style: .time)
@@ -50,7 +64,6 @@ struct MessageBubble: View {
             }
             .frame(maxWidth: UIScreen.main.bounds.width * 0.75, alignment: message.isFromCurrentUser ? .trailing : .leading)
 
-            // Removed User Avatar logic for cleaner look
             if !message.isFromCurrentUser { 
                 Spacer(minLength: 40) 
             }
@@ -59,7 +72,6 @@ struct MessageBubble: View {
         .padding(.vertical, 4)
     }
     
-    // Extracted for cleanliness
     private var bubbleBackground: some View {
         Group {
             if message.isFromCurrentUser {
@@ -89,8 +101,8 @@ struct MessageBubble: View {
 
 #Preview {
     VStack(spacing: 16) {
-        MessageBubble(message: ChatMessage(content: "I've been feeling a bit anxious lately and I'm not sure why.", isFromCurrentUser: true))
-        MessageBubble(message: ChatMessage(content: "I hear you. Anxiety can be tricky. Can you tell me more about when these feelings started?", isFromCurrentUser: false))
+        MessageBubble(message: ChatMessage(userId: "user1", content: "I've been feeling a bit anxious lately and I'm not sure why.", isFromCurrentUser: true))
+        MessageBubble(message: ChatMessage(userId: "user1", content: "I hear you. Anxiety can be tricky. Can you tell me more about when these feelings started?", isFromCurrentUser: false))
     }
     .padding()
     .background(Color.ds.backgroundPrimary)

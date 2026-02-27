@@ -2,8 +2,8 @@
 import Foundation
 import ComposableArchitecture
 import SwiftData
-import PhotosUI // ✅ Import PhotosUI
-import SwiftUI // Import for Image
+import PhotosUI
+import SwiftUI
 
 @Reducer
 struct AddPostFeature {
@@ -11,9 +11,9 @@ struct AddPostFeature {
     struct State: Equatable {
         var title: String = ""
         var content: String = ""
+        var category: String = "General"
         var isSaving: Bool = false
         
-        // ✅ ADDED: State for the PhotosPicker item and the loaded image data
         var selectedPhotoItem: PhotosPickerItem? = nil
         var selectedImageData: Data? = nil
         
@@ -28,18 +28,23 @@ struct AddPostFeature {
         case cancelButtonTapped
         case saveButtonTapped
         case delegate(Delegate)
-        
-        // ✅ ADDED: Action to handle the result of loading image data
         case imageDataLoaded(Result<Data?, Error>)
 
         enum Delegate {
-            case savePost(CommunityPost)
+            case savePost(PostDraft)
         }
+    }
+    
+    struct PostDraft: Equatable {
+        let title: String
+        let content: String
+        let category: String
+        let imageData: Data?
     }
 
     @Dependency(\.dismiss) var dismiss
 
-    var body: some Reducer<State, Action> {
+    var body: some ReducerOf<Self> {
         BindingReducer()
 
         Reduce { state, action in
@@ -51,46 +56,35 @@ struct AddPostFeature {
                 guard state.isValid else { return .none }
                 state.isSaving = true
 
-                // Extract data BEFORE async operations (avoid capturing non-Sendable CommunityPost)
-                let postTitle = state.title
-                let postContent = state.content
-                let postImageData = state.selectedImageData
+                let draft = PostDraft(
+                    title: state.title,
+                    content: state.content,
+                    category: state.category,
+                    imageData: state.selectedImageData
+                )
                 
                 return .run { send in
-                    // Create post inside the async context
-                    let newPost = CommunityPost(
-                        title: postTitle,
-                        content: postContent,
-                        imageData: postImageData
-                    )
-                    await send(.delegate(.savePost(newPost)))
+                    await send(.delegate(.savePost(draft)))
                     await self.dismiss()
                 }
 
-            // ✅ ADDED: Handle changes to the selected photo item
             case .binding(\.selectedPhotoItem):
-                // This runs when the user selects a photo in the picker
                 guard let newItem = state.selectedPhotoItem else {
-                    // User cleared selection or selection failed
                     state.selectedImageData = nil
                     return .none
                 }
-                // Return an effect to load the image data asynchronously
                 return .run { send in
-                    // Request the data (specify type, e.g., .jpeg)
                     let result = await Result { try await newItem.loadTransferable(type: Data.self) }
                     await send(.imageDataLoaded(result))
                 }
                 
-            // ✅ ADDED: Handle the loaded image data
             case .imageDataLoaded(.success(let data)):
                 state.selectedImageData = data
                 return .none
                 
             case .imageDataLoaded(.failure(let error)):
                 print("❌ Failed to load image data: \(error)")
-                // Optionally show an alert to the user
-                state.selectedImageData = nil // Clear potentially stale data
+                state.selectedImageData = nil
                 return .none
 
             case .binding:

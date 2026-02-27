@@ -12,6 +12,7 @@ struct DSButtonStyle: ButtonStyle {
         case secondary
         case tertiary
         case destructive
+        case success
         case ghost
     }
     
@@ -79,6 +80,8 @@ struct DSButtonStyle: ButtonStyle {
             return Color.ds.accentLight
         case .destructive:
             return Color.ds.error
+        case .success:
+            return Color.ds.success
         case .ghost:
             return Color.clear
         }
@@ -94,6 +97,8 @@ struct DSButtonStyle: ButtonStyle {
             return Color.ds.accentLight.opacity(0.7)
         case .destructive:
             return Color.ds.error.opacity(0.8)
+        case .success:
+            return Color.ds.success.opacity(0.8)
         case .ghost:
             return Color.gray.opacity(0.1)
         }
@@ -101,7 +106,7 @@ struct DSButtonStyle: ButtonStyle {
     
     private func foregroundColor(_ configuration: Configuration) -> Color {
         switch variant {
-        case .primary, .destructive:
+        case .primary, .destructive, .success:
             return .white
         case .secondary, .tertiary, .ghost:
             return .ds.textPrimary
@@ -135,8 +140,12 @@ extension Button {
         self.buttonStyle(DSButtonStyle(variant: .tertiary))
     }
     
-    func destructiveButton() -> some View {
-        self.buttonStyle(DSButtonStyle(variant: .destructive))
+    func destructiveButton(fullWidth: Bool = false) -> some View {
+        self.buttonStyle(DSButtonStyle(variant: .destructive, isFullWidth: fullWidth))
+    }
+    
+    func successButton(fullWidth: Bool = false) -> some View {
+        self.buttonStyle(DSButtonStyle(variant: .success, isFullWidth: fullWidth))
     }
     
     func ghostButton() -> some View {

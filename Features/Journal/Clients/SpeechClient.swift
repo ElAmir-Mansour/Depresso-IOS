@@ -5,7 +5,7 @@ import AVFoundation
 @DependencyClient
 struct SpeechClient {
     var requestAuthorization: () async -> SFSpeechRecognizerAuthorizationStatus = { .notDetermined }
-    var startTask: (_ request: SFSpeechAudioBufferRecognitionRequest) -> AsyncThrowingStream<String, Error> = { _ in .finished() }
+    var startTask: @Sendable (_ request: SFSpeechAudioBufferRecognitionRequest) -> AsyncThrowingStream<String, Error> = { _ in .finished() }
 }
 
 extension DependencyValues {
@@ -26,85 +26,69 @@ extension SpeechClient: DependencyKey {
         },
         startTask: { request in
             AsyncThrowingStream { continuation in
-                // Check current authorization status
-                let currentStatus = SFSpeechRecognizer.authorizationStatus()
-                
-                // If not authorized, fail immediately with clear message
-                guard currentStatus == .authorized else {
-                    continuation.finish(throwing: NSError(
-                        domain: "SpeechClient",
-                        code: 3,
-                        userInfo: [NSLocalizedDescriptionKey: "Speech recognition not authorized. Please enable in Settings."]
-                    ))
-                    return
-                }
-                
                 let audioSession = AVAudioSession.sharedInstance()
-                guard let speechRecognizer = SFSpeechRecognizer(locale: Locale(identifier: "en-US")) else {
-                    continuation.finish(throwing: NSError(domain: "SpeechClient", code: 1, userInfo: [NSLocalizedDescriptionKey: "Speech recognizer not available for en-US"]))
-                    return
-                }
-                if !speechRecognizer.isAvailable {
-                    continuation.finish(throwing: NSError(domain: "SpeechClient", code: 2, userInfo: [NSLocalizedDescriptionKey: "Speech recognizer is not available"]))
-                    return
-                }
                 let audioEngine = AVAudioEngine()
+                let speechRecognizer = SFSpeechRecognizer(locale: Locale.current) ?? SFSpeechRecognizer(locale: Locale(identifier: "en-US"))!
                 
-                // Start async work in a Task
+                var recognitionTask: SFSpeechRecognitionTask?
+                
+                continuation.onTermination = { @Sendable _ in
+                    if audioEngine.isRunning {
+                        audioEngine.stop()
+                        audioEngine.inputNode.removeTap(onBus: 0)
+                    }
+                    recognitionTask?.cancel()
+                }
+                
                 Task {
                     do {
-                        // Request microphone permission if needed
-                        let micPermission = await withCheckedContinuation { continuation in
-                            audioSession.requestRecordPermission { granted in
-                                continuation.resume(returning: granted)
-                            }
-                        }
-                        guard micPermission else {
-                            continuation.finish(throwing: NSError(
-                                domain: "SpeechClient",
-                                code: 4,
-                                userInfo: [NSLocalizedDescriptionKey: "Microphone access denied. Please enable in Settings."]
-                            ))
+                        // 1. Check Speech Authorization
+                        let speechAuth = SFSpeechRecognizer.authorizationStatus()
+                        if speechAuth != .authorized {
+                            continuation.finish(throwing: SpeechError.notAuthorized)
                             return
                         }
                         
-                        try audioSession.setCategory(.record, mode: .measurement, options: .duckOthers)
+                        // 2. Request Microphone Permission
+                        let micPermission: Bool
+                        if #available(iOS 17.0, *) {
+                            micPermission = await AVAudioApplication.requestRecordPermission()
+                        } else {
+                            micPermission = await audioSession.requestRecordPermission()
+                        }
+                        
+                        if !micPermission {
+                            continuation.finish(throwing: SpeechError.microphoneDenied)
+                            return
+                        }
+                        
+                        // 3. Configure Audio Session
+                        try audioSession.setCategory(.playAndRecord, mode: .measurement, options: [.defaultToSpeaker, .allowBluetooth])
                         try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
                         
+                        // 4. Setup Audio Engine
                         let inputNode = audioEngine.inputNode
                         let recordingFormat = inputNode.outputFormat(forBus: 0)
                         
-                        // Safety: Remove any existing tap before installing a new one
                         inputNode.removeTap(onBus: 0)
-                        
-                        inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat) { (buffer, when) in
+                        inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat) { buffer, _ in
                             request.append(buffer)
                         }
                         
                         audioEngine.prepare()
                         try audioEngine.start()
                         
-                        let recognitionTask = speechRecognizer.recognitionTask(with: request) { result, error in
+                        // 5. Start Recognition Task
+                        recognitionTask = speechRecognizer.recognitionTask(with: request) { result, error in
                             if let result = result {
                                 continuation.yield(result.bestTranscription.formattedString)
                             }
+                            
                             if let error = error {
                                 continuation.finish(throwing: error)
-                                audioEngine.stop()
-                                inputNode.removeTap(onBus: 0)
-                            }
-                            if result?.isFinal == true {
+                            } else if result?.isFinal == true {
                                 continuation.finish()
-                                audioEngine.stop()
-                                inputNode.removeTap(onBus: 0)
                             }
-                        }
-                        
-                        continuation.onTermination = { @Sendable _ in
-                            audioEngine.stop()
-                            inputNode.removeTap(onBus: 0)
-                            recognitionTask.cancel()
-                            try? audioSession.setActive(false, options: .notifyOthersOnDeactivation)
                         }
                         
                     } catch {
@@ -114,4 +98,28 @@ extension SpeechClient: DependencyKey {
             }
         }
     )
+}
+
+enum SpeechError: Error, LocalizedError {
+    case notAuthorized
+    case microphoneDenied
+    case recognizerUnavailable
+    
+    var errorDescription: String? {
+        switch self {
+        case .notAuthorized: return "Speech recognition not authorized. Please enable in Settings."
+        case .microphoneDenied: return "Microphone access denied. Please enable in Settings."
+        case .recognizerUnavailable: return "Speech recognizer is currently unavailable."
+        }
+    }
+}
+
+private extension AVAudioSession {
+    func requestRecordPermission() async -> Bool {
+        await withCheckedContinuation { continuation in
+            requestRecordPermission { granted in
+                continuation.resume(returning: granted)
+            }
+        }
+    }
 }

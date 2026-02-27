@@ -2,7 +2,6 @@
 import SwiftUI
 import SwiftData
 import ComposableArchitecture
-// import FirebaseCore // ✅ ADD THIS IMPORT
 
 @main
 struct DepressoApp: App {
@@ -14,13 +13,25 @@ struct DepressoApp: App {
             CommunityPost.self,
             DailyAssessment.self,
             JournalEntry.self,
-            ResearchEntry.self
+            ResearchEntry.self,
+            Achievement.self
         ])
-        let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+        
+        // Use a persistent configuration
+        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+
         do {
-            return try ModelContainer(for: schema, configurations: [configuration])
+            return try ModelContainer(for: schema, configurations: [modelConfiguration])
         } catch {
-            fatalError("Could not create ModelContainer: \(error)")
+            print("❌ SwiftData Load Error: \(error)")
+            // Fallback to in-memory if persistent store fails (common during development schema changes)
+            // This prevents the crash but won't save data between launches until the app is reinstalled
+            do {
+                let inMemoryConfig = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
+                return try ModelContainer(for: schema, configurations: [inMemoryConfig])
+            } catch {
+                fatalError("Could not create ModelContainer: \(error)")
+            }
         }
     }()
 
@@ -30,10 +41,9 @@ struct DepressoApp: App {
         $0.modelContext = ModelContextBox(container.mainContext)
     }
 
-    // ✅ ADD THIS ENTIRE BLOCK
-    // This initializer is called once when the app launches.
     init() {
-        // FirebaseApp.configure()
+        // Setup notification categories
+        NotificationClient.setupNotificationCategories()
     }
 
     var body: some Scene {

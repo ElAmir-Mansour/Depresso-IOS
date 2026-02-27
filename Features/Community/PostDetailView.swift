@@ -4,7 +4,7 @@ import ComposableArchitecture
 import SwiftData
 
 struct PostDetailView: View {
-    // ✅ Receives the store to enable interactivity
+    // Receives the store to enable interactivity
     let store: StoreOf<CommunityFeature>
     let post: CommunityPost
 
@@ -45,15 +45,16 @@ struct PostDetailView: View {
 
                 Divider()
 
-                // ✅ Interactive Action Buttons Row
+                // Interactive Action Buttons Row
                 HStack(spacing: DesignSystem.Spacing.medium) {
-                    // Interactive Like Button
+                    let isLiked = store.likedPostIDs.contains(post.id)
+                    
                     Button {
                         store.send(.likeButtonTapped(id: post.id))
                     } label: {
                         HStack(spacing: 4) {
-                            Image(systemName: store.likedPostIDs.contains(post.id) ? "heart.fill" : "heart")
-                                .foregroundStyle(store.likedPostIDs.contains(post.id) ? .red : .secondary)
+                            Image(systemName: isLiked ? "heart.fill" : "heart")
+                                .foregroundStyle(isLiked ? .red : .secondary)
                             if post.likeCount > 0 {
                                 Text("\(post.likeCount)")
                                     .font(.caption)
@@ -62,10 +63,6 @@ struct PostDetailView: View {
                         }
                     }
                     .buttonStyle(.plain)
-
-                    // Placeholder Reply/Share - Hidden until implemented
-                    // Button {} label: { Image(systemName: "arrowshape.turn.up.forward") }
-                    //    .buttonStyle(.plain)
 
                     Spacer()
                 }
@@ -85,14 +82,14 @@ struct PostDetailView: View {
      let container = try! ModelContainer(for: CommunityPost.self, configurations: ModelConfiguration(isStoredInMemoryOnly: true))
      let context = container.mainContext
      let previewImageData = UIImage(systemName: "photo")?.jpegData(compressionQuality: 0.8)
-     let samplePost = CommunityPost(title: "Detail View Title", content: "This is the full content of the post...", imageData: previewImageData, likeCount: 12)
+     let samplePost = CommunityPost(userId: "preview", title: "Detail View Title", content: "This is the full content of the post...", imageData: previewImageData, likeCount: 12)
      let _ = { context.insert(samplePost) }()
 
      let store = Store(initialState: CommunityFeature.State(posts: [samplePost], isLoading: false, likedPostIDs: [])) {
         CommunityFeature()
      }
 
-     return NavigationStack {
+     NavigationStack {
          PostDetailView(store: store, post: samplePost)
      }
      .modelContainer(container)

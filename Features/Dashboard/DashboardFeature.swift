@@ -8,7 +8,6 @@ import Charts
 struct DashboardFeature {
     @ObservableState
     struct State: Equatable {
-        // ✅ Added explicit Equatable now that StepData is defined and Equatable
         static func == (lhs: DashboardFeature.State, rhs: DashboardFeature.State) -> Bool {
             return lhs.healthMetrics == rhs.healthMetrics &&
                    lhs.weeklySteps == rhs.weeklySteps &&
@@ -22,56 +21,84 @@ struct DashboardFeature {
                    lhs.longestStreak == rhs.longestStreak &&
                    lhs.aiInsights == rhs.aiInsights &&
                    lhs.weeklyComparison?.thisWeekSteps == rhs.weeklyComparison?.thisWeekSteps &&
-                   lhs.destination == rhs.destination
+                   lhs.destination == rhs.destination &&
+                   lhs.achievements.map(\.uniqueId) == rhs.achievements.map(\.uniqueId) &&
+                   lhs.userName == rhs.userName &&
+                   lhs.syncStatus == rhs.syncStatus &&
+                   lhs.showFirstTimeExperience == rhs.showFirstTimeExperience
         }
 
         var healthMetrics: [HealthMetric] = []
-        var weeklySteps: [StepData] = [] // StepData is now defined in HealthClient.swift
+        var weeklySteps: [StepData] = []
         var weeklyEnergy: [EnergyData] = []
         var weeklyHeartRate: [HeartRateData] = []
         var isLoading: Bool = true
-        var wellnessTasksState = WellnessTasksFeature.State() // Assumes defined
-        var assessmentHistory: [DailyAssessment] = [] // Assumes defined
+        var wellnessTasksState = WellnessTasksFeature.State()
+        var assessmentHistory: [DailyAssessment] = []
         var canTakeAssessmentToday: Bool = true
         var currentStreak: Int = 0
         var longestStreak: Int = 0
         var aiInsights: [HealthInsight] = []
         var weeklyComparison: WeeklyComparison?
+        var achievements: [Achievement] = []
+        var userName: String? = nil
+        var syncStatus: SyncStatus = .synced
+        var lastSyncTime: Date? = nil
+        var showFirstTimeExperience: Bool = false
         @Presents var destination: Destination.State?
+        
+        enum SyncStatus: Equatable {
+            case synced
+            case syncing
+            case failed
+            case offline
+        }
+        
+        var hasCompletedFirstCheckin: Bool {
+            !assessmentHistory.isEmpty
+        }
     }
 
      enum Action {
          case task
-         case refresh // NEW: Pull-to-refresh
+         case refresh
          case healthDataLoaded(Result<([HealthMetric], [StepData], [EnergyData], [HeartRateData]), Error>)
          case wellnessTasks(WellnessTasksFeature.Action)
-         case assessmentHistoryLoaded(Result<[DailyAssessment], Error>)
-         case streakLoaded(Result<(current: Int, longest: Int), Error>) // NEW: Streak from backend
+         case assessmentHistoryLoaded(Result<DailyAssessmentHistory, Error>)
+         case streakLoaded(Result<(current: Int, longest: Int), Error>)
+         case achievementsLoaded([Achievement])
+         case userNameLoaded(String?)
          case takeAssessmentButtonTapped
-         case breathingButtonTapped // NEW
+         case breathingButtonTapped
+         case achievementsButtonTapped
          case destination(PresentationAction<Destination.Action>)
          case checkForAssessmentStatus
+         case retrySyncTapped
+         case dismissFirstTimeExperience
      }
+     
      @Reducer(state: .equatable)
      enum Destination {
-         case dailyAssessment(DailyAssessmentFeature) // Assumes defined
-         case breathing(BreathingFeature) // NEW
+         case dailyAssessment(DailyAssessmentFeature)
+         case breathing(BreathingFeature)
+         case achievements
      }
+     
      @Dependency(\.healthClient) var healthClient
      @Dependency(\.modelContext) var modelContext
      @Dependency(\.date.now) var now
 
     @MainActor
-    var body: some Reducer<State, Action> {
+    var body: some ReducerOf<Self> {
         Scope(state: \.wellnessTasksState, action: \.wellnessTasks) {
-            WellnessTasksFeature() // Assumes defined
+            WellnessTasksFeature()
         }
 
         Reduce { state, action in
             switch action {
              case .refresh:
-                // Pull-to-refresh: reload data without showing loading spinner
                 DSHaptics.light()
+                state.syncStatus = .syncing
                 return .merge(
                     .run { send in
                         try? await healthClient.requestAuthorization()
@@ -79,37 +106,59 @@ struct DashboardFeature {
                             try await (healthClient.fetchHealthMetrics(), healthClient.fetchWeeklySteps(), healthClient.fetchWeeklyActiveEnergy(), healthClient.fetchWeeklyHeartRate())
                         }))
                     },
-                    .run { send in
+                    .run { [modelContext] send in
+                        let userId = (try? await MainActor.run { try UserManager.shared.getCurrentUserId() }) ?? ""
                         let sevenDaysAgo = Calendar.current.date(byAdding: .day, value: -7, to: now)!
-                        let predicate = #Predicate<DailyAssessment> { $0.date >= sevenDaysAgo }
+                        let predicate = #Predicate<DailyAssessment> { $0.userId == userId && $0.date >= sevenDaysAgo }
                         let descriptor = FetchDescriptor<DailyAssessment>(predicate: predicate, sortBy: [SortDescriptor(\.date)])
-                        await send(.assessmentHistoryLoaded(Result { try modelContext.context.fetch(descriptor) }))
+                        let history = try modelContext.context.fetch(descriptor)
+                        await send(.assessmentHistoryLoaded(.success(history)))
+                        
+                        if !userId.isEmpty {
+                            let achievements = await AchievementManager.shared.getAllAchievements(userId: userId, context: modelContext.context)
+                            await send(.achievementsLoaded(achievements))
+                        }
                     }
                 )
             
              case .task:
-                if state.healthMetrics.isEmpty {
-                    state.isLoading = true
-                    return .merge(
-                        .run { send in
-                            // Request auth first if needed
+                let shouldLoadHealth = state.healthMetrics.isEmpty
+                state.userName = UserManager.shared.userName
+                
+                // Check if we should show first-time experience
+                let hasSeenFTUE = UserDefaults.standard.bool(forKey: "hasSeenFirstTimeExperience")
+                
+                return .merge(
+                    .run { send in
+                        let names = await MainActor.run { UserManager.shared.$userName.values }
+                        for await name in names {
+                            await send(.userNameLoaded(name))
+                        }
+                    },
+                    .run { [modelContext] send in
+                        let userId = (try? await MainActor.run { try UserManager.shared.getCurrentUserId() }) ?? ""
+                        if !userId.isEmpty {
+                            let achievements = await AchievementManager.shared.getAllAchievements(userId: userId, context: modelContext.context)
+                            await send(.achievementsLoaded(achievements))
+                        }
+                        
+                        if shouldLoadHealth {
                             try? await healthClient.requestAuthorization()
-                            // Then fetch data
                             await send(.healthDataLoaded(Result {
                                 try await (healthClient.fetchHealthMetrics(), healthClient.fetchWeeklySteps(), healthClient.fetchWeeklyActiveEnergy(), healthClient.fetchWeeklyHeartRate())
                             }))
-                        },
-                        .run { send in
-                            let sevenDaysAgo = Calendar.current.date(byAdding: .day, value: -7, to: now)!
-                            let predicate = #Predicate<DailyAssessment> { $0.date >= sevenDaysAgo }
-                            let descriptor = FetchDescriptor<DailyAssessment>(predicate: predicate, sortBy: [SortDescriptor(\.date)])
-                            // Use .context to access the actual ModelContext
-                            await send(.assessmentHistoryLoaded(Result { try modelContext.context.fetch(descriptor) }))
-                        },
-                        .send(.checkForAssessmentStatus)
-                    )
-                }
-                return .none
+                        }
+                    },
+                    .run { [modelContext] send in
+                        let userId = (try? await MainActor.run { try UserManager.shared.getCurrentUserId() }) ?? ""
+                        let sevenDaysAgo = Calendar.current.date(byAdding: .day, value: -7, to: now)!
+                        let predicate = #Predicate<DailyAssessment> { $0.userId == userId && $0.date >= sevenDaysAgo }
+                        let descriptor = FetchDescriptor<DailyAssessment>(predicate: predicate, sortBy: [SortDescriptor(\.date)])
+                        let history = try modelContext.context.fetch(descriptor)
+                        await send(.assessmentHistoryLoaded(.success(history)))
+                    },
+                    .send(.checkForAssessmentStatus)
+                )
 
              case .healthDataLoaded(.success(let (metrics, steps, energy, heartRate))):
                  state.healthMetrics = metrics
@@ -117,8 +166,9 @@ struct DashboardFeature {
                  state.weeklyEnergy = energy
                  state.weeklyHeartRate = heartRate
                  state.isLoading = false
+                 state.syncStatus = .synced
+                 state.lastSyncTime = Date()
                  
-                 // Generate AI insights
                  state.aiInsights = InsightGenerator.generateInsights(
                      currentMetrics: metrics,
                      weeklySteps: steps,
@@ -127,7 +177,6 @@ struct DashboardFeature {
                      currentStreak: state.currentStreak
                  )
                  
-                 // Calculate weekly comparison
                  state.weeklyComparison = ComparisonCalculator.calculateWeeklyComparison(
                      weeklySteps: steps,
                      weeklyEnergy: energy,
@@ -137,43 +186,55 @@ struct DashboardFeature {
                  
                  return .none
 
-             case .healthDataLoaded(.failure(let error)):
+             case .healthDataLoaded(.failure):
                  state.isLoading = false
-                 print("Error loading health data: \(error)")
+                 state.syncStatus = .failed
                  return .none
 
-             case .wellnessTasks: // Actions scoped to WellnessTasksFeature
+             case .wellnessTasks:
+                 return .none
+
+             case .achievementsLoaded(let achievements):
+                 state.achievements = achievements
+                 return .none
+                 
+             case .userNameLoaded(let name):
+                 state.userName = name
                  return .none
 
              case .assessmentHistoryLoaded(.success(let history)):
                   state.assessmentHistory = history
-                  // Fetch streak from backend instead of calculating locally
+                  
+                  // Show FTUE if first time and no assessments
+                  let hasSeenFTUE = UserDefaults.standard.bool(forKey: "hasSeenFirstTimeExperience")
+                  if !hasSeenFTUE && history.isEmpty {
+                      state.showFirstTimeExperience = true
+                  }
+                  
                   return .run { send in
                       do {
-                          let userId = try await UserManager.shared.getCurrentUserId()
+                          let userId = try await MainActor.run { try UserManager.shared.getCurrentUserId() }
                           let streak = try await APIClient.getStreak(userId: userId)
+                          UserDefaults.standard.set(streak.current, forKey: "current_streak")
                           await send(.streakLoaded(.success(streak)))
                           await send(.checkForAssessmentStatus)
                       } catch {
-                          print("⚠️ Error fetching streak, calculating locally: \(error)")
-                          // Fallback to local calculation
                           let current = StreakCalculator.calculateCurrentStreak(from: history)
                           let longest = StreakCalculator.calculateLongestStreak(from: history)
+                          UserDefaults.standard.set(current, forKey: "current_streak")
                           await send(.streakLoaded(.success((current, longest))))
                           await send(.checkForAssessmentStatus)
                       }
                   }
 
-             case .assessmentHistoryLoaded(.failure(let error)):
-                  print("Error loading assessment history: \(error)")
-                  state.canTakeAssessmentToday = true // Default to allow if load fails
+             case .assessmentHistoryLoaded(.failure):
+                  state.canTakeAssessmentToday = true
                   return .none
             
              case .streakLoaded(.success(let streak)):
                   state.currentStreak = streak.current
                   state.longestStreak = streak.longest
                   
-                  // Regenerate insights with updated streak
                   state.aiInsights = InsightGenerator.generateInsights(
                       currentMetrics: state.healthMetrics,
                       weeklySteps: state.weeklySteps,
@@ -183,51 +244,45 @@ struct DashboardFeature {
                   )
                   return .none
             
-             case .streakLoaded(.failure(let error)):
-                  print("Error loading streak: \(error)")
+             case .streakLoaded(.failure):
                   return .none
 
              case .checkForAssessmentStatus:
                   let startOfToday = Calendar.current.startOfDay(for: now)
-                  // Check if any loaded assessment matches today's date
                   state.canTakeAssessmentToday = !state.assessmentHistory.contains { Calendar.current.isDate($0.date, inSameDayAs: startOfToday) }
                   return .none
 
              case .takeAssessmentButtonTapped:
-                  state.destination = .dailyAssessment(.init()) // Assumes DailyAssessmentFeature exists
+                  state.destination = .dailyAssessment(.init())
                   return .none
 
              case .breathingButtonTapped:
                   state.destination = .breathing(.init())
                   return .none
+                  
+             case .achievementsButtonTapped:
+                  return .none
 
-             // Handle result from the DailyAssessment sheet
              case .destination(.presented(.dailyAssessment(.delegate(.assessmentCompleted(let assessment))))):
-                  // Insert and save the new assessment using .context
-                  modelContext.context.insert(assessment)
-                  do {
-                      try modelContext.context.save()
-                      print("✅ Daily assessment saved.")
-                      // Update local state *after* successful save
-                      state.assessmentHistory.append(assessment)
-                      state.assessmentHistory.sort { $0.date < $1.date } // Keep sorted
-                      state.destination = nil // Dismiss sheet state
-                      // Fetch updated streak from backend
-                      return .run { send in
-                          do {
-                              let userId = try await UserManager.shared.getCurrentUserId()
-                              let streak = try await APIClient.getStreak(userId: userId)
-                              await send(.streakLoaded(.success(streak)))
-                              await send(.checkForAssessmentStatus)
-                          } catch {
-                              print("⚠️ Error fetching streak after assessment: \(error)")
-                              await send(.checkForAssessmentStatus)
-                          }
+                  state.destination = nil
+                  return .run { [modelContext] send in
+                      let userId = (try? await MainActor.run { try UserManager.shared.getCurrentUserId() }) ?? ""
+                      if !userId.isEmpty {
+                          assessment.userId = userId
                       }
-                  } catch {
-                      print("❌ Failed to save daily assessment: \(error)")
-                       state.destination = nil // Dismiss sheet state even on error
-                      return .none
+                      
+                      await MainActor.run {
+                          modelContext.context.insert(assessment)
+                          try? modelContext.context.save()
+                      }
+                      
+                      do {
+                          let streak = try await APIClient.getStreak(userId: userId)
+                          UserDefaults.standard.set(streak.current, forKey: "current_streak")
+                          await send(.streakLoaded(.success(streak)))
+                      } catch {
+                          await send(.checkForAssessmentStatus)
+                      }
                   }
 
              case .destination(.dismiss):
@@ -236,8 +291,19 @@ struct DashboardFeature {
 
              case .destination:
                   return .none
+                  
+             case .retrySyncTapped:
+                  state.syncStatus = .syncing
+                  return .send(.refresh)
+                  
+             case .dismissFirstTimeExperience:
+                  state.showFirstTimeExperience = false
+                  UserDefaults.standard.set(true, forKey: "hasSeenFirstTimeExperience")
+                  return .none
             }
         }
-        .ifLet(\.$destination, action: \.destination) // Manage the sheet presentation
+        .ifLet(\.$destination, action: \.destination)
     }
 }
+
+typealias DailyAssessmentHistory = [DailyAssessment]

@@ -98,7 +98,7 @@ struct GuidedJournalView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
                 Text(store.template.title)
-                    .font(.ds.title1)
+                    .font(.ds.title)
                 
                 Text(store.template.description)
                     .font(.ds.body)

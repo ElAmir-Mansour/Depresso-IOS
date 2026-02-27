@@ -17,6 +17,21 @@ struct AddPostView: View {
                 }
                 
                 Section {
+                    Picker("Category", selection: $store.category) {
+                        ForEach(CommunityCategory.allCases) { category in
+                            HStack {
+                                Image(systemName: category.icon)
+                                Text(category.rawValue)
+                            }
+                            .tag(category.rawValue)
+                        }
+                    }
+                    .pickerStyle(.menu)
+                } header: {
+                    Text("Category")
+                }
+                
+                Section {
                     ZStack(alignment: .topLeading) {
                         if store.content.isEmpty {
                             Text("Share your story...")
@@ -27,7 +42,7 @@ struct AddPostView: View {
                         
                         TextEditor(text: $store.content)
                             .frame(minHeight: 200)
-                            .scrollContentBackground(.hidden) // Make background transparent
+                            .scrollContentBackground(.hidden)
                     }
                 } header: {
                     Text("Your Story")
@@ -43,7 +58,7 @@ struct AddPostView: View {
                                 .cornerRadius(12)
                             
                             Button {
-                                store.selectedPhotoItem = nil // Triggers binding action to clear
+                                store.selectedPhotoItem = nil
                                 store.selectedImageData = nil
                             } label: {
                                 Image(systemName: "xmark.circle.fill")
@@ -101,13 +116,4 @@ struct AddPostView: View {
             }
         }
     }
-}
-
-#Preview {
-    AddPostView(
-        store: Store(initialState: AddPostFeature.State()) {
-            AddPostFeature()
-        }
-    )
-    .modelContainer(for: CommunityPost.self, inMemory: true)
 }

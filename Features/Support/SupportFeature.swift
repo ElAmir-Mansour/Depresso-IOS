@@ -1,4 +1,4 @@
-// In Features/Support/SupportFeature.swift
+// Features/Support/SupportFeature.swift
 import Foundation
 import ComposableArchitecture
 import SwiftUI
@@ -44,6 +44,7 @@ struct SupportFeature {
         case delegate(Delegate)
         
         enum Delegate: Equatable {
+            case userLoggedOut
             case accountDeleted
         }
     }
@@ -59,6 +60,10 @@ struct SupportFeature {
             case .settingsButtonTapped:
                 state.destination = .settings(SettingsFeature.State())
                 return .none
+                
+            case .destination(.presented(.settings(.delegate(.userLoggedOut)))):
+                state.destination = nil
+                return .send(.delegate(.userLoggedOut))
                 
             case .destination(.presented(.settings(.delegate(.accountDeleted)))):
                 state.destination = nil

@@ -1,0 +1,1049 @@
+Command line invocation:
+    "/Applications/Xcode 2.app/Contents/Developer/usr/bin/xcodebuild" -workspace Depresso.xcworkspace -scheme Depresso -sdk iphonesimulator -configuration Debug build
+
+Build settings from command line:
+    SDKROOT = iphonesimulator26.2
+
+Resolve Package Graph
+
+
+Resolved source packages:
+  swift-composable-architecture: https://github.com/pointfreeco/swift-composable-architecture.git @ 1.23.2
+  swift-concurrency-extras: https://github.com/pointfreeco/swift-concurrency-extras @ 1.3.2
+  swift-navigation: https://github.com/pointfreeco/swift-navigation @ 2.6.0
+  combine-schedulers: https://github.com/pointfreeco/combine-schedulers @ 1.1.0
+  swift-collections: https://github.com/apple/swift-collections @ 1.3.0
+  swift-syntax: https://github.com/swiftlang/swift-syntax @ 602.0.0
+  swift-dependencies: https://github.com/pointfreeco/swift-dependencies @ 1.11.0
+  swift-clocks: https://github.com/pointfreeco/swift-clocks @ 1.0.6
+  swift-custom-dump: https://github.com/pointfreeco/swift-custom-dump @ 1.4.1
+  swift-perception: https://github.com/pointfreeco/swift-perception @ 2.0.9
+  swift-case-paths: https://github.com/pointfreeco/swift-case-paths @ 1.7.2
+  xctest-dynamic-overlay: https://github.com/pointfreeco/xctest-dynamic-overlay @ 1.9.0
+  swift-sharing: https://github.com/pointfreeco/swift-sharing @ 2.7.4
+  swift-identified-collections: https://github.com/pointfreeco/swift-identified-collections @ 1.1.1
+
+2026-02-27 03:21:01.617 xcodebuild[79497:7089203] [MT] IDERunDestination: Supported platforms for the buildables in the current scheme is empty.
+--- xcodebuild: WARNING: Using the first of multiple matching destinations:
+{ platform:iOS Simulator, id:dvtdevice-DVTiOSDeviceSimulatorPlaceholder-iphonesimulator:placeholder, name:Any iOS Simulator Device }
+{ platform:iOS Simulator, arch:arm64, id:39CF87BB-4499-4223-8A94-9784C9195E79, OS:26.2, name:iPad (A16) }
+{ platform:iOS Simulator, arch:arm64, id:E010FEF5-4956-4176-AC7A-553292721F82, OS:26.2, name:iPad Air 11-inch (M3) }
+{ platform:iOS Simulator, arch:arm64, id:60CF92FB-AF58-4B20-B819-C19D89DE7947, OS:26.2, name:iPad Air 13-inch (M3) }
+{ platform:iOS Simulator, arch:arm64, id:3E416CAF-59DE-4E2C-AF24-2818E5C491B9, OS:26.2, name:iPad Pro 11-inch (M5) }
+{ platform:iOS Simulator, arch:arm64, id:FE9E909C-B6FE-4BA3-B17A-1A1C609A72C6, OS:26.2, name:iPad Pro 13-inch (M5) }
+{ platform:iOS Simulator, arch:arm64, id:4430F8F4-F647-4016-A224-869C1BF3EF6D, OS:26.2, name:iPad mini (A17 Pro) }
+{ platform:iOS Simulator, arch:arm64, id:3E72AF44-3599-4992-BF27-E0A510AD5BE4, OS:26.2, name:iPhone 16e }
+{ platform:iOS Simulator, arch:arm64, id:EEA8B028-2917-43A4-8353-172E057362EB, OS:26.2, name:iPhone 17 }
+{ platform:iOS Simulator, arch:arm64, id:164D99F2-0105-4A29-8B04-0273356BB009, OS:26.2, name:iPhone 17 Pro }
+{ platform:iOS Simulator, arch:arm64, id:5DD0C322-3C24-460B-B04A-C8913E7CB38A, OS:26.2, name:iPhone 17 Pro Max }
+{ platform:iOS Simulator, arch:arm64, id:5FB3EDFD-0C74-4D28-829A-F70D765E7601, OS:26.2, name:iPhone Air }
+{ platform:macOS, arch:arm64, variant:Designed for [iPad,iPhone], id:00008112-000D189136F9401E, name:My Mac }
+{ platform:iOS, id:dvtdevice-DVTiPhonePlaceholder-iphoneos:placeholder, name:Any iOS Device }
+{ platform:iOS, arch:arm64, id:00008150-0000559E26E2401C, name:ElAmir. }
+ComputePackagePrebuildTargetDependencyGraph
+
+Prepare packages
+
+CreateBuildRequest
+
+SendProjectDescription
+
+CreateBuildOperation
+
+ComputeTargetDependencyGraph
+note: Building targets in dependency order
+note: Target dependency graph (49 targets)
+    Target 'Depresso' in project 'Depresso'
+        ➜ Implicit dependency on target 'Pods-Depresso' in project 'Pods' via file 'Pods_Depresso.framework' in build phase 'Link Binary'
+        ➜ Explicit dependency on target 'ComposableArchitecture' in project 'swift-composable-architecture'
+    Target 'ComposableArchitecture' in project 'swift-composable-architecture'
+        ➜ Explicit dependency on target 'ComposableArchitecture' in project 'swift-composable-architecture'
+        ➜ Explicit dependency on target 'swift-composable-architecture_ComposableArchitecture' in project 'swift-composable-architecture'
+        ➜ Explicit dependency on target 'ComposableArchitectureMacros' in project 'swift-composable-architecture'
+        ➜ Explicit dependency on target 'CasePaths' in project 'swift-case-paths'
+        ➜ Explicit dependency on target 'Clocks' in project 'swift-clocks'
+        ➜ Explicit dependency on target 'CombineSchedulers' in project 'combine-schedulers'
+        ➜ Explicit dependency on target 'ConcurrencyExtras' in project 'swift-concurrency-extras'
+        ➜ Explicit dependency on target 'CustomDump' in project 'swift-custom-dump'
+        ➜ Explicit dependency on target 'Dependencies' in project 'swift-dependencies'
+        ➜ Explicit dependency on target 'DependenciesMacros' in project 'swift-dependencies'
+        ➜ Explicit dependency on target 'IdentifiedCollections' in project 'swift-identified-collections'
+        ➜ Explicit dependency on target 'IssueReporting' in project 'xctest-dynamic-overlay'
+        ➜ Explicit dependency on target 'OrderedCollections' in project 'swift-collections'
+        ➜ Explicit dependency on target 'Perception' in project 'swift-perception'
+        ➜ Explicit dependency on target 'Sharing' in project 'swift-sharing'
+        ➜ Explicit dependency on target 'SwiftUINavigation' in project 'swift-navigation'
+        ➜ Explicit dependency on target 'UIKitNavigation' in project 'swift-navigation'
+    Target 'ComposableArchitecture' in project 'swift-composable-architecture'
+        ➜ Explicit dependency on target 'swift-composable-architecture_ComposableArchitecture' in project 'swift-composable-architecture'
+        ➜ Explicit dependency on target 'ComposableArchitectureMacros' in project 'swift-composable-architecture'
+        ➜ Explicit dependency on target 'CasePaths' in project 'swift-case-paths'
+        ➜ Explicit dependency on target 'Clocks' in project 'swift-clocks'
+        ➜ Explicit dependency on target 'CombineSchedulers' in project 'combine-schedulers'
+        ➜ Explicit dependency on target 'ConcurrencyExtras' in project 'swift-concurrency-extras'
+        ➜ Explicit dependency on target 'CustomDump' in project 'swift-custom-dump'
+        ➜ Explicit dependency on target 'Dependencies' in project 'swift-dependencies'
+        ➜ Explicit dependency on target 'DependenciesMacros' in project 'swift-dependencies'
+        ➜ Explicit dependency on target 'IdentifiedCollections' in project 'swift-identified-collections'
+        ➜ Explicit dependency on target 'IssueReporting' in project 'xctest-dynamic-overlay'
+        ➜ Explicit dependency on target 'OrderedCollections' in project 'swift-collections'
+        ➜ Explicit dependency on target 'Perception' in project 'swift-perception'
+        ➜ Explicit dependency on target 'Sharing' in project 'swift-sharing'
+        ➜ Explicit dependency on target 'SwiftUINavigation' in project 'swift-navigation'
+        ➜ Explicit dependency on target 'UIKitNavigation' in project 'swift-navigation'
+    Target 'UIKitNavigation' in project 'swift-navigation'
+        ➜ Explicit dependency on target 'UIKitNavigation' in project 'swift-navigation'
+        ➜ Explicit dependency on target 'SwiftNavigation' in project 'swift-navigation'
+        ➜ Explicit dependency on target 'UIKitNavigationShim' in project 'swift-navigation'
+        ➜ Explicit dependency on target 'CasePaths' in project 'swift-case-paths'
+        ➜ Explicit dependency on target 'CustomDump' in project 'swift-custom-dump'
+        ➜ Explicit dependency on target 'ConcurrencyExtras' in project 'swift-concurrency-extras'
+        ➜ Explicit dependency on target 'IssueReporting' in project 'xctest-dynamic-overlay'
+        ➜ Explicit dependency on target 'OrderedCollections' in project 'swift-collections'
+        ➜ Explicit dependency on target 'Perception' in project 'swift-perception'
+        ➜ Explicit dependency on target 'PerceptionCore' in project 'swift-perception'
+    Target 'SwiftUINavigation' in project 'swift-navigation'
+        ➜ Explicit dependency on target 'SwiftUINavigation' in project 'swift-navigation'
+        ➜ Explicit dependency on target 'SwiftNavigation' in project 'swift-navigation'
+        ➜ Explicit dependency on target 'UIKitNavigationShim' in project 'swift-navigation'
+        ➜ Explicit dependency on target 'UIKitNavigation' in project 'swift-navigation'
+        ➜ Explicit dependency on target 'CasePaths' in project 'swift-case-paths'
+        ➜ Explicit dependency on target 'CustomDump' in project 'swift-custom-dump'
+        ➜ Explicit dependency on target 'ConcurrencyExtras' in project 'swift-concurrency-extras'
+        ➜ Explicit dependency on target 'IssueReporting' in project 'xctest-dynamic-overlay'
+        ➜ Explicit dependency on target 'OrderedCollections' in project 'swift-collections'
+        ➜ Explicit dependency on target 'Perception' in project 'swift-perception'
+        ➜ Explicit dependency on target 'PerceptionCore' in project 'swift-perception'
+    Target 'SwiftUINavigation' in project 'swift-navigation'
+        ➜ Explicit dependency on target 'SwiftNavigation' in project 'swift-navigation'
+        ➜ Explicit dependency on target 'UIKitNavigationShim' in project 'swift-navigation'
+        ➜ Explicit dependency on target 'UIKitNavigation' in project 'swift-navigation'
+        ➜ Explicit dependency on target 'CasePaths' in project 'swift-case-paths'
+        ➜ Explicit dependency on target 'CustomDump' in project 'swift-custom-dump'
+        ➜ Explicit dependency on target 'ConcurrencyExtras' in project 'swift-concurrency-extras'
+        ➜ Explicit dependency on target 'IssueReporting' in project 'xctest-dynamic-overlay'
+        ➜ Explicit dependency on target 'OrderedCollections' in project 'swift-collections'
+        ➜ Explicit dependency on target 'Perception' in project 'swift-perception'
+        ➜ Explicit dependency on target 'PerceptionCore' in project 'swift-perception'
+    Target 'UIKitNavigation' in project 'swift-navigation'
+        ➜ Explicit dependency on target 'SwiftNavigation' in project 'swift-navigation'
+        ➜ Explicit dependency on target 'UIKitNavigationShim' in project 'swift-navigation'
+        ➜ Explicit dependency on target 'CasePaths' in project 'swift-case-paths'
+        ➜ Explicit dependency on target 'CustomDump' in project 'swift-custom-dump'
+        ➜ Explicit dependency on target 'ConcurrencyExtras' in project 'swift-concurrency-extras'
+        ➜ Explicit dependency on target 'IssueReporting' in project 'xctest-dynamic-overlay'
+        ➜ Explicit dependency on target 'OrderedCollections' in project 'swift-collections'
+        ➜ Explicit dependency on target 'Perception' in project 'swift-perception'
+        ➜ Explicit dependency on target 'PerceptionCore' in project 'swift-perception'
+    Target 'UIKitNavigationShim' in project 'swift-navigation' (no dependencies)
+    Target 'SwiftNavigation' in project 'swift-navigation'
+        ➜ Explicit dependency on target 'CasePaths' in project 'swift-case-paths'
+        ➜ Explicit dependency on target 'CustomDump' in project 'swift-custom-dump'
+        ➜ Explicit dependency on target 'ConcurrencyExtras' in project 'swift-concurrency-extras'
+        ➜ Explicit dependency on target 'IssueReporting' in project 'xctest-dynamic-overlay'
+        ➜ Explicit dependency on target 'OrderedCollections' in project 'swift-collections'
+        ➜ Explicit dependency on target 'Perception' in project 'swift-perception'
+        ➜ Explicit dependency on target 'PerceptionCore' in project 'swift-perception'
+    Target 'Sharing' in project 'swift-sharing'
+        ➜ Explicit dependency on target 'Sharing' in project 'swift-sharing'
+        ➜ Explicit dependency on target 'swift-sharing_Sharing' in project 'swift-sharing'
+        ➜ Explicit dependency on target 'Sharing1' in project 'swift-sharing'
+        ➜ Explicit dependency on target 'Sharing2' in project 'swift-sharing'
+        ➜ Explicit dependency on target 'CombineSchedulers' in project 'combine-schedulers'
+        ➜ Explicit dependency on target 'ConcurrencyExtras' in project 'swift-concurrency-extras'
+        ➜ Explicit dependency on target 'CustomDump' in project 'swift-custom-dump'
+        ➜ Explicit dependency on target 'Dependencies' in project 'swift-dependencies'
+        ➜ Explicit dependency on target 'IdentifiedCollections' in project 'swift-identified-collections'
+        ➜ Explicit dependency on target 'IssueReporting' in project 'xctest-dynamic-overlay'
+        ➜ Explicit dependency on target 'PerceptionCore' in project 'swift-perception'
+    Target 'Sharing' in project 'swift-sharing'
+        ➜ Explicit dependency on target 'swift-sharing_Sharing' in project 'swift-sharing'
+        ➜ Explicit dependency on target 'Sharing1' in project 'swift-sharing'
+        ➜ Explicit dependency on target 'Sharing2' in project 'swift-sharing'
+        ➜ Explicit dependency on target 'CombineSchedulers' in project 'combine-schedulers'
+        ➜ Explicit dependency on target 'ConcurrencyExtras' in project 'swift-concurrency-extras'
+        ➜ Explicit dependency on target 'CustomDump' in project 'swift-custom-dump'
+        ➜ Explicit dependency on target 'Dependencies' in project 'swift-dependencies'
+        ➜ Explicit dependency on target 'IdentifiedCollections' in project 'swift-identified-collections'
+        ➜ Explicit dependency on target 'IssueReporting' in project 'xctest-dynamic-overlay'
+        ➜ Explicit dependency on target 'PerceptionCore' in project 'swift-perception'
+    Target 'PerceptionCore' in project 'swift-perception'
+        ➜ Explicit dependency on target 'PerceptionCore' in project 'swift-perception'
+        ➜ Explicit dependency on target 'IssueReporting' in project 'xctest-dynamic-overlay'
+    Target 'Sharing2' in project 'swift-sharing' (no dependencies)
+    Target 'Sharing1' in project 'swift-sharing' (no dependencies)
+    Target 'swift-sharing_Sharing' in project 'swift-sharing' (no dependencies)
+    Target 'Perception' in project 'swift-perception'
+        ➜ Explicit dependency on target 'Perception' in project 'swift-perception'
+        ➜ Explicit dependency on target 'PerceptionCore' in project 'swift-perception'
+        ➜ Explicit dependency on target 'PerceptionMacros' in project 'swift-perception'
+        ➜ Explicit dependency on target 'IssueReporting' in project 'xctest-dynamic-overlay'
+    Target 'Perception' in project 'swift-perception'
+        ➜ Explicit dependency on target 'PerceptionCore' in project 'swift-perception'
+        ➜ Explicit dependency on target 'PerceptionMacros' in project 'swift-perception'
+        ➜ Explicit dependency on target 'IssueReporting' in project 'xctest-dynamic-overlay'
+    Target 'PerceptionMacros' in project 'swift-perception' (no dependencies)
+    Target 'PerceptionCore' in project 'swift-perception'
+        ➜ Explicit dependency on target 'IssueReporting' in project 'xctest-dynamic-overlay'
+    Target 'IdentifiedCollections' in project 'swift-identified-collections'
+        ➜ Explicit dependency on target 'IdentifiedCollections' in project 'swift-identified-collections'
+        ➜ Explicit dependency on target 'OrderedCollections' in project 'swift-collections'
+    Target 'IdentifiedCollections' in project 'swift-identified-collections'
+        ➜ Explicit dependency on target 'OrderedCollections' in project 'swift-collections'
+    Target 'OrderedCollections' in project 'swift-collections'
+        ➜ Explicit dependency on target 'OrderedCollections' in project 'swift-collections'
+        ➜ Explicit dependency on target 'InternalCollectionsUtilities' in project 'swift-collections'
+    Target 'OrderedCollections' in project 'swift-collections'
+        ➜ Explicit dependency on target 'InternalCollectionsUtilities' in project 'swift-collections'
+    Target 'InternalCollectionsUtilities' in project 'swift-collections' (no dependencies)
+    Target 'DependenciesMacros' in project 'swift-dependencies'
+        ➜ Explicit dependency on target 'DependenciesMacros' in project 'swift-dependencies'
+        ➜ Explicit dependency on target 'DependenciesMacrosPlugin' in project 'swift-dependencies'
+        ➜ Explicit dependency on target 'IssueReporting' in project 'xctest-dynamic-overlay'
+        ➜ Explicit dependency on target 'XCTestDynamicOverlay' in project 'xctest-dynamic-overlay'
+    Target 'DependenciesMacros' in project 'swift-dependencies'
+        ➜ Explicit dependency on target 'DependenciesMacrosPlugin' in project 'swift-dependencies'
+        ➜ Explicit dependency on target 'IssueReporting' in project 'xctest-dynamic-overlay'
+        ➜ Explicit dependency on target 'XCTestDynamicOverlay' in project 'xctest-dynamic-overlay'
+    Target 'DependenciesMacrosPlugin' in project 'swift-dependencies' (no dependencies)
+    Target 'Dependencies' in project 'swift-dependencies'
+        ➜ Explicit dependency on target 'Dependencies' in project 'swift-dependencies'
+        ➜ Explicit dependency on target 'Clocks' in project 'swift-clocks'
+        ➜ Explicit dependency on target 'CombineSchedulers' in project 'combine-schedulers'
+        ➜ Explicit dependency on target 'ConcurrencyExtras' in project 'swift-concurrency-extras'
+        ➜ Explicit dependency on target 'IssueReporting' in project 'xctest-dynamic-overlay'
+        ➜ Explicit dependency on target 'XCTestDynamicOverlay' in project 'xctest-dynamic-overlay'
+    Target 'Dependencies' in project 'swift-dependencies'
+        ➜ Explicit dependency on target 'Clocks' in project 'swift-clocks'
+        ➜ Explicit dependency on target 'CombineSchedulers' in project 'combine-schedulers'
+        ➜ Explicit dependency on target 'ConcurrencyExtras' in project 'swift-concurrency-extras'
+        ➜ Explicit dependency on target 'IssueReporting' in project 'xctest-dynamic-overlay'
+        ➜ Explicit dependency on target 'XCTestDynamicOverlay' in project 'xctest-dynamic-overlay'
+    Target 'CustomDump' in project 'swift-custom-dump'
+        ➜ Explicit dependency on target 'CustomDump' in project 'swift-custom-dump'
+        ➜ Explicit dependency on target 'IssueReporting' in project 'xctest-dynamic-overlay'
+        ➜ Explicit dependency on target 'XCTestDynamicOverlay' in project 'xctest-dynamic-overlay'
+    Target 'CustomDump' in project 'swift-custom-dump'
+        ➜ Explicit dependency on target 'IssueReporting' in project 'xctest-dynamic-overlay'
+        ➜ Explicit dependency on target 'XCTestDynamicOverlay' in project 'xctest-dynamic-overlay'
+    Target 'CombineSchedulers' in project 'combine-schedulers'
+        ➜ Explicit dependency on target 'CombineSchedulers' in project 'combine-schedulers'
+        ➜ Explicit dependency on target 'ConcurrencyExtras' in project 'swift-concurrency-extras'
+        ➜ Explicit dependency on target 'IssueReporting' in project 'xctest-dynamic-overlay'
+    Target 'CombineSchedulers' in project 'combine-schedulers'
+        ➜ Explicit dependency on target 'ConcurrencyExtras' in project 'swift-concurrency-extras'
+        ➜ Explicit dependency on target 'IssueReporting' in project 'xctest-dynamic-overlay'
+    Target 'Clocks' in project 'swift-clocks'
+        ➜ Explicit dependency on target 'Clocks' in project 'swift-clocks'
+        ➜ Explicit dependency on target 'ConcurrencyExtras' in project 'swift-concurrency-extras'
+        ➜ Explicit dependency on target 'IssueReporting' in project 'xctest-dynamic-overlay'
+    Target 'Clocks' in project 'swift-clocks'
+        ➜ Explicit dependency on target 'ConcurrencyExtras' in project 'swift-concurrency-extras'
+        ➜ Explicit dependency on target 'IssueReporting' in project 'xctest-dynamic-overlay'
+    Target 'ConcurrencyExtras' in project 'swift-concurrency-extras'
+        ➜ Explicit dependency on target 'ConcurrencyExtras' in project 'swift-concurrency-extras'
+    Target 'ConcurrencyExtras' in project 'swift-concurrency-extras' (no dependencies)
+    Target 'CasePaths' in project 'swift-case-paths'
+        ➜ Explicit dependency on target 'CasePaths' in project 'swift-case-paths'
+        ➜ Explicit dependency on target 'CasePathsCore' in project 'swift-case-paths'
+        ➜ Explicit dependency on target 'CasePathsMacros' in project 'swift-case-paths'
+        ➜ Explicit dependency on target 'IssueReporting' in project 'xctest-dynamic-overlay'
+        ➜ Explicit dependency on target 'XCTestDynamicOverlay' in project 'xctest-dynamic-overlay'
+    Target 'CasePaths' in project 'swift-case-paths'
+        ➜ Explicit dependency on target 'CasePathsCore' in project 'swift-case-paths'
+        ➜ Explicit dependency on target 'CasePathsMacros' in project 'swift-case-paths'
+        ➜ Explicit dependency on target 'IssueReporting' in project 'xctest-dynamic-overlay'
+        ➜ Explicit dependency on target 'XCTestDynamicOverlay' in project 'xctest-dynamic-overlay'
+    Target 'CasePathsMacros' in project 'swift-case-paths' (no dependencies)
+    Target 'CasePathsCore' in project 'swift-case-paths'
+        ➜ Explicit dependency on target 'IssueReporting' in project 'xctest-dynamic-overlay'
+        ➜ Explicit dependency on target 'XCTestDynamicOverlay' in project 'xctest-dynamic-overlay'
+    Target 'XCTestDynamicOverlay' in project 'xctest-dynamic-overlay'
+        ➜ Explicit dependency on target 'XCTestDynamicOverlay' in project 'xctest-dynamic-overlay'
+        ➜ Explicit dependency on target 'IssueReportingPackageSupport' in project 'xctest-dynamic-overlay'
+        ➜ Explicit dependency on target 'IssueReporting' in project 'xctest-dynamic-overlay'
+    Target 'XCTestDynamicOverlay' in project 'xctest-dynamic-overlay'
+        ➜ Explicit dependency on target 'IssueReportingPackageSupport' in project 'xctest-dynamic-overlay'
+        ➜ Explicit dependency on target 'IssueReporting' in project 'xctest-dynamic-overlay'
+    Target 'IssueReporting' in project 'xctest-dynamic-overlay'
+        ➜ Explicit dependency on target 'IssueReporting' in project 'xctest-dynamic-overlay'
+        ➜ Explicit dependency on target 'IssueReportingPackageSupport' in project 'xctest-dynamic-overlay'
+    Target 'IssueReporting' in project 'xctest-dynamic-overlay'
+        ➜ Explicit dependency on target 'IssueReportingPackageSupport' in project 'xctest-dynamic-overlay'
+    Target 'IssueReportingPackageSupport' in project 'xctest-dynamic-overlay' (no dependencies)
+    Target 'ComposableArchitectureMacros' in project 'swift-composable-architecture' (no dependencies)
+    Target 'swift-composable-architecture_ComposableArchitecture' in project 'swift-composable-architecture' (no dependencies)
+    Target 'Pods-Depresso' in project 'Pods' (no dependencies)
+
+GatherProvisioningInputs
+
+CreateBuildDescription
+
+ExecuteExternalTool /Applications/Xcode 2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -arch arm64 -isysroot /Applications/Xcode 2.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk -x c -c /dev/null
+
+ExecuteExternalTool /Applications/Xcode 2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc --version
+
+ExecuteExternalTool /Applications/Xcode 2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -arch arm64 -isysroot /Applications/Xcode 2.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk -x objective-c -c /dev/null
+
+ExecuteExternalTool /Applications/Xcode 2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -isysroot /Applications/Xcode 2.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk -x c -c /dev/null
+
+ExecuteExternalTool /Applications/Xcode 2.app/Contents/Developer/usr/bin/actool --print-asset-tag-combinations --output-format xml1 /Users/elamir/Documents/Depresso - Working V/Resources/Assets.xcassets
+
+ExecuteExternalTool /Applications/Xcode 2.app/Contents/Developer/usr/bin/actool --version --output-format xml1
+
+ExecuteExternalTool /Applications/Xcode 2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld -version_details
+
+ExecuteExternalTool /Applications/Xcode 2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/libtool -V
+
+ExecuteExternalTool /Applications/Xcode 2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -arch x86_64 -isysroot /Applications/Xcode 2.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk -x c -c /dev/null
+
+ExecuteExternalTool /Applications/Xcode 2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -arch x86_64 -isysroot /Applications/Xcode 2.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk -x objective-c -c /dev/null
+
+ReadFileContents /Applications/Xcode 2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/share/docc/features.json
+
+Build description signature: 393313b12f5d163cd64cb99af502e052
+Build description path: /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/XCBuildData/393313b12f5d163cd64cb99af502e052.xcbuilddata
+ClangStatCache /Applications/Xcode\ 2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode\ 2.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk /Users/elamir/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphonesimulator26.2-23C57-68e652329c7506d508c79ee500d2298c.sdkstatcache
+    cd /Users/elamir/Documents/Depresso\ -\ Working\ V
+    /Applications/Xcode\ 2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode\ 2.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk -o /Users/elamir/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphonesimulator26.2-23C57-68e652329c7506d508c79ee500d2298c.sdkstatcache
+
+ProcessInfoPlistFile /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Products/Debug-iphonesimulator/Pods_Depresso.framework/Info.plist /Users/elamir/Documents/Depresso\ -\ Working\ V/Pods/Target\ Support\ Files/Pods-Depresso/Pods-Depresso-Info.plist (in target 'Pods-Depresso' from project 'Pods')
+    cd /Users/elamir/Documents/Depresso\ -\ Working\ V/Pods
+    builtin-infoPlistUtility /Users/elamir/Documents/Depresso\ -\ Working\ V/Pods/Target\ Support\ Files/Pods-Depresso/Pods-Depresso-Info.plist -producttype com.apple.product-type.framework -expandbuildsettings -format binary -platform iphonesimulator -o /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Products/Debug-iphonesimulator/Pods_Depresso.framework/Info.plist
+
+ProcessInfoPlistFile /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Products/Debug-iphonesimulator/swift-sharing_Sharing.bundle/Info.plist /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-sharing.build/Debug-iphonesimulator/swift-sharing_Sharing.build/empty-swift-sharing_Sharing.plist (in target 'swift-sharing_Sharing' from project 'swift-sharing')
+    cd /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-sharing
+    builtin-infoPlistUtility /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-sharing.build/Debug-iphonesimulator/swift-sharing_Sharing.build/empty-swift-sharing_Sharing.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphonesimulator -o /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Products/Debug-iphonesimulator/swift-sharing_Sharing.bundle/Info.plist
+
+ProcessInfoPlistFile /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Products/Debug-iphonesimulator/swift-composable-architecture_ComposableArchitecture.bundle/Info.plist /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-composable-architecture.build/Debug-iphonesimulator/swift-composable-architecture_ComposableArchitecture.build/empty-swift-composable-architecture_ComposableArchitecture.plist (in target 'swift-composable-architecture_ComposableArchitecture' from project 'swift-composable-architecture')
+    cd /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture
+    builtin-infoPlistUtility /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-composable-architecture.build/Debug-iphonesimulator/swift-composable-architecture_ComposableArchitecture.build/empty-swift-composable-architecture_ComposableArchitecture.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphonesimulator -o /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Products/Debug-iphonesimulator/swift-composable-architecture_ComposableArchitecture.bundle/Info.plist
+
+CompileC /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Pods-Depresso.build/Objects-normal/x86_64/Pods_Depresso_vers.o /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Pods-Depresso.build/DerivedSources/Pods_Depresso_vers.c normal x86_64 c com.apple.compilers.llvm.clang.1_0.compiler (in target 'Pods-Depresso' from project 'Pods')
+    cd /Users/elamir/Documents/Depresso\ -\ Working\ V/Pods
+    
+    Using response file: /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Pods-Depresso.build/Objects-normal/x86_64/7187679823f38a2a940e0043cdf9d637-common-args.resp
+    
+    /Applications/Xcode\ 2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -x c -ivfsstatcache /Users/elamir/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphonesimulator26.2-23C57-68e652329c7506d508c79ee500d2298c.sdkstatcache -fmessage-length\=0 -fdiagnostics-show-note-include-stack -fmacro-backtrace-limit\=0 -fno-color-diagnostics -fmodules-prune-interval\=86400 -fmodules-prune-after\=345600 -fbuild-session-file\=/Users/elamir/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/Session.modulevalidation -fmodules-validate-once-per-build-session -Wnon-modular-include-in-framework-module -Werror\=non-modular-include-in-framework-module -Wno-trigraphs -Wno-missing-field-initializers -Wno-missing-prototypes -Werror\=return-type -Wdocumentation -Wunreachable-code -Werror\=deprecated-objc-isa-usage -Werror\=objc-root-class -Wno-missing-braces -Wparentheses -Wswitch -Wunused-function -Wno-unused-label -Wno-unused-parameter -Wunused-variable -Wunused-value -Wempty-body -Wuninitialized -Wconditional-uninitialized -Wno-unknown-pragmas -Wno-shadow -Wno-four-char-constants -Wno-conversion -Wconstant-conversion -Wint-conversion -Wbool-conversion -Wenum-conversion -Wno-float-conversion -Wnon-literal-null-conversion -Wobjc-literal-conversion -Wshorten-64-to-32 -Wpointer-sign -Wno-newline-eof -Wno-implicit-fallthrough -fstrict-aliasing -Wdeprecated-declarations -Wno-sign-conversion -Winfinite-recursion -Wcomma -Wblock-capture-autoreleasing -Wstrict-prototypes -Wno-semicolon-before-method-body -Wunguarded-availability -index-store-path /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Index.noindex/DataStore @/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Pods-Depresso.build/Objects-normal/x86_64/7187679823f38a2a940e0043cdf9d637-common-args.resp -MMD -MT dependencies -MF /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Pods-Depresso.build/Objects-normal/x86_64/Pods_Depresso_vers.d --serialize-diagnostics /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Pods-Depresso.build/Objects-normal/x86_64/Pods_Depresso_vers.dia -c /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Pods-Depresso.build/DerivedSources/Pods_Depresso_vers.c -o /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Pods-Depresso.build/Objects-normal/x86_64/Pods_Depresso_vers.o -index-unit-output-path /Pods.build/Debug-iphonesimulator/Pods-Depresso.build/Objects-normal/x86_64/Pods_Depresso_vers.o
+
+CompileC /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Pods-Depresso.build/Objects-normal/arm64/Pods_Depresso_vers.o /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Pods-Depresso.build/DerivedSources/Pods_Depresso_vers.c normal arm64 c com.apple.compilers.llvm.clang.1_0.compiler (in target 'Pods-Depresso' from project 'Pods')
+    cd /Users/elamir/Documents/Depresso\ -\ Working\ V/Pods
+    
+    Using response file: /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Pods-Depresso.build/Objects-normal/arm64/7187679823f38a2a940e0043cdf9d637-common-args.resp
+    
+    /Applications/Xcode\ 2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -x c -ivfsstatcache /Users/elamir/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphonesimulator26.2-23C57-68e652329c7506d508c79ee500d2298c.sdkstatcache -fmessage-length\=0 -fdiagnostics-show-note-include-stack -fmacro-backtrace-limit\=0 -fno-color-diagnostics -fmodules-prune-interval\=86400 -fmodules-prune-after\=345600 -fbuild-session-file\=/Users/elamir/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/Session.modulevalidation -fmodules-validate-once-per-build-session -Wnon-modular-include-in-framework-module -Werror\=non-modular-include-in-framework-module -Wno-trigraphs -Wno-missing-field-initializers -Wno-missing-prototypes -Werror\=return-type -Wdocumentation -Wunreachable-code -Werror\=deprecated-objc-isa-usage -Werror\=objc-root-class -Wno-missing-braces -Wparentheses -Wswitch -Wunused-function -Wno-unused-label -Wno-unused-parameter -Wunused-variable -Wunused-value -Wempty-body -Wuninitialized -Wconditional-uninitialized -Wno-unknown-pragmas -Wno-shadow -Wno-four-char-constants -Wno-conversion -Wconstant-conversion -Wint-conversion -Wbool-conversion -Wenum-conversion -Wno-float-conversion -Wnon-literal-null-conversion -Wobjc-literal-conversion -Wshorten-64-to-32 -Wpointer-sign -Wno-newline-eof -Wno-implicit-fallthrough -fstrict-aliasing -Wdeprecated-declarations -Wno-sign-conversion -Winfinite-recursion -Wcomma -Wblock-capture-autoreleasing -Wstrict-prototypes -Wno-semicolon-before-method-body -Wunguarded-availability -index-store-path /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Index.noindex/DataStore @/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Pods-Depresso.build/Objects-normal/arm64/7187679823f38a2a940e0043cdf9d637-common-args.resp -MMD -MT dependencies -MF /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Pods-Depresso.build/Objects-normal/arm64/Pods_Depresso_vers.d --serialize-diagnostics /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Pods-Depresso.build/Objects-normal/arm64/Pods_Depresso_vers.dia -c /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Pods-Depresso.build/DerivedSources/Pods_Depresso_vers.c -o /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Pods-Depresso.build/Objects-normal/arm64/Pods_Depresso_vers.o -index-unit-output-path /Pods.build/Debug-iphonesimulator/Pods-Depresso.build/Objects-normal/arm64/Pods_Depresso_vers.o
+
+SwiftDriver PerceptionMacros normal arm64 com.apple.xcode.tools.swift.compiler (in target 'PerceptionMacros' from project 'swift-perception')
+    cd /Users/elamir/Documents/Depresso\ -\ Working\ V
+    builtin-SwiftDriver -- /Applications/Xcode\ 2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name PerceptionMacros -Onone -enforce-exclusivity\=checked @/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-perception.build/Debug-iphonesimulator/PerceptionMacros.build/Objects-normal/arm64/PerceptionMacros.SwiftFileList -DSWIFT_PACKAGE -DDEBUG -DXcode -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/prebuilts/swift-syntax/602.0.0/swiftlang-6.2.4.1.4-MacroSupport-macos_aarch64/Modules -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-syntax/Sources/_SwiftLibraryPluginProviderCShims/include -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-syntax/Sources/_SwiftSyntaxCShims/include -plugin-path /Applications/Xcode\ 2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode\ 2.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk -target arm64-apple-ios13.0-simulator -g -module-cache-path /Users/elamir/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -suppress-warnings -index-store-path /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 5 -I /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Products/Debug-iphonesimulator -Isystem /Applications/Xcode\ 2.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib -F /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Products/Debug-iphonesimulator -F /Applications/Xcode\ 2.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks -F /Applications/Xcode\ 2.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk/Developer/Library/Frameworks -c -j8 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/elamir/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphonesimulator26.2-23C57-68e652329c7506d508c79ee500d2298c.sdkstatcache -output-file-map /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-perception.build/Debug-iphonesimulator/PerceptionMacros.build/Objects-normal/arm64/PerceptionMacros-OutputFileMap.json -use-frontend-parseable-output -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Users/elamir/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -sdk-module-cache-path /Users/elamir/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -serialize-diagnostics -emit-dependencies -emit-module -emit-module-path /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-perception.build/Debug-iphonesimulator/PerceptionMacros.build/Objects-normal/arm64/PerceptionMacros.swiftmodule -user-module-version 2.0.9 -validate-clang-modules-once -clang-build-session-file /Users/elamir/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/Session.modulevalidation -package-name swift_perception -emit-const-values -Xfrontend -const-gather-protocols-file -Xfrontend /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-perception.build/Debug-iphonesimulator/PerceptionMacros.build/Objects-normal/arm64/PerceptionMacros_const_extract_protocols.json -Xcc -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Products/Debug-iphonesimulator/include -Xcc -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-perception.build/Debug-iphonesimulator/PerceptionMacros.build/DerivedSources-normal/arm64 -Xcc -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-perception.build/Debug-iphonesimulator/PerceptionMacros.build/DerivedSources/arm64 -Xcc -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-perception.build/Debug-iphonesimulator/PerceptionMacros.build/DerivedSources -Xcc -DSWIFT_PACKAGE -Xcc -DDEBUG\=1 -working-directory /Users/elamir/Documents/Depresso\ -\ Working\ V -experimental-emit-module-separately -disable-cmo
+warning: module file '/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/prebuilts/swift-syntax/602.0.0/swiftlang-6.2.4.1.4-MacroSupport-macos_aarch64/Modules/SwiftSyntaxMacros.swiftmodule' is incompatible with this Swift compiler: SDK does not match
+warning: module file '/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/prebuilts/swift-syntax/602.0.0/swiftlang-6.2.4.1.4-MacroSupport-macos_aarch64/Modules/SwiftSyntaxBuilder.swiftmodule' is incompatible with this Swift compiler: SDK does not match
+warning: module file '/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/prebuilts/swift-syntax/602.0.0/swiftlang-6.2.4.1.4-MacroSupport-macos_aarch64/Modules/SwiftDiagnostics.swiftmodule' is incompatible with this Swift compiler: SDK does not match
+warning: module file '/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/prebuilts/swift-syntax/602.0.0/swiftlang-6.2.4.1.4-MacroSupport-macos_aarch64/Modules/SwiftCompilerPlugin.swiftmodule' is incompatible with this Swift compiler: SDK does not match
+warning: module file '/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/prebuilts/swift-syntax/602.0.0/swiftlang-6.2.4.1.4-MacroSupport-macos_aarch64/Modules/SwiftSyntax.swiftmodule' is incompatible with this Swift compiler: SDK does not match
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-perception/Sources/PerceptionMacros/Availability.swift:12:8: error: Unable to find module dependency: 'SwiftSyntax'
+import SwiftSyntax
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-perception/Sources/PerceptionMacros/Availability.swift:12:8: note: a dependency of main module 'PerceptionMacros'
+import SwiftSyntax
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-perception/Sources/PerceptionMacros/Extensions.swift:12:8: note: also imported here
+import SwiftSyntax
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-perception/Sources/PerceptionMacros/PerceptibleMacro.swift:12:8: note: also imported here
+import SwiftSyntax
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-perception/Sources/PerceptionMacros/Availability.swift:13:8: error: Unable to find module dependency: 'SwiftSyntaxMacros'
+import SwiftSyntaxMacros
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-perception/Sources/PerceptionMacros/Availability.swift:13:8: note: a dependency of main module 'PerceptionMacros'
+import SwiftSyntaxMacros
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-perception/Sources/PerceptionMacros/Extensions.swift:13:8: note: also imported here
+import SwiftSyntaxMacros
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-perception/Sources/PerceptionMacros/PerceptibleMacro.swift:13:8: note: also imported here
+import SwiftSyntaxMacros
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-perception/Sources/PerceptionMacros/Plugins.swift:2:8: note: also imported here
+import SwiftSyntaxMacros
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-perception/Sources/PerceptionMacros/Availability.swift:14:8: error: Unable to find module dependency: 'SwiftDiagnostics'
+import SwiftDiagnostics
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-perception/Sources/PerceptionMacros/Availability.swift:14:8: note: a dependency of main module 'PerceptionMacros'
+import SwiftDiagnostics
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-perception/Sources/PerceptionMacros/Extensions.swift:14:8: note: also imported here
+import SwiftDiagnostics
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-perception/Sources/PerceptionMacros/PerceptibleMacro.swift:14:8: note: also imported here
+import SwiftDiagnostics
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-perception/Sources/PerceptionMacros/Availability.swift:15:8: error: Unable to find module dependency: 'SwiftSyntaxBuilder'
+import SwiftSyntaxBuilder
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-perception/Sources/PerceptionMacros/Availability.swift:15:8: note: a dependency of main module 'PerceptionMacros'
+import SwiftSyntaxBuilder
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-perception/Sources/PerceptionMacros/Extensions.swift:15:8: note: also imported here
+import SwiftSyntaxBuilder
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-perception/Sources/PerceptionMacros/PerceptibleMacro.swift:15:8: note: also imported here
+import SwiftSyntaxBuilder
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-perception/Sources/PerceptionMacros/Plugins.swift:1:8: error: Unable to find module dependency: 'SwiftCompilerPlugin'
+import SwiftCompilerPlugin
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-perception/Sources/PerceptionMacros/Plugins.swift:1:8: note: a dependency of main module 'PerceptionMacros'
+import SwiftCompilerPlugin
+       ^
+warning: Module file '/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/prebuilts/swift-syntax/602.0.0/swiftlang-6.2.4.1.4-MacroSupport-macos_aarch64/Modules/SwiftSyntaxMacros.swiftmodule' is incompatible with this Swift compiler: SDK does not match (in target 'PerceptionMacros' from project 'swift-perception')
+warning: Module file '/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/prebuilts/swift-syntax/602.0.0/swiftlang-6.2.4.1.4-MacroSupport-macos_aarch64/Modules/SwiftSyntaxBuilder.swiftmodule' is incompatible with this Swift compiler: SDK does not match (in target 'PerceptionMacros' from project 'swift-perception')
+warning: Module file '/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/prebuilts/swift-syntax/602.0.0/swiftlang-6.2.4.1.4-MacroSupport-macos_aarch64/Modules/SwiftDiagnostics.swiftmodule' is incompatible with this Swift compiler: SDK does not match (in target 'PerceptionMacros' from project 'swift-perception')
+warning: Module file '/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/prebuilts/swift-syntax/602.0.0/swiftlang-6.2.4.1.4-MacroSupport-macos_aarch64/Modules/SwiftCompilerPlugin.swiftmodule' is incompatible with this Swift compiler: SDK does not match (in target 'PerceptionMacros' from project 'swift-perception')
+warning: Module file '/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/prebuilts/swift-syntax/602.0.0/swiftlang-6.2.4.1.4-MacroSupport-macos_aarch64/Modules/SwiftSyntax.swiftmodule' is incompatible with this Swift compiler: SDK does not match (in target 'PerceptionMacros' from project 'swift-perception')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-perception/Sources/PerceptionMacros/Availability.swift:12:8: error: Unable to find module dependency: 'SwiftSyntax'
+import SwiftSyntax
+       ^ (in target 'PerceptionMacros' from project 'swift-perception')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-perception/Sources/PerceptionMacros/Availability.swift:12:8: note: A dependency of main module 'PerceptionMacros'
+import SwiftSyntax
+       ^ (in target 'PerceptionMacros' from project 'swift-perception')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-perception/Sources/PerceptionMacros/Extensions.swift:12:8: note: Also imported here
+import SwiftSyntax
+       ^ (in target 'PerceptionMacros' from project 'swift-perception')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-perception/Sources/PerceptionMacros/PerceptibleMacro.swift:12:8: note: Also imported here
+import SwiftSyntax
+       ^ (in target 'PerceptionMacros' from project 'swift-perception')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-perception/Sources/PerceptionMacros/Availability.swift:13:8: error: Unable to find module dependency: 'SwiftSyntaxMacros'
+import SwiftSyntaxMacros
+       ^ (in target 'PerceptionMacros' from project 'swift-perception')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-perception/Sources/PerceptionMacros/Availability.swift:13:8: note: A dependency of main module 'PerceptionMacros'
+import SwiftSyntaxMacros
+       ^ (in target 'PerceptionMacros' from project 'swift-perception')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-perception/Sources/PerceptionMacros/Extensions.swift:13:8: note: Also imported here
+import SwiftSyntaxMacros
+       ^ (in target 'PerceptionMacros' from project 'swift-perception')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-perception/Sources/PerceptionMacros/PerceptibleMacro.swift:13:8: note: Also imported here
+import SwiftSyntaxMacros
+       ^ (in target 'PerceptionMacros' from project 'swift-perception')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-perception/Sources/PerceptionMacros/Plugins.swift:2:8: note: Also imported here
+import SwiftSyntaxMacros
+       ^ (in target 'PerceptionMacros' from project 'swift-perception')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-perception/Sources/PerceptionMacros/Availability.swift:14:8: error: Unable to find module dependency: 'SwiftDiagnostics'
+import SwiftDiagnostics
+       ^ (in target 'PerceptionMacros' from project 'swift-perception')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-perception/Sources/PerceptionMacros/Availability.swift:14:8: note: A dependency of main module 'PerceptionMacros'
+import SwiftDiagnostics
+       ^ (in target 'PerceptionMacros' from project 'swift-perception')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-perception/Sources/PerceptionMacros/Extensions.swift:14:8: note: Also imported here
+import SwiftDiagnostics
+       ^ (in target 'PerceptionMacros' from project 'swift-perception')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-perception/Sources/PerceptionMacros/PerceptibleMacro.swift:14:8: note: Also imported here
+import SwiftDiagnostics
+       ^ (in target 'PerceptionMacros' from project 'swift-perception')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-perception/Sources/PerceptionMacros/Availability.swift:15:8: error: Unable to find module dependency: 'SwiftSyntaxBuilder'
+import SwiftSyntaxBuilder
+       ^ (in target 'PerceptionMacros' from project 'swift-perception')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-perception/Sources/PerceptionMacros/Availability.swift:15:8: note: A dependency of main module 'PerceptionMacros'
+import SwiftSyntaxBuilder
+       ^ (in target 'PerceptionMacros' from project 'swift-perception')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-perception/Sources/PerceptionMacros/Extensions.swift:15:8: note: Also imported here
+import SwiftSyntaxBuilder
+       ^ (in target 'PerceptionMacros' from project 'swift-perception')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-perception/Sources/PerceptionMacros/PerceptibleMacro.swift:15:8: note: Also imported here
+import SwiftSyntaxBuilder
+       ^ (in target 'PerceptionMacros' from project 'swift-perception')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-perception/Sources/PerceptionMacros/Plugins.swift:1:8: error: Unable to find module dependency: 'SwiftCompilerPlugin'
+import SwiftCompilerPlugin
+       ^ (in target 'PerceptionMacros' from project 'swift-perception')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-perception/Sources/PerceptionMacros/Plugins.swift:1:8: note: A dependency of main module 'PerceptionMacros'
+import SwiftCompilerPlugin
+       ^ (in target 'PerceptionMacros' from project 'swift-perception')
+
+SwiftDriver Sharing2 normal arm64 com.apple.xcode.tools.swift.compiler (in target 'Sharing2' from project 'swift-sharing')
+    cd /Users/elamir/Documents/Depresso\ -\ Working\ V
+    builtin-SwiftDriver -- /Applications/Xcode\ 2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name Sharing2 -Onone -enforce-exclusivity\=checked @/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-sharing.build/Debug-iphonesimulator/Sharing2.build/Objects-normal/arm64/Sharing2.SwiftFileList -DSWIFT_PACKAGE -DDEBUG -DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE -DXcode -plugin-path /Applications/Xcode\ 2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode\ 2.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk -target arm64-apple-ios13.0-simulator -g -module-cache-path /Users/elamir/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -suppress-warnings -index-store-path /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 6 -I /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Products/Debug-iphonesimulator -Isystem /Applications/Xcode\ 2.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib -F /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Products/Debug-iphonesimulator -F /Applications/Xcode\ 2.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks -F /Applications/Xcode\ 2.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk/Developer/Library/Frameworks -parse-as-library -c -j8 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/elamir/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphonesimulator26.2-23C57-68e652329c7506d508c79ee500d2298c.sdkstatcache -output-file-map /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-sharing.build/Debug-iphonesimulator/Sharing2.build/Objects-normal/arm64/Sharing2-OutputFileMap.json -use-frontend-parseable-output -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Users/elamir/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -sdk-module-cache-path /Users/elamir/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -serialize-diagnostics -emit-dependencies -emit-module -emit-module-path /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-sharing.build/Debug-iphonesimulator/Sharing2.build/Objects-normal/arm64/Sharing2.swiftmodule -user-module-version 2.7.4 -validate-clang-modules-once -clang-build-session-file /Users/elamir/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/Session.modulevalidation -package-name swift_sharing -Xcc -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-sharing.build/Debug-iphonesimulator/Sharing2.build/swift-overrides.hmap -emit-const-values -Xfrontend -const-gather-protocols-file -Xfrontend /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-sharing.build/Debug-iphonesimulator/Sharing2.build/Objects-normal/arm64/Sharing2_const_extract_protocols.json -Xcc -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Products/Debug-iphonesimulator/include -Xcc -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-sharing.build/Debug-iphonesimulator/Sharing2.build/DerivedSources-normal/arm64 -Xcc -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-sharing.build/Debug-iphonesimulator/Sharing2.build/DerivedSources/arm64 -Xcc -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-sharing.build/Debug-iphonesimulator/Sharing2.build/DerivedSources -Xcc -DSWIFT_PACKAGE -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-sharing.build/Debug-iphonesimulator/Sharing2.build/Objects-normal/arm64/Sharing2-Swift.h -working-directory /Users/elamir/Documents/Depresso\ -\ Working\ V -experimental-emit-module-separately -disable-cmo
+
+SwiftDriver Sharing2 normal x86_64 com.apple.xcode.tools.swift.compiler (in target 'Sharing2' from project 'swift-sharing')
+    cd /Users/elamir/Documents/Depresso\ -\ Working\ V
+    builtin-SwiftDriver -- /Applications/Xcode\ 2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name Sharing2 -Onone -enforce-exclusivity\=checked @/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-sharing.build/Debug-iphonesimulator/Sharing2.build/Objects-normal/x86_64/Sharing2.SwiftFileList -DSWIFT_PACKAGE -DDEBUG -DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE -DXcode -plugin-path /Applications/Xcode\ 2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode\ 2.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk -target x86_64-apple-ios13.0-simulator -g -module-cache-path /Users/elamir/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -suppress-warnings -index-store-path /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 6 -I /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Products/Debug-iphonesimulator -Isystem /Applications/Xcode\ 2.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib -F /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Products/Debug-iphonesimulator -F /Applications/Xcode\ 2.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks -F /Applications/Xcode\ 2.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk/Developer/Library/Frameworks -parse-as-library -c -j8 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/elamir/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphonesimulator26.2-23C57-68e652329c7506d508c79ee500d2298c.sdkstatcache -output-file-map /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-sharing.build/Debug-iphonesimulator/Sharing2.build/Objects-normal/x86_64/Sharing2-OutputFileMap.json -use-frontend-parseable-output -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Users/elamir/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -sdk-module-cache-path /Users/elamir/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -serialize-diagnostics -emit-dependencies -emit-module -emit-module-path /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-sharing.build/Debug-iphonesimulator/Sharing2.build/Objects-normal/x86_64/Sharing2.swiftmodule -user-module-version 2.7.4 -validate-clang-modules-once -clang-build-session-file /Users/elamir/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/Session.modulevalidation -package-name swift_sharing -Xcc -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-sharing.build/Debug-iphonesimulator/Sharing2.build/swift-overrides.hmap -emit-const-values -Xfrontend -const-gather-protocols-file -Xfrontend /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-sharing.build/Debug-iphonesimulator/Sharing2.build/Objects-normal/x86_64/Sharing2_const_extract_protocols.json -Xcc -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Products/Debug-iphonesimulator/include -Xcc -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-sharing.build/Debug-iphonesimulator/Sharing2.build/DerivedSources-normal/x86_64 -Xcc -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-sharing.build/Debug-iphonesimulator/Sharing2.build/DerivedSources/x86_64 -Xcc -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-sharing.build/Debug-iphonesimulator/Sharing2.build/DerivedSources -Xcc -DSWIFT_PACKAGE -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-sharing.build/Debug-iphonesimulator/Sharing2.build/Objects-normal/x86_64/Sharing2-Swift.h -working-directory /Users/elamir/Documents/Depresso\ -\ Working\ V -experimental-emit-module-separately -disable-cmo
+
+SwiftDriver Sharing1 normal x86_64 com.apple.xcode.tools.swift.compiler (in target 'Sharing1' from project 'swift-sharing')
+    cd /Users/elamir/Documents/Depresso\ -\ Working\ V
+    builtin-SwiftDriver -- /Applications/Xcode\ 2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name Sharing1 -Onone -enforce-exclusivity\=checked @/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-sharing.build/Debug-iphonesimulator/Sharing1.build/Objects-normal/x86_64/Sharing1.SwiftFileList -DSWIFT_PACKAGE -DDEBUG -DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE -DXcode -plugin-path /Applications/Xcode\ 2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode\ 2.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk -target x86_64-apple-ios13.0-simulator -g -module-cache-path /Users/elamir/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -suppress-warnings -index-store-path /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 6 -I /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Products/Debug-iphonesimulator -Isystem /Applications/Xcode\ 2.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib -F /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Products/Debug-iphonesimulator -F /Applications/Xcode\ 2.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks -F /Applications/Xcode\ 2.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk/Developer/Library/Frameworks -parse-as-library -c -j8 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/elamir/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphonesimulator26.2-23C57-68e652329c7506d508c79ee500d2298c.sdkstatcache -output-file-map /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-sharing.build/Debug-iphonesimulator/Sharing1.build/Objects-normal/x86_64/Sharing1-OutputFileMap.json -use-frontend-parseable-output -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Users/elamir/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -sdk-module-cache-path /Users/elamir/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -serialize-diagnostics -emit-dependencies -emit-module -emit-module-path /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-sharing.build/Debug-iphonesimulator/Sharing1.build/Objects-normal/x86_64/Sharing1.swiftmodule -user-module-version 2.7.4 -validate-clang-modules-once -clang-build-session-file /Users/elamir/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/Session.modulevalidation -package-name swift_sharing -Xcc -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-sharing.build/Debug-iphonesimulator/Sharing1.build/swift-overrides.hmap -emit-const-values -Xfrontend -const-gather-protocols-file -Xfrontend /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-sharing.build/Debug-iphonesimulator/Sharing1.build/Objects-normal/x86_64/Sharing1_const_extract_protocols.json -Xcc -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Products/Debug-iphonesimulator/include -Xcc -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-sharing.build/Debug-iphonesimulator/Sharing1.build/DerivedSources-normal/x86_64 -Xcc -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-sharing.build/Debug-iphonesimulator/Sharing1.build/DerivedSources/x86_64 -Xcc -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-sharing.build/Debug-iphonesimulator/Sharing1.build/DerivedSources -Xcc -DSWIFT_PACKAGE -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-sharing.build/Debug-iphonesimulator/Sharing1.build/Objects-normal/x86_64/Sharing1-Swift.h -working-directory /Users/elamir/Documents/Depresso\ -\ Working\ V -experimental-emit-module-separately -disable-cmo
+
+SwiftDriver Sharing1 normal arm64 com.apple.xcode.tools.swift.compiler (in target 'Sharing1' from project 'swift-sharing')
+    cd /Users/elamir/Documents/Depresso\ -\ Working\ V
+    builtin-SwiftDriver -- /Applications/Xcode\ 2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name Sharing1 -Onone -enforce-exclusivity\=checked @/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-sharing.build/Debug-iphonesimulator/Sharing1.build/Objects-normal/arm64/Sharing1.SwiftFileList -DSWIFT_PACKAGE -DDEBUG -DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE -DXcode -plugin-path /Applications/Xcode\ 2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode\ 2.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk -target arm64-apple-ios13.0-simulator -g -module-cache-path /Users/elamir/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -suppress-warnings -index-store-path /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 6 -I /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Products/Debug-iphonesimulator -Isystem /Applications/Xcode\ 2.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib -F /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Products/Debug-iphonesimulator -F /Applications/Xcode\ 2.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks -F /Applications/Xcode\ 2.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk/Developer/Library/Frameworks -parse-as-library -c -j8 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/elamir/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphonesimulator26.2-23C57-68e652329c7506d508c79ee500d2298c.sdkstatcache -output-file-map /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-sharing.build/Debug-iphonesimulator/Sharing1.build/Objects-normal/arm64/Sharing1-OutputFileMap.json -use-frontend-parseable-output -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Users/elamir/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -sdk-module-cache-path /Users/elamir/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -serialize-diagnostics -emit-dependencies -emit-module -emit-module-path /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-sharing.build/Debug-iphonesimulator/Sharing1.build/Objects-normal/arm64/Sharing1.swiftmodule -user-module-version 2.7.4 -validate-clang-modules-once -clang-build-session-file /Users/elamir/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/Session.modulevalidation -package-name swift_sharing -Xcc -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-sharing.build/Debug-iphonesimulator/Sharing1.build/swift-overrides.hmap -emit-const-values -Xfrontend -const-gather-protocols-file -Xfrontend /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-sharing.build/Debug-iphonesimulator/Sharing1.build/Objects-normal/arm64/Sharing1_const_extract_protocols.json -Xcc -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Products/Debug-iphonesimulator/include -Xcc -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-sharing.build/Debug-iphonesimulator/Sharing1.build/DerivedSources-normal/arm64 -Xcc -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-sharing.build/Debug-iphonesimulator/Sharing1.build/DerivedSources/arm64 -Xcc -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-sharing.build/Debug-iphonesimulator/Sharing1.build/DerivedSources -Xcc -DSWIFT_PACKAGE -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-sharing.build/Debug-iphonesimulator/Sharing1.build/Objects-normal/arm64/Sharing1-Swift.h -working-directory /Users/elamir/Documents/Depresso\ -\ Working\ V -experimental-emit-module-separately -disable-cmo
+
+SwiftDriver IssueReportingPackageSupport normal arm64 com.apple.xcode.tools.swift.compiler (in target 'IssueReportingPackageSupport' from project 'xctest-dynamic-overlay')
+    cd /Users/elamir/Documents/Depresso\ -\ Working\ V
+    builtin-SwiftDriver -- /Applications/Xcode\ 2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name IssueReportingPackageSupport -Onone -enforce-exclusivity\=checked @/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/xctest-dynamic-overlay.build/Debug-iphonesimulator/IssueReportingPackageSupport.build/Objects-normal/arm64/IssueReportingPackageSupport.SwiftFileList -DSWIFT_PACKAGE -DDEBUG -DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE -DXcode -plugin-path /Applications/Xcode\ 2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode\ 2.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk -target arm64-apple-ios13.0-simulator -g -module-cache-path /Users/elamir/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -suppress-warnings -index-store-path /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 6 -I /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Products/Debug-iphonesimulator -Isystem /Applications/Xcode\ 2.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib -F /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Products/Debug-iphonesimulator -F /Applications/Xcode\ 2.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks -F /Applications/Xcode\ 2.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk/Developer/Library/Frameworks -parse-as-library -c -j8 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/elamir/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphonesimulator26.2-23C57-68e652329c7506d508c79ee500d2298c.sdkstatcache -output-file-map /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/xctest-dynamic-overlay.build/Debug-iphonesimulator/IssueReportingPackageSupport.build/Objects-normal/arm64/IssueReportingPackageSupport-OutputFileMap.json -use-frontend-parseable-output -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Users/elamir/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -sdk-module-cache-path /Users/elamir/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -serialize-diagnostics -emit-dependencies -emit-module -emit-module-path /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/xctest-dynamic-overlay.build/Debug-iphonesimulator/IssueReportingPackageSupport.build/Objects-normal/arm64/IssueReportingPackageSupport.swiftmodule -user-module-version 1.9.0 -validate-clang-modules-once -clang-build-session-file /Users/elamir/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/Session.modulevalidation -package-name xctest_dynamic_overlay -Xcc -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/xctest-dynamic-overlay.build/Debug-iphonesimulator/IssueReportingPackageSupport.build/swift-overrides.hmap -emit-const-values -Xfrontend -const-gather-protocols-file -Xfrontend /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/xctest-dynamic-overlay.build/Debug-iphonesimulator/IssueReportingPackageSupport.build/Objects-normal/arm64/IssueReportingPackageSupport_const_extract_protocols.json -Xcc -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Products/Debug-iphonesimulator/include -Xcc -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/xctest-dynamic-overlay.build/Debug-iphonesimulator/IssueReportingPackageSupport.build/DerivedSources-normal/arm64 -Xcc -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/xctest-dynamic-overlay.build/Debug-iphonesimulator/IssueReportingPackageSupport.build/DerivedSources/arm64 -Xcc -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/xctest-dynamic-overlay.build/Debug-iphonesimulator/IssueReportingPackageSupport.build/DerivedSources -Xcc -DSWIFT_PACKAGE -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/xctest-dynamic-overlay.build/Debug-iphonesimulator/IssueReportingPackageSupport.build/Objects-normal/arm64/IssueReportingPackageSupport-Swift.h -working-directory /Users/elamir/Documents/Depresso\ -\ Working\ V -experimental-emit-module-separately -disable-cmo
+
+SwiftDriver IssueReportingPackageSupport normal x86_64 com.apple.xcode.tools.swift.compiler (in target 'IssueReportingPackageSupport' from project 'xctest-dynamic-overlay')
+    cd /Users/elamir/Documents/Depresso\ -\ Working\ V
+    builtin-SwiftDriver -- /Applications/Xcode\ 2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name IssueReportingPackageSupport -Onone -enforce-exclusivity\=checked @/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/xctest-dynamic-overlay.build/Debug-iphonesimulator/IssueReportingPackageSupport.build/Objects-normal/x86_64/IssueReportingPackageSupport.SwiftFileList -DSWIFT_PACKAGE -DDEBUG -DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE -DXcode -plugin-path /Applications/Xcode\ 2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode\ 2.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk -target x86_64-apple-ios13.0-simulator -g -module-cache-path /Users/elamir/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -suppress-warnings -index-store-path /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 6 -I /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Products/Debug-iphonesimulator -Isystem /Applications/Xcode\ 2.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib -F /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Products/Debug-iphonesimulator -F /Applications/Xcode\ 2.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks -F /Applications/Xcode\ 2.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk/Developer/Library/Frameworks -parse-as-library -c -j8 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/elamir/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphonesimulator26.2-23C57-68e652329c7506d508c79ee500d2298c.sdkstatcache -output-file-map /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/xctest-dynamic-overlay.build/Debug-iphonesimulator/IssueReportingPackageSupport.build/Objects-normal/x86_64/IssueReportingPackageSupport-OutputFileMap.json -use-frontend-parseable-output -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Users/elamir/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -sdk-module-cache-path /Users/elamir/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -serialize-diagnostics -emit-dependencies -emit-module -emit-module-path /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/xctest-dynamic-overlay.build/Debug-iphonesimulator/IssueReportingPackageSupport.build/Objects-normal/x86_64/IssueReportingPackageSupport.swiftmodule -user-module-version 1.9.0 -validate-clang-modules-once -clang-build-session-file /Users/elamir/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/Session.modulevalidation -package-name xctest_dynamic_overlay -Xcc -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/xctest-dynamic-overlay.build/Debug-iphonesimulator/IssueReportingPackageSupport.build/swift-overrides.hmap -emit-const-values -Xfrontend -const-gather-protocols-file -Xfrontend /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/xctest-dynamic-overlay.build/Debug-iphonesimulator/IssueReportingPackageSupport.build/Objects-normal/x86_64/IssueReportingPackageSupport_const_extract_protocols.json -Xcc -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Products/Debug-iphonesimulator/include -Xcc -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/xctest-dynamic-overlay.build/Debug-iphonesimulator/IssueReportingPackageSupport.build/DerivedSources-normal/x86_64 -Xcc -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/xctest-dynamic-overlay.build/Debug-iphonesimulator/IssueReportingPackageSupport.build/DerivedSources/x86_64 -Xcc -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/xctest-dynamic-overlay.build/Debug-iphonesimulator/IssueReportingPackageSupport.build/DerivedSources -Xcc -DSWIFT_PACKAGE -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/xctest-dynamic-overlay.build/Debug-iphonesimulator/IssueReportingPackageSupport.build/Objects-normal/x86_64/IssueReportingPackageSupport-Swift.h -working-directory /Users/elamir/Documents/Depresso\ -\ Working\ V -experimental-emit-module-separately -disable-cmo
+
+SwiftDriver InternalCollectionsUtilities normal arm64 com.apple.xcode.tools.swift.compiler (in target 'InternalCollectionsUtilities' from project 'swift-collections')
+    cd /Users/elamir/Documents/Depresso\ -\ Working\ V
+    builtin-SwiftDriver -- /Applications/Xcode\ 2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name InternalCollectionsUtilities -Onone -enforce-exclusivity\=checked @/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-collections.build/Debug-iphonesimulator/InternalCollectionsUtilities.build/Objects-normal/arm64/InternalCollectionsUtilities.SwiftFileList -DSWIFT_PACKAGE -DDEBUG -DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE -DCOLLECTIONS_RANDOMIZED_TESTING -DXcode -enable-experimental-feature AvailabilityMacro\=SwiftStdlib\ 5.0:\ macOS\ 10.14.4,\ iOS\ 12.2,\ watchOS\ 5.2,\ tvOS\ 12.2 -enable-experimental-feature AvailabilityMacro\=SwiftStdlib\ 5.1:\ macOS\ 10.15,\ iOS\ 13.0,\ watchOS\ 6.0,\ tvOS\ 13.0 -enable-experimental-feature AvailabilityMacro\=SwiftStdlib\ 5.6:\ macOS\ 12.3,\ iOS\ 15.4,\ watchOS\ 8.5,\ tvOS\ 15.4 -enable-experimental-feature AvailabilityMacro\=SwiftStdlib\ 5.8:\ macOS\ 13.3,\ iOS\ 16.4,\ watchOS\ 9.4,\ tvOS\ 16.4 -enable-experimental-feature AvailabilityMacro\=SwiftStdlib\ 5.9:\ macOS\ 14.0,\ iOS\ 17.0,\ watchOS\ 10.0,\ tvOS\ 17.0 -enable-experimental-feature AvailabilityMacro\=SwiftStdlib\ 5.10:\ macOS\ 14.4,\ iOS\ 17.4,\ watchOS\ 10.4,\ tvOS\ 17.4,\ visionOS\ 1.1 -enable-experimental-feature AvailabilityMacro\=SwiftStdlib\ 6.0:\ macOS\ 15.0,\ iOS\ 18.0,\ watchOS\ 11.0,\ tvOS\ 18.0,\ visionOS\ 2.0 -enable-experimental-feature AvailabilityMacro\=SwiftStdlib\ 6.1:\ macOS\ 15.4,\ iOS\ 18.4,\ watchOS\ 11.4,\ tvOS\ 18.4,\ visionOS\ 2.4 -enable-experimental-feature AvailabilityMacro\=SwiftStdlib\ 6.2:\ macOS\ 26.0,\ iOS\ 26.0,\ watchOS\ 26.0,\ tvOS\ 26.0,\ visionOS\ 26.0 -enable-upcoming-feature MemberImportVisibility -enable-experimental-feature BuiltinModule -enable-experimental-feature Lifetimes -enable-experimental-feature InoutLifetimeDependence -enable-experimental-feature SuppressedAssociatedTypes -plugin-path /Applications/Xcode\ 2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode\ 2.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk -target arm64-apple-ios12.0-simulator -g -module-cache-path /Users/elamir/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -suppress-warnings -index-store-path /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 6 -I /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Products/Debug-iphonesimulator -Isystem /Applications/Xcode\ 2.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib -F /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Products/Debug-iphonesimulator -F /Applications/Xcode\ 2.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks -F /Applications/Xcode\ 2.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk/Developer/Library/Frameworks -c -j8 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/elamir/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphonesimulator26.2-23C57-68e652329c7506d508c79ee500d2298c.sdkstatcache -output-file-map /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-collections.build/Debug-iphonesimulator/InternalCollectionsUtilities.build/Objects-normal/arm64/InternalCollectionsUtilities-OutputFileMap.json -use-frontend-parseable-output -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Users/elamir/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -sdk-module-cache-path /Users/elamir/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -serialize-diagnostics -emit-dependencies -emit-module -emit-module-path /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-collections.build/Debug-iphonesimulator/InternalCollectionsUtilities.build/Objects-normal/arm64/InternalCollectionsUtilities.swiftmodule -user-module-version 1.3.0 -validate-clang-modules-once -clang-build-session-file /Users/elamir/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/Session.modulevalidation -package-name swift_collections -Xcc -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-collections.build/Debug-iphonesimulator/InternalCollectionsUtilities.build/swift-overrides.hmap -emit-const-values -Xfrontend -const-gather-protocols-file -Xfrontend /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-collections.build/Debug-iphonesimulator/InternalCollectionsUtilities.build/Objects-normal/arm64/InternalCollectionsUtilities_const_extract_protocols.json -Xcc -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Products/Debug-iphonesimulator/include -Xcc -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-collections.build/Debug-iphonesimulator/InternalCollectionsUtilities.build/DerivedSources-normal/arm64 -Xcc -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-collections.build/Debug-iphonesimulator/InternalCollectionsUtilities.build/DerivedSources/arm64 -Xcc -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-collections.build/Debug-iphonesimulator/InternalCollectionsUtilities.build/DerivedSources -Xcc -DSWIFT_PACKAGE -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-collections.build/Debug-iphonesimulator/InternalCollectionsUtilities.build/Objects-normal/arm64/InternalCollectionsUtilities-Swift.h -working-directory /Users/elamir/Documents/Depresso\ -\ Working\ V -experimental-emit-module-separately -disable-cmo
+
+SwiftDriver InternalCollectionsUtilities normal x86_64 com.apple.xcode.tools.swift.compiler (in target 'InternalCollectionsUtilities' from project 'swift-collections')
+    cd /Users/elamir/Documents/Depresso\ -\ Working\ V
+    builtin-SwiftDriver -- /Applications/Xcode\ 2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name InternalCollectionsUtilities -Onone -enforce-exclusivity\=checked @/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-collections.build/Debug-iphonesimulator/InternalCollectionsUtilities.build/Objects-normal/x86_64/InternalCollectionsUtilities.SwiftFileList -DSWIFT_PACKAGE -DDEBUG -DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE -DCOLLECTIONS_RANDOMIZED_TESTING -DXcode -enable-experimental-feature AvailabilityMacro\=SwiftStdlib\ 5.0:\ macOS\ 10.14.4,\ iOS\ 12.2,\ watchOS\ 5.2,\ tvOS\ 12.2 -enable-experimental-feature AvailabilityMacro\=SwiftStdlib\ 5.1:\ macOS\ 10.15,\ iOS\ 13.0,\ watchOS\ 6.0,\ tvOS\ 13.0 -enable-experimental-feature AvailabilityMacro\=SwiftStdlib\ 5.6:\ macOS\ 12.3,\ iOS\ 15.4,\ watchOS\ 8.5,\ tvOS\ 15.4 -enable-experimental-feature AvailabilityMacro\=SwiftStdlib\ 5.8:\ macOS\ 13.3,\ iOS\ 16.4,\ watchOS\ 9.4,\ tvOS\ 16.4 -enable-experimental-feature AvailabilityMacro\=SwiftStdlib\ 5.9:\ macOS\ 14.0,\ iOS\ 17.0,\ watchOS\ 10.0,\ tvOS\ 17.0 -enable-experimental-feature AvailabilityMacro\=SwiftStdlib\ 5.10:\ macOS\ 14.4,\ iOS\ 17.4,\ watchOS\ 10.4,\ tvOS\ 17.4,\ visionOS\ 1.1 -enable-experimental-feature AvailabilityMacro\=SwiftStdlib\ 6.0:\ macOS\ 15.0,\ iOS\ 18.0,\ watchOS\ 11.0,\ tvOS\ 18.0,\ visionOS\ 2.0 -enable-experimental-feature AvailabilityMacro\=SwiftStdlib\ 6.1:\ macOS\ 15.4,\ iOS\ 18.4,\ watchOS\ 11.4,\ tvOS\ 18.4,\ visionOS\ 2.4 -enable-experimental-feature AvailabilityMacro\=SwiftStdlib\ 6.2:\ macOS\ 26.0,\ iOS\ 26.0,\ watchOS\ 26.0,\ tvOS\ 26.0,\ visionOS\ 26.0 -enable-upcoming-feature MemberImportVisibility -enable-experimental-feature BuiltinModule -enable-experimental-feature Lifetimes -enable-experimental-feature InoutLifetimeDependence -enable-experimental-feature SuppressedAssociatedTypes -plugin-path /Applications/Xcode\ 2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode\ 2.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk -target x86_64-apple-ios12.0-simulator -g -module-cache-path /Users/elamir/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -suppress-warnings -index-store-path /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 6 -I /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Products/Debug-iphonesimulator -Isystem /Applications/Xcode\ 2.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib -F /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Products/Debug-iphonesimulator -F /Applications/Xcode\ 2.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks -F /Applications/Xcode\ 2.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk/Developer/Library/Frameworks -c -j8 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/elamir/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphonesimulator26.2-23C57-68e652329c7506d508c79ee500d2298c.sdkstatcache -output-file-map /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-collections.build/Debug-iphonesimulator/InternalCollectionsUtilities.build/Objects-normal/x86_64/InternalCollectionsUtilities-OutputFileMap.json -use-frontend-parseable-output -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Users/elamir/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -sdk-module-cache-path /Users/elamir/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -serialize-diagnostics -emit-dependencies -emit-module -emit-module-path /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-collections.build/Debug-iphonesimulator/InternalCollectionsUtilities.build/Objects-normal/x86_64/InternalCollectionsUtilities.swiftmodule -user-module-version 1.3.0 -validate-clang-modules-once -clang-build-session-file /Users/elamir/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/Session.modulevalidation -package-name swift_collections -Xcc -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-collections.build/Debug-iphonesimulator/InternalCollectionsUtilities.build/swift-overrides.hmap -emit-const-values -Xfrontend -const-gather-protocols-file -Xfrontend /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-collections.build/Debug-iphonesimulator/InternalCollectionsUtilities.build/Objects-normal/x86_64/InternalCollectionsUtilities_const_extract_protocols.json -Xcc -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Products/Debug-iphonesimulator/include -Xcc -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-collections.build/Debug-iphonesimulator/InternalCollectionsUtilities.build/DerivedSources-normal/x86_64 -Xcc -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-collections.build/Debug-iphonesimulator/InternalCollectionsUtilities.build/DerivedSources/x86_64 -Xcc -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-collections.build/Debug-iphonesimulator/InternalCollectionsUtilities.build/DerivedSources -Xcc -DSWIFT_PACKAGE -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-collections.build/Debug-iphonesimulator/InternalCollectionsUtilities.build/Objects-normal/x86_64/InternalCollectionsUtilities-Swift.h -working-directory /Users/elamir/Documents/Depresso\ -\ Working\ V -experimental-emit-module-separately -disable-cmo
+warning: module file '/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/prebuilts/swift-syntax/602.0.0/swiftlang-6.2.4.1.4-MacroSupport-macos_aarch64/Modules/SwiftDiagnostics.swiftmodule' is incompatible with this Swift compiler: SDK does not match
+warning: module file '/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/prebuilts/swift-syntax/602.0.0/swiftlang-6.2.4.1.4-MacroSupport-macos_aarch64/Modules/SwiftSyntax.swiftmodule' is incompatible with this Swift compiler: SDK does not match
+warning: module file '/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/prebuilts/swift-syntax/602.0.0/swiftlang-6.2.4.1.4-MacroSupport-macos_aarch64/Modules/SwiftSyntaxMacros.swiftmodule' is incompatible with this Swift compiler: SDK does not match
+warning: module file '/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/prebuilts/swift-syntax/602.0.0/swiftlang-6.2.4.1.4-MacroSupport-macos_aarch64/Modules/SwiftSyntaxBuilder.swiftmodule' is incompatible with this Swift compiler: SDK does not match
+warning: module file '/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/prebuilts/swift-syntax/602.0.0/swiftlang-6.2.4.1.4-MacroSupport-macos_aarch64/Modules/SwiftCompilerPlugin.swiftmodule' is incompatible with this Swift compiler: SDK does not match
+warning: module file '/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/prebuilts/swift-syntax/602.0.0/swiftlang-6.2.4.1.4-MacroSupport-macos_aarch64/Modules/SwiftParser.swiftmodule' is incompatible with this Swift compiler: SDK does not match
+warning: module file '/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/prebuilts/swift-syntax/602.0.0/swiftlang-6.2.4.1.4-MacroSupport-macos_aarch64/Modules/SwiftSyntaxMacroExpansion.swiftmodule' is incompatible with this Swift compiler: SDK does not match
+warning: module file '/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/prebuilts/swift-syntax/602.0.0/swiftlang-6.2.4.1.4-MacroSupport-macos_aarch64/Modules/SwiftOperators.swiftmodule' is incompatible with this Swift compiler: SDK does not match
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-dependencies/Sources/DependenciesMacrosPlugin/DependencyClientMacro.swift:1:8: error: Unable to find module dependency: 'SwiftDiagnostics'
+import SwiftDiagnostics
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-dependencies/Sources/DependenciesMacrosPlugin/DependencyClientMacro.swift:1:8: note: a dependency of main module 'DependenciesMacrosPlugin'
+import SwiftDiagnostics
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-dependencies/Sources/DependenciesMacrosPlugin/DependencyEndpointMacro.swift:1:8: note: also imported here
+import SwiftDiagnostics
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-dependencies/Sources/DependenciesMacrosPlugin/Support.swift:1:8: note: also imported here
+import SwiftDiagnostics
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-dependencies/Sources/DependenciesMacrosPlugin/DependencyClientMacro.swift:2:8: error: Unable to find module dependency: 'SwiftOperators'
+import SwiftOperators
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-dependencies/Sources/DependenciesMacrosPlugin/DependencyClientMacro.swift:2:8: note: a dependency of main module 'DependenciesMacrosPlugin'
+import SwiftOperators
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-dependencies/Sources/DependenciesMacrosPlugin/DependencyEndpointMacro.swift:2:8: note: also imported here
+import SwiftOperators
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-dependencies/Sources/DependenciesMacrosPlugin/DependencyClientMacro.swift:3:8: error: Unable to find module dependency: 'SwiftSyntax'
+import SwiftSyntax
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-dependencies/Sources/DependenciesMacrosPlugin/DependencyClientMacro.swift:3:8: note: a dependency of main module 'DependenciesMacrosPlugin'
+import SwiftSyntax
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-dependencies/Sources/DependenciesMacrosPlugin/DependencyEndpointMacro.swift:4:8: note: also imported here
+import SwiftSyntax
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-dependencies/Sources/DependenciesMacrosPlugin/Support.swift:2:8: note: also imported here
+import SwiftSyntax
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-dependencies/Sources/DependenciesMacrosPlugin/DependencyClientMacro.swift:4:8: error: Unable to find module dependency: 'SwiftSyntaxBuilder'
+import SwiftSyntaxBuilder
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-dependencies/Sources/DependenciesMacrosPlugin/DependencyClientMacro.swift:4:8: note: a dependency of main module 'DependenciesMacrosPlugin'
+import SwiftSyntaxBuilder
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-dependencies/Sources/DependenciesMacrosPlugin/DependencyEndpointMacro.swift:5:8: note: also imported here
+import SwiftSyntaxBuilder
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-dependencies/Sources/DependenciesMacrosPlugin/Support.swift:3:8: note: also imported here
+import SwiftSyntaxBuilder
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-dependencies/Sources/DependenciesMacrosPlugin/DependencyClientMacro.swift:5:8: error: Unable to find module dependency: 'SwiftSyntaxMacros'
+import SwiftSyntaxMacros
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-dependencies/Sources/DependenciesMacrosPlugin/DependencyClientMacro.swift:5:8: note: a dependency of main module 'DependenciesMacrosPlugin'
+import SwiftSyntaxMacros
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-dependencies/Sources/DependenciesMacrosPlugin/DependencyEndpointMacro.swift:6:8: note: also imported here
+import SwiftSyntaxMacros
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-dependencies/Sources/DependenciesMacrosPlugin/Plugins.swift:2:8: note: also imported here
+import SwiftSyntaxMacros
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-dependencies/Sources/DependenciesMacrosPlugin/Support.swift:4:8: note: also imported here
+import SwiftSyntaxMacros
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-dependencies/Sources/DependenciesMacrosPlugin/DependencyClientMacro.swift:8:10: error: Unable to find module dependency: 'SwiftSyntaxMacroExpansion'
+  import SwiftSyntaxMacroExpansion
+         ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-dependencies/Sources/DependenciesMacrosPlugin/DependencyClientMacro.swift:8:10: note: a dependency of main module 'DependenciesMacrosPlugin'
+  import SwiftSyntaxMacroExpansion
+         ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-dependencies/Sources/DependenciesMacrosPlugin/DependencyEndpointMacro.swift:9:10: note: also imported here
+  import SwiftSyntaxMacroExpansion
+         ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-dependencies/Sources/DependenciesMacrosPlugin/Support.swift:7:10: note: also imported here
+  import SwiftSyntaxMacroExpansion
+         ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-dependencies/Sources/DependenciesMacrosPlugin/DependencyEndpointMacro.swift:3:8: error: Unable to find module dependency: 'SwiftParser'
+import SwiftParser
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-dependencies/Sources/DependenciesMacrosPlugin/DependencyEndpointMacro.swift:3:8: note: a dependency of main module 'DependenciesMacrosPlugin'
+import SwiftParser
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-dependencies/Sources/DependenciesMacrosPlugin/Plugins.swift:1:8: error: Unable to find module dependency: 'SwiftCompilerPlugin'
+import SwiftCompilerPlugin
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-dependencies/Sources/DependenciesMacrosPlugin/Plugins.swift:1:8: note: a dependency of main module 'DependenciesMacrosPlugin'
+import SwiftCompilerPlugin
+       ^
+
+SwiftDriver DependenciesMacrosPlugin normal arm64 com.apple.xcode.tools.swift.compiler (in target 'DependenciesMacrosPlugin' from project 'swift-dependencies')
+    cd /Users/elamir/Documents/Depresso\ -\ Working\ V
+    builtin-SwiftDriver -- /Applications/Xcode\ 2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name DependenciesMacrosPlugin -Onone -enforce-exclusivity\=checked @/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-dependencies.build/Debug-iphonesimulator/DependenciesMacrosPlugin.build/Objects-normal/arm64/DependenciesMacrosPlugin.SwiftFileList -DSWIFT_PACKAGE -DDEBUG -DXcode -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/prebuilts/swift-syntax/602.0.0/swiftlang-6.2.4.1.4-MacroSupport-macos_aarch64/Modules -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-syntax/Sources/_SwiftLibraryPluginProviderCShims/include -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-syntax/Sources/_SwiftSyntaxCShims/include -plugin-path /Applications/Xcode\ 2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode\ 2.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk -target arm64-apple-ios13.0-simulator -g -module-cache-path /Users/elamir/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -suppress-warnings -index-store-path /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 6 -I /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Products/Debug-iphonesimulator -Isystem /Applications/Xcode\ 2.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib -F /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Products/Debug-iphonesimulator -F /Applications/Xcode\ 2.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks -F /Applications/Xcode\ 2.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk/Developer/Library/Frameworks -c -j8 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/elamir/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphonesimulator26.2-23C57-68e652329c7506d508c79ee500d2298c.sdkstatcache -output-file-map /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-dependencies.build/Debug-iphonesimulator/DependenciesMacrosPlugin.build/Objects-normal/arm64/DependenciesMacrosPlugin-OutputFileMap.json -use-frontend-parseable-output -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Users/elamir/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -sdk-module-cache-path /Users/elamir/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -serialize-diagnostics -emit-dependencies -emit-module -emit-module-path /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-dependencies.build/Debug-iphonesimulator/DependenciesMacrosPlugin.build/Objects-normal/arm64/DependenciesMacrosPlugin.swiftmodule -user-module-version 1.11.0 -validate-clang-modules-once -clang-build-session-file /Users/elamir/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/Session.modulevalidation -package-name swift_dependencies -emit-const-values -Xfrontend -const-gather-protocols-file -Xfrontend /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-dependencies.build/Debug-iphonesimulator/DependenciesMacrosPlugin.build/Objects-normal/arm64/DependenciesMacrosPlugin_const_extract_protocols.json -Xcc -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Products/Debug-iphonesimulator/include -Xcc -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-dependencies.build/Debug-iphonesimulator/DependenciesMacrosPlugin.build/DerivedSources-normal/arm64 -Xcc -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-dependencies.build/Debug-iphonesimulator/DependenciesMacrosPlugin.build/DerivedSources/arm64 -Xcc -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-dependencies.build/Debug-iphonesimulator/DependenciesMacrosPlugin.build/DerivedSources -Xcc -DSWIFT_PACKAGE -Xcc -DDEBUG\=1 -working-directory /Users/elamir/Documents/Depresso\ -\ Working\ V -experimental-emit-module-separately -disable-cmo
+warning: Module file '/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/prebuilts/swift-syntax/602.0.0/swiftlang-6.2.4.1.4-MacroSupport-macos_aarch64/Modules/SwiftDiagnostics.swiftmodule' is incompatible with this Swift compiler: SDK does not match (in target 'DependenciesMacrosPlugin' from project 'swift-dependencies')
+warning: Module file '/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/prebuilts/swift-syntax/602.0.0/swiftlang-6.2.4.1.4-MacroSupport-macos_aarch64/Modules/SwiftSyntax.swiftmodule' is incompatible with this Swift compiler: SDK does not match (in target 'DependenciesMacrosPlugin' from project 'swift-dependencies')
+warning: Module file '/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/prebuilts/swift-syntax/602.0.0/swiftlang-6.2.4.1.4-MacroSupport-macos_aarch64/Modules/SwiftSyntaxMacros.swiftmodule' is incompatible with this Swift compiler: SDK does not match (in target 'DependenciesMacrosPlugin' from project 'swift-dependencies')
+warning: Module file '/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/prebuilts/swift-syntax/602.0.0/swiftlang-6.2.4.1.4-MacroSupport-macos_aarch64/Modules/SwiftSyntaxBuilder.swiftmodule' is incompatible with this Swift compiler: SDK does not match (in target 'DependenciesMacrosPlugin' from project 'swift-dependencies')
+warning: Module file '/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/prebuilts/swift-syntax/602.0.0/swiftlang-6.2.4.1.4-MacroSupport-macos_aarch64/Modules/SwiftCompilerPlugin.swiftmodule' is incompatible with this Swift compiler: SDK does not match (in target 'DependenciesMacrosPlugin' from project 'swift-dependencies')
+warning: Module file '/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/prebuilts/swift-syntax/602.0.0/swiftlang-6.2.4.1.4-MacroSupport-macos_aarch64/Modules/SwiftParser.swiftmodule' is incompatible with this Swift compiler: SDK does not match (in target 'DependenciesMacrosPlugin' from project 'swift-dependencies')
+warning: Module file '/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/prebuilts/swift-syntax/602.0.0/swiftlang-6.2.4.1.4-MacroSupport-macos_aarch64/Modules/SwiftSyntaxMacroExpansion.swiftmodule' is incompatible with this Swift compiler: SDK does not match (in target 'DependenciesMacrosPlugin' from project 'swift-dependencies')
+warning: Module file '/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/prebuilts/swift-syntax/602.0.0/swiftlang-6.2.4.1.4-MacroSupport-macos_aarch64/Modules/SwiftOperators.swiftmodule' is incompatible with this Swift compiler: SDK does not match (in target 'DependenciesMacrosPlugin' from project 'swift-dependencies')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-dependencies/Sources/DependenciesMacrosPlugin/DependencyClientMacro.swift:1:8: error: Unable to find module dependency: 'SwiftDiagnostics'
+import SwiftDiagnostics
+       ^ (in target 'DependenciesMacrosPlugin' from project 'swift-dependencies')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-dependencies/Sources/DependenciesMacrosPlugin/DependencyClientMacro.swift:1:8: note: A dependency of main module 'DependenciesMacrosPlugin'
+import SwiftDiagnostics
+       ^ (in target 'DependenciesMacrosPlugin' from project 'swift-dependencies')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-dependencies/Sources/DependenciesMacrosPlugin/DependencyEndpointMacro.swift:1:8: note: Also imported here
+import SwiftDiagnostics
+       ^ (in target 'DependenciesMacrosPlugin' from project 'swift-dependencies')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-dependencies/Sources/DependenciesMacrosPlugin/Support.swift:1:8: note: Also imported here
+import SwiftDiagnostics
+       ^ (in target 'DependenciesMacrosPlugin' from project 'swift-dependencies')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-dependencies/Sources/DependenciesMacrosPlugin/DependencyClientMacro.swift:2:8: error: Unable to find module dependency: 'SwiftOperators'
+import SwiftOperators
+       ^ (in target 'DependenciesMacrosPlugin' from project 'swift-dependencies')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-dependencies/Sources/DependenciesMacrosPlugin/DependencyClientMacro.swift:2:8: note: A dependency of main module 'DependenciesMacrosPlugin'
+import SwiftOperators
+       ^ (in target 'DependenciesMacrosPlugin' from project 'swift-dependencies')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-dependencies/Sources/DependenciesMacrosPlugin/DependencyEndpointMacro.swift:2:8: note: Also imported here
+import SwiftOperators
+       ^ (in target 'DependenciesMacrosPlugin' from project 'swift-dependencies')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-dependencies/Sources/DependenciesMacrosPlugin/DependencyClientMacro.swift:3:8: error: Unable to find module dependency: 'SwiftSyntax'
+import SwiftSyntax
+       ^ (in target 'DependenciesMacrosPlugin' from project 'swift-dependencies')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-dependencies/Sources/DependenciesMacrosPlugin/DependencyClientMacro.swift:3:8: note: A dependency of main module 'DependenciesMacrosPlugin'
+import SwiftSyntax
+       ^ (in target 'DependenciesMacrosPlugin' from project 'swift-dependencies')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-dependencies/Sources/DependenciesMacrosPlugin/DependencyEndpointMacro.swift:4:8: note: Also imported here
+import SwiftSyntax
+       ^ (in target 'DependenciesMacrosPlugin' from project 'swift-dependencies')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-dependencies/Sources/DependenciesMacrosPlugin/Support.swift:2:8: note: Also imported here
+import SwiftSyntax
+       ^ (in target 'DependenciesMacrosPlugin' from project 'swift-dependencies')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-dependencies/Sources/DependenciesMacrosPlugin/DependencyClientMacro.swift:4:8: error: Unable to find module dependency: 'SwiftSyntaxBuilder'
+import SwiftSyntaxBuilder
+       ^ (in target 'DependenciesMacrosPlugin' from project 'swift-dependencies')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-dependencies/Sources/DependenciesMacrosPlugin/DependencyClientMacro.swift:4:8: note: A dependency of main module 'DependenciesMacrosPlugin'
+import SwiftSyntaxBuilder
+       ^ (in target 'DependenciesMacrosPlugin' from project 'swift-dependencies')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-dependencies/Sources/DependenciesMacrosPlugin/DependencyEndpointMacro.swift:5:8: note: Also imported here
+import SwiftSyntaxBuilder
+       ^ (in target 'DependenciesMacrosPlugin' from project 'swift-dependencies')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-dependencies/Sources/DependenciesMacrosPlugin/Support.swift:3:8: note: Also imported here
+import SwiftSyntaxBuilder
+       ^ (in target 'DependenciesMacrosPlugin' from project 'swift-dependencies')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-dependencies/Sources/DependenciesMacrosPlugin/DependencyClientMacro.swift:5:8: error: Unable to find module dependency: 'SwiftSyntaxMacros'
+import SwiftSyntaxMacros
+       ^ (in target 'DependenciesMacrosPlugin' from project 'swift-dependencies')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-dependencies/Sources/DependenciesMacrosPlugin/DependencyClientMacro.swift:5:8: note: A dependency of main module 'DependenciesMacrosPlugin'
+import SwiftSyntaxMacros
+       ^ (in target 'DependenciesMacrosPlugin' from project 'swift-dependencies')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-dependencies/Sources/DependenciesMacrosPlugin/DependencyEndpointMacro.swift:6:8: note: Also imported here
+import SwiftSyntaxMacros
+       ^ (in target 'DependenciesMacrosPlugin' from project 'swift-dependencies')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-dependencies/Sources/DependenciesMacrosPlugin/Plugins.swift:2:8: note: Also imported here
+import SwiftSyntaxMacros
+       ^ (in target 'DependenciesMacrosPlugin' from project 'swift-dependencies')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-dependencies/Sources/DependenciesMacrosPlugin/Support.swift:4:8: note: Also imported here
+import SwiftSyntaxMacros
+       ^ (in target 'DependenciesMacrosPlugin' from project 'swift-dependencies')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-dependencies/Sources/DependenciesMacrosPlugin/DependencyClientMacro.swift:8:10: error: Unable to find module dependency: 'SwiftSyntaxMacroExpansion'
+  import SwiftSyntaxMacroExpansion
+         ^ (in target 'DependenciesMacrosPlugin' from project 'swift-dependencies')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-dependencies/Sources/DependenciesMacrosPlugin/DependencyClientMacro.swift:8:10: note: A dependency of main module 'DependenciesMacrosPlugin'
+  import SwiftSyntaxMacroExpansion
+         ^ (in target 'DependenciesMacrosPlugin' from project 'swift-dependencies')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-dependencies/Sources/DependenciesMacrosPlugin/DependencyEndpointMacro.swift:9:10: note: Also imported here
+  import SwiftSyntaxMacroExpansion
+         ^ (in target 'DependenciesMacrosPlugin' from project 'swift-dependencies')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-dependencies/Sources/DependenciesMacrosPlugin/Support.swift:7:10: note: Also imported here
+  import SwiftSyntaxMacroExpansion
+         ^ (in target 'DependenciesMacrosPlugin' from project 'swift-dependencies')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-dependencies/Sources/DependenciesMacrosPlugin/DependencyEndpointMacro.swift:3:8: error: Unable to find module dependency: 'SwiftParser'
+import SwiftParser
+       ^ (in target 'DependenciesMacrosPlugin' from project 'swift-dependencies')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-dependencies/Sources/DependenciesMacrosPlugin/DependencyEndpointMacro.swift:3:8: note: A dependency of main module 'DependenciesMacrosPlugin'
+import SwiftParser
+       ^ (in target 'DependenciesMacrosPlugin' from project 'swift-dependencies')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-dependencies/Sources/DependenciesMacrosPlugin/Plugins.swift:1:8: error: Unable to find module dependency: 'SwiftCompilerPlugin'
+import SwiftCompilerPlugin
+       ^ (in target 'DependenciesMacrosPlugin' from project 'swift-dependencies')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-dependencies/Sources/DependenciesMacrosPlugin/Plugins.swift:1:8: note: A dependency of main module 'DependenciesMacrosPlugin'
+import SwiftCompilerPlugin
+       ^ (in target 'DependenciesMacrosPlugin' from project 'swift-dependencies')
+
+SwiftDriver ConcurrencyExtras normal x86_64 com.apple.xcode.tools.swift.compiler (in target 'ConcurrencyExtras' from project 'swift-concurrency-extras')
+    cd /Users/elamir/Documents/Depresso\ -\ Working\ V
+    builtin-SwiftDriver -- /Applications/Xcode\ 2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name ConcurrencyExtras -Onone -enforce-exclusivity\=checked @/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-concurrency-extras.build/Debug-iphonesimulator/ConcurrencyExtras.build/Objects-normal/x86_64/ConcurrencyExtras.SwiftFileList -DSWIFT_PACKAGE -DDEBUG -DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE -DXcode -plugin-path /Applications/Xcode\ 2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode\ 2.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk -target x86_64-apple-ios13.0-simulator -g -module-cache-path /Users/elamir/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -suppress-warnings -index-store-path /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 6 -I /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Products/Debug-iphonesimulator -Isystem /Applications/Xcode\ 2.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib -F /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Products/Debug-iphonesimulator -F /Applications/Xcode\ 2.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks -F /Applications/Xcode\ 2.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk/Developer/Library/Frameworks -c -j8 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/elamir/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphonesimulator26.2-23C57-68e652329c7506d508c79ee500d2298c.sdkstatcache -output-file-map /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-concurrency-extras.build/Debug-iphonesimulator/ConcurrencyExtras.build/Objects-normal/x86_64/ConcurrencyExtras-OutputFileMap.json -use-frontend-parseable-output -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Users/elamir/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -sdk-module-cache-path /Users/elamir/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -serialize-diagnostics -emit-dependencies -emit-module -emit-module-path /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-concurrency-extras.build/Debug-iphonesimulator/ConcurrencyExtras.build/Objects-normal/x86_64/ConcurrencyExtras.swiftmodule -user-module-version 1.3.2 -validate-clang-modules-once -clang-build-session-file /Users/elamir/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/Session.modulevalidation -package-name swift_concurrency_extras -Xcc -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-concurrency-extras.build/Debug-iphonesimulator/ConcurrencyExtras.build/swift-overrides.hmap -emit-const-values -Xfrontend -const-gather-protocols-file -Xfrontend /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-concurrency-extras.build/Debug-iphonesimulator/ConcurrencyExtras.build/Objects-normal/x86_64/ConcurrencyExtras_const_extract_protocols.json -Xcc -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Products/Debug-iphonesimulator/include -Xcc -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-concurrency-extras.build/Debug-iphonesimulator/ConcurrencyExtras.build/DerivedSources-normal/x86_64 -Xcc -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-concurrency-extras.build/Debug-iphonesimulator/ConcurrencyExtras.build/DerivedSources/x86_64 -Xcc -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-concurrency-extras.build/Debug-iphonesimulator/ConcurrencyExtras.build/DerivedSources -Xcc -DSWIFT_PACKAGE -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-concurrency-extras.build/Debug-iphonesimulator/ConcurrencyExtras.build/Objects-normal/x86_64/ConcurrencyExtras-Swift.h -working-directory /Users/elamir/Documents/Depresso\ -\ Working\ V -experimental-emit-module-separately -disable-cmo
+warning: module file '/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/prebuilts/swift-syntax/602.0.0/swiftlang-6.2.4.1.4-MacroSupport-macos_aarch64/Modules/SwiftDiagnostics.swiftmodule' is incompatible with this Swift compiler: SDK does not match
+warning: module file '/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/prebuilts/swift-syntax/602.0.0/swiftlang-6.2.4.1.4-MacroSupport-macos_aarch64/Modules/SwiftSyntax.swiftmodule' is incompatible with this Swift compiler: SDK does not match
+warning: module file '/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/prebuilts/swift-syntax/602.0.0/swiftlang-6.2.4.1.4-MacroSupport-macos_aarch64/Modules/SwiftSyntaxMacros.swiftmodule' is incompatible with this Swift compiler: SDK does not match
+warning: module file '/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/prebuilts/swift-syntax/602.0.0/swiftlang-6.2.4.1.4-MacroSupport-macos_aarch64/Modules/SwiftCompilerPlugin.swiftmodule' is incompatible with this Swift compiler: SDK does not match
+warning: module file '/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/prebuilts/swift-syntax/602.0.0/swiftlang-6.2.4.1.4-MacroSupport-macos_aarch64/Modules/SwiftSyntaxBuilder.swiftmodule' is incompatible with this Swift compiler: SDK does not match
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-case-paths/Sources/CasePathsMacros/CasePathableMacro.swift:1:8: error: Unable to find module dependency: 'SwiftDiagnostics'
+import SwiftDiagnostics
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-case-paths/Sources/CasePathsMacros/CasePathableMacro.swift:1:8: note: a dependency of main module 'CasePathsMacros'
+import SwiftDiagnostics
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-case-paths/Sources/CasePathsMacros/CasePathableMacro.swift:2:8: error: Unable to find module dependency: 'SwiftSyntax'
+import SwiftSyntax
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-case-paths/Sources/CasePathsMacros/CasePathableMacro.swift:2:8: note: a dependency of main module 'CasePathsMacros'
+import SwiftSyntax
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-case-paths/Sources/CasePathsMacros/CasePathableMacro.swift:3:8: error: Unable to find module dependency: 'SwiftSyntaxBuilder'
+import SwiftSyntaxBuilder
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-case-paths/Sources/CasePathsMacros/CasePathableMacro.swift:3:8: note: a dependency of main module 'CasePathsMacros'
+import SwiftSyntaxBuilder
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-case-paths/Sources/CasePathsMacros/CasePathableMacro.swift:4:8: error: Unable to find module dependency: 'SwiftSyntaxMacros'
+import SwiftSyntaxMacros
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-case-paths/Sources/CasePathsMacros/CasePathableMacro.swift:4:8: note: a dependency of main module 'CasePathsMacros'
+import SwiftSyntaxMacros
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-case-paths/Sources/CasePathsMacros/Plugin.swift:2:8: note: also imported here
+import SwiftSyntaxMacros
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-case-paths/Sources/CasePathsMacros/Plugin.swift:1:8: error: Unable to find module dependency: 'SwiftCompilerPlugin'
+import SwiftCompilerPlugin
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-case-paths/Sources/CasePathsMacros/Plugin.swift:1:8: note: a dependency of main module 'CasePathsMacros'
+import SwiftCompilerPlugin
+       ^
+warning: module file '/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/prebuilts/swift-syntax/602.0.0/swiftlang-6.2.4.1.4-MacroSupport-macos_aarch64/Modules/SwiftDiagnostics.swiftmodule' is incompatible with this Swift compiler: SDK does not match
+warning: module file '/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/prebuilts/swift-syntax/602.0.0/swiftlang-6.2.4.1.4-MacroSupport-macos_aarch64/Modules/SwiftSyntaxBuilder.swiftmodule' is incompatible with this Swift compiler: SDK does not match
+warning: module file '/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/prebuilts/swift-syntax/602.0.0/swiftlang-6.2.4.1.4-MacroSupport-macos_aarch64/Modules/SwiftSyntaxMacros.swiftmodule' is incompatible with this Swift compiler: SDK does not match
+warning: module file '/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/prebuilts/swift-syntax/602.0.0/swiftlang-6.2.4.1.4-MacroSupport-macos_aarch64/Modules/SwiftSyntaxMacroExpansion.swiftmodule' is incompatible with this Swift compiler: SDK does not match
+warning: module file '/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/prebuilts/swift-syntax/602.0.0/swiftlang-6.2.4.1.4-MacroSupport-macos_aarch64/Modules/SwiftCompilerPlugin.swiftmodule' is incompatible with this Swift compiler: SDK does not match
+warning: module file '/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/prebuilts/swift-syntax/602.0.0/swiftlang-6.2.4.1.4-MacroSupport-macos_aarch64/Modules/SwiftOperators.swiftmodule' is incompatible with this Swift compiler: SDK does not match
+warning: module file '/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/prebuilts/swift-syntax/602.0.0/swiftlang-6.2.4.1.4-MacroSupport-macos_aarch64/Modules/SwiftSyntax.swiftmodule' is incompatible with this Swift compiler: SDK does not match
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/Availability.swift:12:8: error: Unable to find module dependency: 'SwiftDiagnostics'
+import SwiftDiagnostics
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/Availability.swift:12:8: note: a dependency of main module 'ComposableArchitectureMacros'
+import SwiftDiagnostics
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/Extensions.swift:12:8: note: also imported here
+import SwiftDiagnostics
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/ObservableStateMacro.swift:12:8: note: also imported here
+import SwiftDiagnostics
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/PresentsMacro.swift:1:8: note: also imported here
+import SwiftDiagnostics
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/ReducerMacro.swift:2:8: note: also imported here
+import SwiftDiagnostics
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/ViewActionMacro.swift:1:8: note: also imported here
+import SwiftDiagnostics
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/Availability.swift:13:8: error: Unable to find module dependency: 'SwiftOperators'
+import SwiftOperators
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/Availability.swift:13:8: note: a dependency of main module 'ComposableArchitectureMacros'
+import SwiftOperators
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/Extensions.swift:13:8: note: also imported here
+import SwiftOperators
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/ObservableStateMacro.swift:13:8: note: also imported here
+import SwiftOperators
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/PresentsMacro.swift:2:8: note: also imported here
+import SwiftOperators
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/ReducerMacro.swift:3:8: note: also imported here
+import SwiftOperators
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/Availability.swift:14:8: error: Unable to find module dependency: 'SwiftSyntax'
+import SwiftSyntax
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/Availability.swift:14:8: note: a dependency of main module 'ComposableArchitectureMacros'
+import SwiftSyntax
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/Extensions.swift:14:8: note: also imported here
+import SwiftSyntax
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/ObservableStateMacro.swift:14:8: note: also imported here
+import SwiftSyntax
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/PresentsMacro.swift:3:8: note: also imported here
+import SwiftSyntax
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/ReducerMacro.swift:4:8: note: also imported here
+import SwiftSyntax
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/ViewActionMacro.swift:2:8: note: also imported here
+import SwiftSyntax
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/Availability.swift:15:8: error: Unable to find module dependency: 'SwiftSyntaxBuilder'
+import SwiftSyntaxBuilder
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/Availability.swift:15:8: note: a dependency of main module 'ComposableArchitectureMacros'
+import SwiftSyntaxBuilder
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/Extensions.swift:15:8: note: also imported here
+import SwiftSyntaxBuilder
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/ObservableStateMacro.swift:15:8: note: also imported here
+import SwiftSyntaxBuilder
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/PresentsMacro.swift:4:8: note: also imported here
+import SwiftSyntaxBuilder
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/ReducerMacro.swift:5:8: note: also imported here
+import SwiftSyntaxBuilder
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/Availability.swift:16:8: error: Unable to find module dependency: 'SwiftSyntaxMacros'
+import SwiftSyntaxMacros
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/Availability.swift:16:8: note: a dependency of main module 'ComposableArchitectureMacros'
+import SwiftSyntaxMacros
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/Extensions.swift:16:8: note: also imported here
+import SwiftSyntaxMacros
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/ObservableStateMacro.swift:16:8: note: also imported here
+import SwiftSyntaxMacros
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/Plugins.swift:2:8: note: also imported here
+import SwiftSyntaxMacros
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/PresentsMacro.swift:6:8: note: also imported here
+import SwiftSyntaxMacros
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/ReducerMacro.swift:6:8: note: also imported here
+import SwiftSyntaxMacros
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/ViewActionMacro.swift:3:8: note: also imported here
+import SwiftSyntaxMacros
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/ObservableStateMacro.swift:19:10: error: Unable to find module dependency: 'SwiftSyntaxMacroExpansion'
+  import SwiftSyntaxMacroExpansion
+         ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/ObservableStateMacro.swift:19:10: note: a dependency of main module 'ComposableArchitectureMacros'
+  import SwiftSyntaxMacroExpansion
+         ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/PresentsMacro.swift:5:8: note: also imported here
+import SwiftSyntaxMacroExpansion
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/ReducerMacro.swift:9:10: note: also imported here
+  import SwiftSyntaxMacroExpansion
+         ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/ViewActionMacro.swift:6:10: note: also imported here
+  import SwiftSyntaxMacroExpansion
+         ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/Plugins.swift:1:8: error: Unable to find module dependency: 'SwiftCompilerPlugin'
+import SwiftCompilerPlugin
+       ^
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/Plugins.swift:1:8: note: a dependency of main module 'ComposableArchitectureMacros'
+import SwiftCompilerPlugin
+       ^
+
+SwiftDriver ConcurrencyExtras normal arm64 com.apple.xcode.tools.swift.compiler (in target 'ConcurrencyExtras' from project 'swift-concurrency-extras')
+    cd /Users/elamir/Documents/Depresso\ -\ Working\ V
+    builtin-SwiftDriver -- /Applications/Xcode\ 2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name ConcurrencyExtras -Onone -enforce-exclusivity\=checked @/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-concurrency-extras.build/Debug-iphonesimulator/ConcurrencyExtras.build/Objects-normal/arm64/ConcurrencyExtras.SwiftFileList -DSWIFT_PACKAGE -DDEBUG -DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE -DXcode -plugin-path /Applications/Xcode\ 2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode\ 2.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk -target arm64-apple-ios13.0-simulator -g -module-cache-path /Users/elamir/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -suppress-warnings -index-store-path /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 6 -I /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Products/Debug-iphonesimulator -Isystem /Applications/Xcode\ 2.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib -F /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Products/Debug-iphonesimulator -F /Applications/Xcode\ 2.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks -F /Applications/Xcode\ 2.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk/Developer/Library/Frameworks -c -j8 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/elamir/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphonesimulator26.2-23C57-68e652329c7506d508c79ee500d2298c.sdkstatcache -output-file-map /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-concurrency-extras.build/Debug-iphonesimulator/ConcurrencyExtras.build/Objects-normal/arm64/ConcurrencyExtras-OutputFileMap.json -use-frontend-parseable-output -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Users/elamir/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -sdk-module-cache-path /Users/elamir/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -serialize-diagnostics -emit-dependencies -emit-module -emit-module-path /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-concurrency-extras.build/Debug-iphonesimulator/ConcurrencyExtras.build/Objects-normal/arm64/ConcurrencyExtras.swiftmodule -user-module-version 1.3.2 -validate-clang-modules-once -clang-build-session-file /Users/elamir/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/Session.modulevalidation -package-name swift_concurrency_extras -Xcc -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-concurrency-extras.build/Debug-iphonesimulator/ConcurrencyExtras.build/swift-overrides.hmap -emit-const-values -Xfrontend -const-gather-protocols-file -Xfrontend /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-concurrency-extras.build/Debug-iphonesimulator/ConcurrencyExtras.build/Objects-normal/arm64/ConcurrencyExtras_const_extract_protocols.json -Xcc -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Products/Debug-iphonesimulator/include -Xcc -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-concurrency-extras.build/Debug-iphonesimulator/ConcurrencyExtras.build/DerivedSources-normal/arm64 -Xcc -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-concurrency-extras.build/Debug-iphonesimulator/ConcurrencyExtras.build/DerivedSources/arm64 -Xcc -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-concurrency-extras.build/Debug-iphonesimulator/ConcurrencyExtras.build/DerivedSources -Xcc -DSWIFT_PACKAGE -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-concurrency-extras.build/Debug-iphonesimulator/ConcurrencyExtras.build/Objects-normal/arm64/ConcurrencyExtras-Swift.h -working-directory /Users/elamir/Documents/Depresso\ -\ Working\ V -experimental-emit-module-separately -disable-cmo
+
+SwiftDriver ComposableArchitectureMacros normal arm64 com.apple.xcode.tools.swift.compiler (in target 'ComposableArchitectureMacros' from project 'swift-composable-architecture')
+    cd /Users/elamir/Documents/Depresso\ -\ Working\ V
+    builtin-SwiftDriver -- /Applications/Xcode\ 2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name ComposableArchitectureMacros -Onone -enforce-exclusivity\=checked @/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-composable-architecture.build/Debug-iphonesimulator/ComposableArchitectureMacros.build/Objects-normal/arm64/ComposableArchitectureMacros.SwiftFileList -DSWIFT_PACKAGE -DDEBUG -DXcode -enable-upcoming-feature ExistentialAny -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/prebuilts/swift-syntax/602.0.0/swiftlang-6.2.4.1.4-MacroSupport-macos_aarch64/Modules -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-syntax/Sources/_SwiftLibraryPluginProviderCShims/include -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-syntax/Sources/_SwiftSyntaxCShims/include -plugin-path /Applications/Xcode\ 2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode\ 2.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk -target arm64-apple-ios13.0-simulator -g -module-cache-path /Users/elamir/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -suppress-warnings -index-store-path /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 6 -I /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Products/Debug-iphonesimulator -Isystem /Applications/Xcode\ 2.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib -F /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Products/Debug-iphonesimulator -F /Applications/Xcode\ 2.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks -F /Applications/Xcode\ 2.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk/Developer/Library/Frameworks -c -j8 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/elamir/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphonesimulator26.2-23C57-68e652329c7506d508c79ee500d2298c.sdkstatcache -output-file-map /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-composable-architecture.build/Debug-iphonesimulator/ComposableArchitectureMacros.build/Objects-normal/arm64/ComposableArchitectureMacros-OutputFileMap.json -use-frontend-parseable-output -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Users/elamir/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -sdk-module-cache-path /Users/elamir/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -serialize-diagnostics -emit-dependencies -emit-module -emit-module-path /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-composable-architecture.build/Debug-iphonesimulator/ComposableArchitectureMacros.build/Objects-normal/arm64/ComposableArchitectureMacros.swiftmodule -user-module-version 1.23.2 -validate-clang-modules-once -clang-build-session-file /Users/elamir/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/Session.modulevalidation -package-name swift_composable_architecture -emit-const-values -Xfrontend -const-gather-protocols-file -Xfrontend /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-composable-architecture.build/Debug-iphonesimulator/ComposableArchitectureMacros.build/Objects-normal/arm64/ComposableArchitectureMacros_const_extract_protocols.json -Xcc -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Products/Debug-iphonesimulator/include -Xcc -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-composable-architecture.build/Debug-iphonesimulator/ComposableArchitectureMacros.build/DerivedSources-normal/arm64 -Xcc -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-composable-architecture.build/Debug-iphonesimulator/ComposableArchitectureMacros.build/DerivedSources/arm64 -Xcc -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-composable-architecture.build/Debug-iphonesimulator/ComposableArchitectureMacros.build/DerivedSources -Xcc -DSWIFT_PACKAGE -Xcc -DDEBUG\=1 -working-directory /Users/elamir/Documents/Depresso\ -\ Working\ V -experimental-emit-module-separately -disable-cmo
+warning: Module file '/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/prebuilts/swift-syntax/602.0.0/swiftlang-6.2.4.1.4-MacroSupport-macos_aarch64/Modules/SwiftDiagnostics.swiftmodule' is incompatible with this Swift compiler: SDK does not match (in target 'ComposableArchitectureMacros' from project 'swift-composable-architecture')
+warning: Module file '/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/prebuilts/swift-syntax/602.0.0/swiftlang-6.2.4.1.4-MacroSupport-macos_aarch64/Modules/SwiftSyntaxBuilder.swiftmodule' is incompatible with this Swift compiler: SDK does not match (in target 'ComposableArchitectureMacros' from project 'swift-composable-architecture')
+warning: Module file '/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/prebuilts/swift-syntax/602.0.0/swiftlang-6.2.4.1.4-MacroSupport-macos_aarch64/Modules/SwiftSyntaxMacros.swiftmodule' is incompatible with this Swift compiler: SDK does not match (in target 'ComposableArchitectureMacros' from project 'swift-composable-architecture')
+warning: Module file '/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/prebuilts/swift-syntax/602.0.0/swiftlang-6.2.4.1.4-MacroSupport-macos_aarch64/Modules/SwiftSyntaxMacroExpansion.swiftmodule' is incompatible with this Swift compiler: SDK does not match (in target 'ComposableArchitectureMacros' from project 'swift-composable-architecture')
+warning: Module file '/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/prebuilts/swift-syntax/602.0.0/swiftlang-6.2.4.1.4-MacroSupport-macos_aarch64/Modules/SwiftCompilerPlugin.swiftmodule' is incompatible with this Swift compiler: SDK does not match (in target 'ComposableArchitectureMacros' from project 'swift-composable-architecture')
+warning: Module file '/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/prebuilts/swift-syntax/602.0.0/swiftlang-6.2.4.1.4-MacroSupport-macos_aarch64/Modules/SwiftOperators.swiftmodule' is incompatible with this Swift compiler: SDK does not match (in target 'ComposableArchitectureMacros' from project 'swift-composable-architecture')
+warning: Module file '/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/prebuilts/swift-syntax/602.0.0/swiftlang-6.2.4.1.4-MacroSupport-macos_aarch64/Modules/SwiftSyntax.swiftmodule' is incompatible with this Swift compiler: SDK does not match (in target 'ComposableArchitectureMacros' from project 'swift-composable-architecture')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/Availability.swift:12:8: error: Unable to find module dependency: 'SwiftDiagnostics'
+import SwiftDiagnostics
+       ^ (in target 'ComposableArchitectureMacros' from project 'swift-composable-architecture')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/Availability.swift:12:8: note: A dependency of main module 'ComposableArchitectureMacros'
+import SwiftDiagnostics
+       ^ (in target 'ComposableArchitectureMacros' from project 'swift-composable-architecture')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/Extensions.swift:12:8: note: Also imported here
+import SwiftDiagnostics
+       ^ (in target 'ComposableArchitectureMacros' from project 'swift-composable-architecture')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/ObservableStateMacro.swift:12:8: note: Also imported here
+import SwiftDiagnostics
+       ^ (in target 'ComposableArchitectureMacros' from project 'swift-composable-architecture')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/PresentsMacro.swift:1:8: note: Also imported here
+import SwiftDiagnostics
+       ^ (in target 'ComposableArchitectureMacros' from project 'swift-composable-architecture')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/ReducerMacro.swift:2:8: note: Also imported here
+import SwiftDiagnostics
+       ^ (in target 'ComposableArchitectureMacros' from project 'swift-composable-architecture')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/ViewActionMacro.swift:1:8: note: Also imported here
+import SwiftDiagnostics
+       ^ (in target 'ComposableArchitectureMacros' from project 'swift-composable-architecture')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/Availability.swift:13:8: error: Unable to find module dependency: 'SwiftOperators'
+import SwiftOperators
+       ^ (in target 'ComposableArchitectureMacros' from project 'swift-composable-architecture')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/Availability.swift:13:8: note: A dependency of main module 'ComposableArchitectureMacros'
+import SwiftOperators
+       ^ (in target 'ComposableArchitectureMacros' from project 'swift-composable-architecture')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/Extensions.swift:13:8: note: Also imported here
+import SwiftOperators
+       ^ (in target 'ComposableArchitectureMacros' from project 'swift-composable-architecture')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/ObservableStateMacro.swift:13:8: note: Also imported here
+import SwiftOperators
+       ^ (in target 'ComposableArchitectureMacros' from project 'swift-composable-architecture')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/PresentsMacro.swift:2:8: note: Also imported here
+import SwiftOperators
+       ^ (in target 'ComposableArchitectureMacros' from project 'swift-composable-architecture')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/ReducerMacro.swift:3:8: note: Also imported here
+import SwiftOperators
+       ^ (in target 'ComposableArchitectureMacros' from project 'swift-composable-architecture')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/Availability.swift:14:8: error: Unable to find module dependency: 'SwiftSyntax'
+import SwiftSyntax
+       ^ (in target 'ComposableArchitectureMacros' from project 'swift-composable-architecture')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/Availability.swift:14:8: note: A dependency of main module 'ComposableArchitectureMacros'
+import SwiftSyntax
+       ^ (in target 'ComposableArchitectureMacros' from project 'swift-composable-architecture')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/Extensions.swift:14:8: note: Also imported here
+import SwiftSyntax
+       ^ (in target 'ComposableArchitectureMacros' from project 'swift-composable-architecture')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/ObservableStateMacro.swift:14:8: note: Also imported here
+import SwiftSyntax
+       ^ (in target 'ComposableArchitectureMacros' from project 'swift-composable-architecture')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/PresentsMacro.swift:3:8: note: Also imported here
+import SwiftSyntax
+       ^ (in target 'ComposableArchitectureMacros' from project 'swift-composable-architecture')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/ReducerMacro.swift:4:8: note: Also imported here
+import SwiftSyntax
+       ^ (in target 'ComposableArchitectureMacros' from project 'swift-composable-architecture')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/ViewActionMacro.swift:2:8: note: Also imported here
+import SwiftSyntax
+       ^ (in target 'ComposableArchitectureMacros' from project 'swift-composable-architecture')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/Availability.swift:15:8: error: Unable to find module dependency: 'SwiftSyntaxBuilder'
+import SwiftSyntaxBuilder
+       ^ (in target 'ComposableArchitectureMacros' from project 'swift-composable-architecture')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/Availability.swift:15:8: note: A dependency of main module 'ComposableArchitectureMacros'
+import SwiftSyntaxBuilder
+       ^ (in target 'ComposableArchitectureMacros' from project 'swift-composable-architecture')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/Extensions.swift:15:8: note: Also imported here
+import SwiftSyntaxBuilder
+       ^ (in target 'ComposableArchitectureMacros' from project 'swift-composable-architecture')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/ObservableStateMacro.swift:15:8: note: Also imported here
+import SwiftSyntaxBuilder
+       ^ (in target 'ComposableArchitectureMacros' from project 'swift-composable-architecture')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/PresentsMacro.swift:4:8: note: Also imported here
+import SwiftSyntaxBuilder
+       ^ (in target 'ComposableArchitectureMacros' from project 'swift-composable-architecture')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/ReducerMacro.swift:5:8: note: Also imported here
+import SwiftSyntaxBuilder
+       ^ (in target 'ComposableArchitectureMacros' from project 'swift-composable-architecture')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/Availability.swift:16:8: error: Unable to find module dependency: 'SwiftSyntaxMacros'
+import SwiftSyntaxMacros
+       ^ (in target 'ComposableArchitectureMacros' from project 'swift-composable-architecture')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/Availability.swift:16:8: note: A dependency of main module 'ComposableArchitectureMacros'
+import SwiftSyntaxMacros
+       ^ (in target 'ComposableArchitectureMacros' from project 'swift-composable-architecture')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/Extensions.swift:16:8: note: Also imported here
+import SwiftSyntaxMacros
+       ^ (in target 'ComposableArchitectureMacros' from project 'swift-composable-architecture')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/ObservableStateMacro.swift:16:8: note: Also imported here
+import SwiftSyntaxMacros
+       ^ (in target 'ComposableArchitectureMacros' from project 'swift-composable-architecture')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/Plugins.swift:2:8: note: Also imported here
+import SwiftSyntaxMacros
+       ^ (in target 'ComposableArchitectureMacros' from project 'swift-composable-architecture')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/PresentsMacro.swift:6:8: note: Also imported here
+import SwiftSyntaxMacros
+       ^ (in target 'ComposableArchitectureMacros' from project 'swift-composable-architecture')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/ReducerMacro.swift:6:8: note: Also imported here
+import SwiftSyntaxMacros
+       ^ (in target 'ComposableArchitectureMacros' from project 'swift-composable-architecture')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/ViewActionMacro.swift:3:8: note: Also imported here
+import SwiftSyntaxMacros
+       ^ (in target 'ComposableArchitectureMacros' from project 'swift-composable-architecture')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/ObservableStateMacro.swift:19:10: error: Unable to find module dependency: 'SwiftSyntaxMacroExpansion'
+  import SwiftSyntaxMacroExpansion
+         ^ (in target 'ComposableArchitectureMacros' from project 'swift-composable-architecture')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/ObservableStateMacro.swift:19:10: note: A dependency of main module 'ComposableArchitectureMacros'
+  import SwiftSyntaxMacroExpansion
+         ^ (in target 'ComposableArchitectureMacros' from project 'swift-composable-architecture')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/PresentsMacro.swift:5:8: note: Also imported here
+import SwiftSyntaxMacroExpansion
+       ^ (in target 'ComposableArchitectureMacros' from project 'swift-composable-architecture')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/ReducerMacro.swift:9:10: note: Also imported here
+  import SwiftSyntaxMacroExpansion
+         ^ (in target 'ComposableArchitectureMacros' from project 'swift-composable-architecture')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/ViewActionMacro.swift:6:10: note: Also imported here
+  import SwiftSyntaxMacroExpansion
+         ^ (in target 'ComposableArchitectureMacros' from project 'swift-composable-architecture')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/Plugins.swift:1:8: error: Unable to find module dependency: 'SwiftCompilerPlugin'
+import SwiftCompilerPlugin
+       ^ (in target 'ComposableArchitectureMacros' from project 'swift-composable-architecture')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitectureMacros/Plugins.swift:1:8: note: A dependency of main module 'ComposableArchitectureMacros'
+import SwiftCompilerPlugin
+       ^ (in target 'ComposableArchitectureMacros' from project 'swift-composable-architecture')
+
+SwiftDriver CasePathsMacros normal arm64 com.apple.xcode.tools.swift.compiler (in target 'CasePathsMacros' from project 'swift-case-paths')
+    cd /Users/elamir/Documents/Depresso\ -\ Working\ V
+    builtin-SwiftDriver -- /Applications/Xcode\ 2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name CasePathsMacros -Onone -enforce-exclusivity\=checked @/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-case-paths.build/Debug-iphonesimulator/CasePathsMacros.build/Objects-normal/arm64/CasePathsMacros.SwiftFileList -DSWIFT_PACKAGE -DDEBUG -DXcode -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/prebuilts/swift-syntax/602.0.0/swiftlang-6.2.4.1.4-MacroSupport-macos_aarch64/Modules -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-syntax/Sources/_SwiftLibraryPluginProviderCShims/include -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-syntax/Sources/_SwiftSyntaxCShims/include -plugin-path /Applications/Xcode\ 2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode\ 2.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk -target arm64-apple-ios13.0-simulator -g -module-cache-path /Users/elamir/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -suppress-warnings -index-store-path /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 6 -I /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Products/Debug-iphonesimulator -Isystem /Applications/Xcode\ 2.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib -F /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Products/Debug-iphonesimulator -F /Applications/Xcode\ 2.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks -F /Applications/Xcode\ 2.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.2.sdk/Developer/Library/Frameworks -c -j8 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/elamir/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphonesimulator26.2-23C57-68e652329c7506d508c79ee500d2298c.sdkstatcache -output-file-map /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-case-paths.build/Debug-iphonesimulator/CasePathsMacros.build/Objects-normal/arm64/CasePathsMacros-OutputFileMap.json -use-frontend-parseable-output -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Users/elamir/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -sdk-module-cache-path /Users/elamir/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -serialize-diagnostics -emit-dependencies -emit-module -emit-module-path /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-case-paths.build/Debug-iphonesimulator/CasePathsMacros.build/Objects-normal/arm64/CasePathsMacros.swiftmodule -user-module-version 1.7.2 -validate-clang-modules-once -clang-build-session-file /Users/elamir/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/Session.modulevalidation -package-name swift_case_paths -emit-const-values -Xfrontend -const-gather-protocols-file -Xfrontend /Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-case-paths.build/Debug-iphonesimulator/CasePathsMacros.build/Objects-normal/arm64/CasePathsMacros_const_extract_protocols.json -Xcc -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Products/Debug-iphonesimulator/include -Xcc -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-case-paths.build/Debug-iphonesimulator/CasePathsMacros.build/DerivedSources-normal/arm64 -Xcc -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-case-paths.build/Debug-iphonesimulator/CasePathsMacros.build/DerivedSources/arm64 -Xcc -I/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/Build/Intermediates.noindex/swift-case-paths.build/Debug-iphonesimulator/CasePathsMacros.build/DerivedSources -Xcc -DSWIFT_PACKAGE -Xcc -DDEBUG\=1 -working-directory /Users/elamir/Documents/Depresso\ -\ Working\ V -experimental-emit-module-separately -disable-cmo
+warning: Module file '/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/prebuilts/swift-syntax/602.0.0/swiftlang-6.2.4.1.4-MacroSupport-macos_aarch64/Modules/SwiftDiagnostics.swiftmodule' is incompatible with this Swift compiler: SDK does not match (in target 'CasePathsMacros' from project 'swift-case-paths')
+warning: Module file '/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/prebuilts/swift-syntax/602.0.0/swiftlang-6.2.4.1.4-MacroSupport-macos_aarch64/Modules/SwiftSyntax.swiftmodule' is incompatible with this Swift compiler: SDK does not match (in target 'CasePathsMacros' from project 'swift-case-paths')
+warning: Module file '/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/prebuilts/swift-syntax/602.0.0/swiftlang-6.2.4.1.4-MacroSupport-macos_aarch64/Modules/SwiftSyntaxMacros.swiftmodule' is incompatible with this Swift compiler: SDK does not match (in target 'CasePathsMacros' from project 'swift-case-paths')
+warning: Module file '/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/prebuilts/swift-syntax/602.0.0/swiftlang-6.2.4.1.4-MacroSupport-macos_aarch64/Modules/SwiftCompilerPlugin.swiftmodule' is incompatible with this Swift compiler: SDK does not match (in target 'CasePathsMacros' from project 'swift-case-paths')
+warning: Module file '/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/prebuilts/swift-syntax/602.0.0/swiftlang-6.2.4.1.4-MacroSupport-macos_aarch64/Modules/SwiftSyntaxBuilder.swiftmodule' is incompatible with this Swift compiler: SDK does not match (in target 'CasePathsMacros' from project 'swift-case-paths')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-case-paths/Sources/CasePathsMacros/CasePathableMacro.swift:1:8: error: Unable to find module dependency: 'SwiftDiagnostics'
+import SwiftDiagnostics
+       ^ (in target 'CasePathsMacros' from project 'swift-case-paths')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-case-paths/Sources/CasePathsMacros/CasePathableMacro.swift:1:8: note: A dependency of main module 'CasePathsMacros'
+import SwiftDiagnostics
+       ^ (in target 'CasePathsMacros' from project 'swift-case-paths')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-case-paths/Sources/CasePathsMacros/CasePathableMacro.swift:2:8: error: Unable to find module dependency: 'SwiftSyntax'
+import SwiftSyntax
+       ^ (in target 'CasePathsMacros' from project 'swift-case-paths')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-case-paths/Sources/CasePathsMacros/CasePathableMacro.swift:2:8: note: A dependency of main module 'CasePathsMacros'
+import SwiftSyntax
+       ^ (in target 'CasePathsMacros' from project 'swift-case-paths')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-case-paths/Sources/CasePathsMacros/CasePathableMacro.swift:3:8: error: Unable to find module dependency: 'SwiftSyntaxBuilder'
+import SwiftSyntaxBuilder
+       ^ (in target 'CasePathsMacros' from project 'swift-case-paths')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-case-paths/Sources/CasePathsMacros/CasePathableMacro.swift:3:8: note: A dependency of main module 'CasePathsMacros'
+import SwiftSyntaxBuilder
+       ^ (in target 'CasePathsMacros' from project 'swift-case-paths')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-case-paths/Sources/CasePathsMacros/CasePathableMacro.swift:4:8: error: Unable to find module dependency: 'SwiftSyntaxMacros'
+import SwiftSyntaxMacros
+       ^ (in target 'CasePathsMacros' from project 'swift-case-paths')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-case-paths/Sources/CasePathsMacros/CasePathableMacro.swift:4:8: note: A dependency of main module 'CasePathsMacros'
+import SwiftSyntaxMacros
+       ^ (in target 'CasePathsMacros' from project 'swift-case-paths')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-case-paths/Sources/CasePathsMacros/Plugin.swift:2:8: note: Also imported here
+import SwiftSyntaxMacros
+       ^ (in target 'CasePathsMacros' from project 'swift-case-paths')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-case-paths/Sources/CasePathsMacros/Plugin.swift:1:8: error: Unable to find module dependency: 'SwiftCompilerPlugin'
+import SwiftCompilerPlugin
+       ^ (in target 'CasePathsMacros' from project 'swift-case-paths')
+/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-case-paths/Sources/CasePathsMacros/Plugin.swift:1:8: note: A dependency of main module 'CasePathsMacros'
+import SwiftCompilerPlugin
+       ^ (in target 'CasePathsMacros' from project 'swift-case-paths')
+
+SwiftEmitModule normal x86_64 Emitting\ module\ for\ Sharing2 (in target 'Sharing2' from project 'swift-sharing')
+
+SwiftEmitModule normal arm64 Emitting\ module\ for\ Sharing2 (in target 'Sharing2' from project 'swift-sharing')
+
+** BUILD FAILED **
+
+
+The following build commands failed:
+	SwiftDriver PerceptionMacros normal arm64 com.apple.xcode.tools.swift.compiler (in target 'PerceptionMacros' from project 'swift-perception')
+	SwiftDriver DependenciesMacrosPlugin normal arm64 com.apple.xcode.tools.swift.compiler (in target 'DependenciesMacrosPlugin' from project 'swift-dependencies')
+	SwiftDriver ComposableArchitectureMacros normal arm64 com.apple.xcode.tools.swift.compiler (in target 'ComposableArchitectureMacros' from project 'swift-composable-architecture')
+	SwiftDriver CasePathsMacros normal arm64 com.apple.xcode.tools.swift.compiler (in target 'CasePathsMacros' from project 'swift-case-paths')
+	Building workspace Depresso with scheme Depresso and configuration Debug
+(5 failures)

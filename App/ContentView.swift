@@ -1,73 +1,92 @@
-// In App/ContentView.swift
-
-// github testing :D
+// App/ContentView.swift
 import SwiftUI
 import ComposableArchitecture
 import SwiftData
 
 struct ContentView: View {
-    let store: StoreOf<AppFeature>
+    @Bindable var store: StoreOf<AppFeature>
     @State private var selectedTab = 0
     @State private var keyboardHeight: CGFloat = 0
 
     var body: some View {
-        WithViewStore(self.store, observe: { $0 }) { viewStore in
-            ZStack {
-                if viewStore.showingSplash {
-                    SplashScreenView {
-                        viewStore.send(.splashCompleted)
-                    }
-                } else if viewStore.showingWelcome {
-                    WelcomeOnboardingView(
-                        onComplete: {
-                            viewStore.send(.welcomeCompleted)
-                        },
-                        onSignIn: {
-                            viewStore.send(.signInWelcomeButtonTapped)
-                        }
-                    )
-                } else {
-                    mainContent
-                        .sheet(store: self.store.scope(state: \.$onboardingState, action: \.onboarding)) { store in
-                            OnboardingView(store: store)
-                        }
+        ZStack {
+            // State Machine for Root Navigation
+            switch store.currentFlow {
+            case .splash:
+                SplashScreenView {
+                    store.send(.splashCompleted)
                 }
-            }
-            .task {
-                viewStore.send(.task)
+                .transition(.opacity)
+                
+            case .authentication:
+                if let authStore = store.scope(state: \.authState, action: \.auth.presented) {
+                    AuthenticationView(store: authStore)
+                        .transition(.move(edge: .trailing))
+                } else {
+                    // Fallback if auth state is nil
+                    ProgressView()
+                        .onAppear { store.send(.splashCompleted) }
+                }
+                
+            case .welcomeTour:
+                WelcomeOnboardingView(
+                    onComplete: {
+                        store.send(.welcomeTourCompleted)
+                    },
+                    onSignIn: {
+                        // Compatibility link
+                        store.send(.welcomeTourCompleted)
+                    }
+                )
+                .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .opacity))
+                
+            case .mainApp:
+                ZStack {
+                    mainContent
+                        .fullScreenCover(item: $store.scope(state: \.onboardingState, action: \.onboarding)) { onboardingStore in
+                            OnboardingView(store: onboardingStore)
+                        }
+                    
+                    if store.isShowingConfetti {
+                        ConfettiView()
+                            .transition(.opacity)
+                            .zIndex(100)
+                    }
+                }
+                .transition(.opacity)
             }
         }
+        .animation(.default, value: store.currentFlow)
+        .task {
+            store.send(.task)
+        }
+        .alert($store.scope(state: \.achievementAlert, action: \.achievementAlert))
     }
     
     private var mainContent: some View {
         ZStack(alignment: .bottom) {
-            // Main content switcher
             Group {
                 switch selectedTab {
                 case 0:
                     DashboardView(store: store.scope(state: \.dashboardState, action: \.dashboard))
-                        .padding(.bottom, 80) // Space for tab bar
+                        .padding(.bottom, 80)
                 case 1:
                     NavigationStack {
                         JournalView(store: store.scope(state: \.journalState, action: \.journal))
                     }
                 case 2:
                     CommunityView(store: store.scope(state: \.communityState, action: \.community))
-                        .padding(.bottom, 80) // Space for tab bar
+                        .padding(.bottom, 80)
                 case 3:
-                    ResearchDashboardView(store: store.scope(state: \.communityState, action: \.community))
-                        .padding(.bottom, 80) // Space for tab bar
-                case 4:
                     SupportView(store: store.scope(state: \.supportState, action: \.support))
-                        .padding(.bottom, 80) // Space for tab bar
+                        .padding(.bottom, 80)
                 default:
                     DashboardView(store: store.scope(state: \.dashboardState, action: \.dashboard))
-                        .padding(.bottom, 80) // Space for tab bar
+                        .padding(.bottom, 80)
                 }
             }
             .transition(.opacity)
             
-            // Tab bar - hide when keyboard is visible
             if keyboardHeight == 0 {
                 CustomTabBar(selectedTab: $selectedTab)
                     .transition(.move(edge: .bottom).combined(with: .opacity))
@@ -98,13 +117,3 @@ struct ContentView: View {
         }
     }
 }
-
-#Preview {
-    ContentView(
-        store: Store(initialState: AppFeature.State()) {
-            AppFeature()
-        }
-    )
-    .modelContainer(for: [ChatMessage.self, WellnessTask.self, CommunityPost.self], inMemory: true)
-}
- 

@@ -1,16 +1,16 @@
-// In Features/Journal/AICompanionJournalFeature.swift
+// Features/Journal/AICompanionJournalFeature.swift
 import Foundation
 import ComposableArchitecture
 import CoreMotion
 import SwiftData
 import SwiftUI
-import Speech // Added import
+import Speech
 
 @Reducer
 struct AICompanionJournalFeature {
       private enum CancelID { 
           case motion 
-          case speech // Added CancelID
+          case speech
       }
 
       @ObservableState
@@ -18,7 +18,9 @@ struct AICompanionJournalFeature {
           static func == (lhs: AICompanionJournalFeature.State, rhs: AICompanionJournalFeature.State) -> Bool {
               return lhs.messages.map(\.id) == rhs.messages.map(\.id) &&
                      lhs.textInput == rhs.textInput &&
-                     lhs.isSendingMessage == rhs.isSendingMessage
+                     lhs.isSendingMessage == rhs.isSendingMessage &&
+                     lhs.isRecording == rhs.isRecording &&
+                     lhs.preDictationText == rhs.preDictationText
           }
           var messages: [ChatMessage] = []
           var textInput: String = ""
@@ -26,14 +28,14 @@ struct AICompanionJournalFeature {
           @Presents var alert: AlertState<Action.Alert>?
           var journalSessionStartDate: Date?
           var editCount: Int = 0
-          var motionSamples: [CMAcceleration] = [] // Ensure correct type CMAcceleration
+          var motionSamples: [CMAcceleration] = []
           var currentWPM: Double = 0
           var currentSessionDuration: TimeInterval = 0
-          var currentMotionData: [CMAcceleration] = [] // Ensure correct type CMAcceleration
+          var currentMotionData: [CMAcceleration] = []
           var currentEditCountForSubmission: Int = 0
           
-          // Voice Journaling State
           var isRecording: Bool = false
+          var preDictationText: String = ""
           var speechAuthStatus: SFSpeechRecognizerAuthorizationStatus = .notDetermined
           
           @Presents var destination: Destination.State?
@@ -42,6 +44,8 @@ struct AICompanionJournalFeature {
       enum Action: BindableAction {
           case binding(BindingAction<State>)
           case sendButtonTapped
+          case quickPromptTapped(String)
+          case deleteMessage(UUID)
           case aiResponseReceived(Result<ChatMessage, Error>)
           case alert(PresentationAction<Alert>)
           case task
@@ -52,15 +56,13 @@ struct AICompanionJournalFeature {
           case userMessageSaved(Result<ChatMessage, Error>)
           case aiMessageSaved(Result<ChatMessage, Error>)
           
-          // Voice Actions
           case recordButtonTapped
           case speechResult(String)
-          case speechError(String)
-          case checkSpeechAuthorization
+          case speechError(Error)
 
           case retryLastMessage
           case syncUnsyncedMessages
-          case guidedJournalButtonTapped // NEW
+          case guidedJournalButtonTapped
           case destination(PresentationAction<Destination.Action>)
           
           @CasePathable
@@ -75,9 +77,9 @@ struct AICompanionJournalFeature {
       }
 
 
-      @Dependency(\.aiClient) var aiClient // CHANGED
+      @Dependency(\.aiClient) var aiClient
       @Dependency(\.motionClient) var motionClient
-      @Dependency(\.speechClient) var speechClient // Added dependency
+      @Dependency(\.speechClient) var speechClient
       @Dependency(\.healthClient) var healthClient
       @Dependency(\.dataSubmissionClient) var dataSubmissionClient
       @Dependency(\.uuid) var uuid
@@ -91,35 +93,46 @@ struct AICompanionJournalFeature {
       }
 
     @MainActor
-    var body: some Reducer<State, Action> {
+    var body: some ReducerOf<Self> {
         BindingReducer()
         Reduce { state, action in
             switch action {
              case .task:
-                // Load messages and start motion updates if empty
-                let initialMerge = .merge(
-                    .run { [modelContext] send in
-                        let descriptor = FetchDescriptor<ChatMessage>(sortBy: [SortDescriptor(\.timestamp)])
-                        await send(.messagesLoaded(Result { 
-                            try await MainActor.run {
-                                try modelContext.context.fetch(descriptor)
-                            }
-                        }))
-                    },
-                    .run { [motionClient] send in
-                        for await motionData in motionClient.start() {
-                            await send(.motionUpdate(motionData))
+                // Strict fetch: wait for UserManager to have an ID
+                let initialLoad = Effect<Action>.run { [modelContext] send in
+                    // Polling/Waiting for ID if needed (for fresh logins)
+                    var userId = (try? await MainActor.run { try UserManager.shared.getCurrentUserId() }) ?? ""
+                    let maxRetries = 10
+                    var retries = 0
+                    
+                    while userId.isEmpty && retries < maxRetries {
+                        try? await Task.sleep(nanoseconds: 500_000_000) // Wait 0.5s
+                        userId = (try? await MainActor.run { try UserManager.shared.getCurrentUserId() }) ?? ""
+                        retries += 1
+                    }
+                    
+                    guard !userId.isEmpty else { return }
+                    
+                    let currentId = userId
+                    await MainActor.run {
+                        let descriptor = FetchDescriptor<ChatMessage>(
+                            predicate: #Predicate<ChatMessage> { $0.userId == currentId },
+                            sortBy: [SortDescriptor(\.timestamp)]
+                        )
+                        if let messages = try? modelContext.context.fetch(descriptor) {
+                            send(.messagesLoaded(.success(messages)))
                         }
                     }
-                    .cancellable(id: CancelID.motion)
-                )
-                
-                if state.messages.isEmpty {
-                    state.journalSessionStartDate = Date()
-                    return .merge(initialMerge, .send(.syncUnsyncedMessages))
                 }
                 
-                return .send(.syncUnsyncedMessages)
+                let startMotion = Effect<Action>.run { [motionClient] send in
+                    for await motionData in motionClient.start() {
+                        await send(.motionUpdate(motionData))
+                    }
+                }
+                .cancellable(id: CancelID.motion)
+                
+                return .merge(initialLoad, startMotion, .send(.syncUnsyncedMessages))
                 
              case .syncUnsyncedMessages:
                 let unsynced = state.messages.filter { $0.isFromCurrentUser && !$0.isSynced }
@@ -128,13 +141,10 @@ struct AICompanionJournalFeature {
                 return .run { [aiClient, modelContext] send in
                     for message in unsynced {
                         do {
-                            // Simple retry: send the content as prompt
-                            // Context might be tricky for old messages, but better than nothing
                             let responseText = try await aiClient.generateResponse([], message.content, nil)
-                            
                             await MainActor.run {
                                 message.isSynced = true
-                                let aiMessage = ChatMessage(content: responseText, isFromCurrentUser: false, isSynced: true)
+                                let aiMessage = ChatMessage(userId: message.userId, content: responseText, isFromCurrentUser: false, isSynced: true)
                                 modelContext.context.insert(aiMessage)
                                 try? modelContext.context.save()
                                 send(.aiMessageSaved(.success(aiMessage)))
@@ -143,11 +153,6 @@ struct AICompanionJournalFeature {
                             print("⚠️ Failed to sync message \(message.id): \(error)")
                         }
                     }
-                }
-                
-             case .checkSpeechAuthorization:
-                return .run { [speechClient] send in
-                    _ = await speechClient.requestAuthorization()
                 }
                 
              case .guidedJournalButtonTapped:
@@ -163,81 +168,97 @@ struct AICompanionJournalFeature {
 
              case .messagesLoaded(.success(let messages)):
                  state.messages = messages
-                 if messages.isEmpty {
-                     let greeting = ChatMessage(content: "Hello! How are you feeling today?", isFromCurrentUser: false)
-                     state.messages.append(greeting)
-                 }
                  return .none
+
              case .messagesLoaded(.failure(let error)):
                  state.alert = AlertState { TextState("Error") } message: { TextState("Could not load journal history. \(error.localizedDescription)") }
                  return .none
+
              case .motionUpdate(let motionData):
                  state.motionSamples.append(motionData.userAcceleration)
                  return .none
+
              case .userDidBackspace:
                  state.editCount += 1
                  return .none
-             case .binding:
+
+             case .deleteMessage(let id):
+                 if let index = state.messages.firstIndex(where: { $0.id == id }) {
+                     let message = state.messages[index]
+                     state.messages.remove(at: index)
+                     return .run { [modelContext] _ in
+                         await MainActor.run {
+                             modelContext.context.delete(message)
+                             try? modelContext.context.save()
+                         }
+                     }
+                 }
                  return .none
 
+             case .quickPromptTapped(let prompt):
+                 state.textInput = prompt
+                 return .send(.sendButtonTapped)
+
             case .sendButtonTapped:
-    guard !state.textInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return .none }
+                guard !state.textInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return .none }
 
-    // Extract data BEFORE async operations (avoid capturing non-Sendable ChatMessage)
-    let messageContent = state.textInput
-    let prompt = state.textInput
+                let messageContent = state.textInput
+                let prompt = state.textInput
 
-    state.currentMotionData = state.motionSamples
-    state.currentEditCountForSubmission = state.editCount
-    state.currentSessionDuration = Date().timeIntervalSince(state.journalSessionStartDate ?? Date())
-    let wordCount = messageContent.split(whereSeparator: \.isWhitespace).count
-    state.currentWPM = state.currentSessionDuration > 0 ? (Double(wordCount) / state.currentSessionDuration) * 60.0 : 0
+                state.currentMotionData = state.motionSamples
+                state.currentEditCountForSubmission = state.editCount
+                state.currentSessionDuration = Date().timeIntervalSince(state.journalSessionStartDate ?? Date())
+                let wordCount = messageContent.split(whereSeparator: \.isWhitespace).count
+                state.currentWPM = state.currentSessionDuration > 0 ? (Double(wordCount) / state.currentSessionDuration) * 60.0 : 0
 
-    state.textInput = ""
-    state.isSendingMessage = true
-    state.journalSessionStartDate = Date()
-    state.editCount = 0
-    state.motionSamples = []
-    
-    let history = self.history(from: state.messages)
+                state.textInput = ""
+                state.isSendingMessage = true
+                state.journalSessionStartDate = Date()
+                state.editCount = 0
+                state.motionSamples = []
+                
+                let history = self.history(from: state.messages)
 
-    return .run { [modelContext, aiClient, healthClient] send in
-        // 1. Create and save user message locally (unsynced)
-        let userMessage = await MainActor.run {
-            let message = ChatMessage(content: messageContent, isFromCurrentUser: true, isSynced: false)
-            modelContext.context.insert(message)
-            try? modelContext.context.save()
-            send(.userMessageSaved(.success(message)))
-            return message
-        }
+                return .run { [modelContext, aiClient, healthClient] send in
+                    let currentUserId = try await MainActor.run { try UserManager.shared.getCurrentUserId() }
+                    
+                    let userMessage = await MainActor.run {
+                        let message = ChatMessage(userId: currentUserId, content: messageContent, isFromCurrentUser: true, isSynced: false)
+                        modelContext.context.insert(message)
+                        try? modelContext.context.save()
+                        send(.userMessageSaved(.success(message)))
+                        return message
+                    }
 
-        // Fetch AI response and health metrics
-        do {
-            let responseText = try await aiClient.generateResponse(history, prompt, nil)
-            let metricsArray = try await healthClient.fetchHealthMetrics()
-            let steps = metricsArray.first(where: { $0.type == .steps })?.value ?? 0.0
-            let energy = metricsArray.first(where: { $0.type == .calories })?.value ?? 0.0
-            let heartRate = metricsArray.first(where: { $0.type == .heartRate })?.value ?? 0.0
-            let dailyMetrics = DailyMetrics(steps: steps, activeEnergy: energy, heartRate: heartRate)
+                    do {
+                        let responseText = try await aiClient.generateResponse(history, prompt, nil)
+                        let metricsArray = try await healthClient.fetchHealthMetrics()
+                        let steps = metricsArray.first(where: { $0.type == .steps })?.value ?? 0.0
+                        let energy = metricsArray.first(where: { $0.type == .calories })?.value ?? 0.0
+                        let heartRate = metricsArray.first(where: { $0.type == .heartRate })?.value ?? 0.0
+                        let dailyMetrics = DailyMetrics(steps: steps, activeEnergy: energy, heartRate: heartRate)
 
-            // 2. Mark user message as synced and save AI response
-            await MainActor.run {
-                userMessage.isSynced = true
-                let aiMessage = ChatMessage(content: responseText, isFromCurrentUser: false, isSynced: true)
-                modelContext.context.insert(aiMessage)
-                try? modelContext.context.save()
-                send(.aiMessageSaved(.success(aiMessage)))
-            }
+                        await MainActor.run {
+                            userMessage.isSynced = true
+                            let aiMessage = ChatMessage(userId: currentUserId, content: responseText, isFromCurrentUser: false, isSynced: true)
+                            modelContext.context.insert(aiMessage)
+                            try? modelContext.context.save()
+                            
+                            Task {
+                                await AchievementManager.shared.checkAchievements(userId: currentUserId, context: modelContext.context)
+                            }
+                            
+                            send(.aiMessageSaved(.success(aiMessage)))
+                        }
 
-            await send(.submissionDataLoaded(.success(dailyMetrics)))
+                        await send(.submissionDataLoaded(.success(dailyMetrics)))
 
-        } catch {
-            print("❌ Sync/AI Error: \(error)")
-            // 3. User message remains isSynced = false for retry logic later
-            await send(.aiMessageSaved(.failure(error)))
-            await send(.submissionDataLoaded(.failure(error)))
-        }
-    }
+                    } catch {
+                        print("❌ Sync/AI Error: \(error)")
+                        await send(.aiMessageSaved(.failure(error)))
+                        await send(.submissionDataLoaded(.failure(error)))
+                    }
+                }
 
              case .userMessageSaved(.success(let message)):
                  withAnimation {
@@ -279,20 +300,14 @@ struct AICompanionJournalFeature {
                  guard let lastUserMessage = state.messages.last(where: { $0.isFromCurrentUser }) else { return .none }
                  state.isSendingMessage = true
                  let prompt = lastUserMessage.content
-                 let history = self.history(from: state.messages.dropLast()) // History without the last message? Or full history?
-                 // Usually prompt is new, history is past. 
-                 // If lastUserMessage is the prompt, history should be everything before it.
-                 // The 'history' function takes all messages.
-                 // Let's assume we want to re-send the prompt with context up to that point.
                  
-                 let previousMessages = state.messages.dropLast(1).filter { $0.id != lastUserMessage.id } // Filter just in case
+                 let previousMessages = state.messages.dropLast(1).filter { $0.id != lastUserMessage.id }
                  let historyContext = self.history(from: Array(previousMessages))
 
                  return .run { [aiClient, healthClient, modelContext] send in
-                     // Start concurrent operations (Retry Logic)
                      async let aiResponseTask = Task {
-                         let responseText = try await aiClient.generateResponse(historyContext, prompt, nil) // CHANGED
-                         return ChatMessage(content: responseText, isFromCurrentUser: false)
+                         let responseText = try await aiClient.generateResponse(historyContext, prompt, nil)
+                         return ChatMessage(userId: lastUserMessage.userId, content: responseText, isFromCurrentUser: false)
                      }
 
                      async let healthMetricsTask = Task { () -> DailyMetrics in
@@ -303,15 +318,15 @@ struct AICompanionJournalFeature {
                          return DailyMetrics(steps: steps, activeEnergy: energy, heartRate: heartRate)
                      }
 
-                     // Await results
                      do {
                          let aiMessage = try await aiResponseTask.value
                          let dailyMetrics = try await healthMetricsTask.value
 
-                         // Save AI message locally
-                         modelContext.context.insert(aiMessage)
-                         try modelContext.context.save()
-                         await send(.aiMessageSaved(.success(aiMessage)))
+                         await MainActor.run {
+                             modelContext.context.insert(aiMessage)
+                             try? modelContext.context.save()
+                             send(.aiMessageSaved(.success(aiMessage)))
+                         }
 
                          await send(.submissionDataLoaded(.success(dailyMetrics)))
 
@@ -321,60 +336,54 @@ struct AICompanionJournalFeature {
                          await send(.submissionDataLoaded(.failure(error)))
                      }
                  }
-             case .aiResponseReceived: // Should not happen if saves are handled first
-                  print("Warning: aiResponseReceived hit directly")
+             case .aiResponseReceived:
                   state.isSendingMessage = false
                   return .none
              case .submissionDataLoaded(.success(let dailyMetrics)):
-    // Calculate motion metrics
-    let avgMotion = state.currentMotionData.reduce((0.0, 0.0, 0.0)) { 
-        ($0.0 + $1.x, $0.1 + $1.y, $0.2 + $1.z) 
-    }
-    let count = Double(state.currentMotionData.count)
-    let motionMetrics = DeviceMotionMetrics(
-        avgAccelerationX: count > 0 ? avgMotion.0 / count : 0,
-        avgAccelerationY: count > 0 ? avgMotion.1 / count : 0,
-        avgAccelerationZ: count > 0 ? avgMotion.2 / count : 0
-    )
-    
-    let typingMetrics = TypingMetrics(
-        wordsPerMinute: state.currentWPM,
-        totalEditCount: state.currentEditCountForSubmission
-    )
-    
-    // NEW: Get user ID and submit to backend
-    return .run { [dataSubmissionClient] _ in
-        do {
-            // Ensure user is registered first
-            try await UserManager.shared.ensureUserRegistered()
-            let userId = try await UserManager.shared.getCurrentUserId()
-            try await dataSubmissionClient.submitMetrics(
-                userId,
-                dailyMetrics,
-                typingMetrics,
-                motionMetrics
-            )
-            print("✅ Successfully submitted metrics to backend")
-        } catch {
-            print("❌ Error submitting analytics data: \(error)")
-        }
-    }
+                let avgMotion = state.currentMotionData.reduce((0.0, 0.0, 0.0)) { 
+                    ($0.0 + $1.x, $0.1 + $1.y, $0.2 + $1.z) 
+                }
+                let count = Double(state.currentMotionData.count)
+                let motionMetrics = DeviceMotionMetrics(
+                    avgAccelerationX: count > 0 ? avgMotion.0 / count : 0,
+                    avgAccelerationY: count > 0 ? avgMotion.1 / count : 0,
+                    avgAccelerationZ: count > 0 ? avgMotion.2 / count : 0
+                )
+                
+                let typingMetrics = TypingMetrics(
+                    wordsPerMinute: state.currentWPM,
+                    totalEditCount: state.currentEditCountForSubmission
+                )
+                
+                return .run { [dataSubmissionClient] _ in
+                    do {
+                        try await UserManager.shared.ensureUserRegistered()
+                        let userId = try await UserManager.shared.getCurrentUserId()
+                        try await dataSubmissionClient.submitMetrics(
+                            userId,
+                            dailyMetrics,
+                            typingMetrics,
+                            motionMetrics
+                        )
+                    } catch {
+                        print("❌ Error submitting analytics data: \(error)")
+                    }
+                }
              case .submissionDataLoaded(.failure(let error)):
                  print("Failed to load HealthKit data for submission: \(error)")
                  return .none
-             case .alert:
+             case .alert, .binding:
                  return .none
                  
-             // Voice Journaling Logic
              case .recordButtonTapped:
                  state.isRecording.toggle()
                  if state.isRecording {
+                     state.preDictationText = state.textInput
                      return .run { [speechClient] send in
-                         // Request permission first
                          let authStatus = await speechClient.requestAuthorization()
                          
                          guard authStatus == .authorized else {
-                             await send(.speechError("Please enable Speech Recognition in Settings → Privacy → Speech Recognition"))
+                             await send(.speechError(SpeechError.notAuthorized))
                              return
                          }
                          
@@ -386,7 +395,7 @@ struct AICompanionJournalFeature {
                                  await send(.speechResult(transcript))
                              }
                          } catch {
-                             await send(.speechError(error.localizedDescription))
+                             await send(.speechError(error))
                          }
                      }
                      .cancellable(id: CancelID.speech)
@@ -395,17 +404,18 @@ struct AICompanionJournalFeature {
                  }
                  
              case .speechResult(let transcript):
-                 state.textInput = transcript
+                 let prefix = state.preDictationText.trimmingCharacters(in: .whitespacesAndNewlines)
+                 if prefix.isEmpty {
+                     state.textInput = transcript
+                 } else {
+                     state.textInput = "\(prefix) \(transcript)"
+                 }
                  return .none
                  
-             case .speechError(let errorMsg):
+             case .speechError(let error):
                  state.isRecording = false
-                 state.alert = AlertState { TextState("Microphone Error") } message: { TextState(errorMsg) }
+                 state.alert = AlertState { TextState("Voice Entry Error") } message: { TextState(error.localizedDescription) }
                  return .none
-                 
-             case .checkSpeechAuthorization:
-                  return .none // Handled in task or on demand
-
             }
         }
         .ifLet(\.$alert, action: \.alert)

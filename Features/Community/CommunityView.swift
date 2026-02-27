@@ -8,52 +8,33 @@ struct CommunityView: View {
 
     var body: some View {
         NavigationStack {
-            ZStack {
-                if store.isLoading {
-                    ScrollView {
-                        VStack(spacing: 16) {
-                            DSSkeletonPost()
-                            DSSkeletonPost()
-                            DSSkeletonPost()
-                        }
-                        .padding()
-                        .padding(.bottom, 80) // Space for tab bar
+            VStack(spacing: 0) {
+                // Category Filter Bar
+                categoryFilterBar
+                
+                ZStack {
+                    if store.isLoading {
+                        loadingView
+                    } else if let errorMessage = store.errorMessage {
+                        DSEmptyState(
+                            icon: "exclamationmark.triangle",
+                            title: "Error",
+                            message: errorMessage
+                        )
+                    } else if store.filteredPosts.isEmpty {
+                        DSEmptyState(
+                            icon: "text.bubble",
+                            title: store.selectedCategory == "All" ? "No Stories Yet" : "No \(store.selectedCategory) Stories",
+                            message: "Be the first to share your journey in this category.",
+                            actionTitle: "Share Your Story",
+                            action: { store.send(.addPostButtonTapped) }
+                        )
+                    } else {
+                        postsList
                     }
-                } else if let errorMessage = store.errorMessage {
-                    DSEmptyState(
-                        icon: "exclamationmark.triangle",
-                        title: "Error",
-                        message: errorMessage
-                    )
-                } else if store.posts.isEmpty {
-                    DSEmptyState(
-                        icon: "text.bubble",
-                        title: "No Stories Yet",
-                        message: "Be the first to share your journey and inspire others in the community.",
-                        actionTitle: "Share Your Story",
-                        action: { store.send(.addPostButtonTapped) }
-                    )
-                } else {
-                    List {
-                        ForEach(store.posts) { post in
-                            NavigationLink {
-                                // Pass the store to the detail view for interactivity
-                                PostDetailView(store: store, post: post)
-                            } label: {
-                                // Pass the store down to the row for actions
-                                PostRowView(store: store, post: post)
-                            }
-                            .listRowInsets(EdgeInsets(top: 12, leading: 0, bottom: 12, trailing: 16))
-                        }
-                    }
-                    .listStyle(.plain)
-                    .safeAreaInset(edge: .bottom) {
-                        Color.clear.frame(height: 80) // Tab bar spacing
-                    }
-                    .id("communityList")
                 }
             }
-            .navigationTitle("Community Stories")
+            .navigationTitle("Community")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
@@ -71,11 +52,75 @@ struct CommunityView: View {
             }
         }
     }
+    
+    private var categoryFilterBar: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 12) {
+                categoryButton(title: "All", icon: "square.grid.2x2.fill")
+                
+                ForEach(CommunityCategory.allCases) { category in
+                    categoryButton(title: category.rawValue, icon: category.icon)
+                }
+            }
+            .padding(.horizontal)
+            .padding(.vertical, 12)
+        }
+        .background(Color.ds.backgroundPrimary)
+        .shadow(color: .black.opacity(0.05), radius: 5, y: 5)
+    }
+    
+    private func categoryButton(title: String, icon: String) -> some View {
+        let isSelected = store.selectedCategory == title
+        
+        return Button {
+            store.send(.selectCategory(title))
+        } label: {
+            HStack(spacing: 6) {
+                Image(systemName: icon)
+                    .font(.system(size: 14))
+                Text(title)
+                    .font(.system(size: 14, weight: .semibold))
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
+            .background(isSelected ? Color.ds.accent : Color.ds.accent.opacity(0.1))
+            .foregroundColor(isSelected ? .white : .ds.accent)
+            .clipShape(Capsule())
+            .animation(.spring(response: 0.3), value: isSelected)
+        }
+    }
+    
+    private var loadingView: some View {
+        ScrollView {
+            VStack(spacing: 16) {
+                DSSkeletonPost()
+                DSSkeletonPost()
+                DSSkeletonPost()
+            }
+            .padding()
+        }
+    }
+    
+    private var postsList: some View {
+        List {
+            ForEach(store.filteredPosts) { post in
+                NavigationLink {
+                    PostDetailView(store: store, post: post)
+                } label: {
+                    PostRowView(store: store, post: post)
+                }
+                .listRowInsets(EdgeInsets(top: 12, leading: 0, bottom: 12, trailing: 16))
+            }
+        }
+        .listStyle(.plain)
+        .safeAreaInset(edge: .bottom) {
+            Color.clear.frame(height: 80)
+        }
+    }
 }
 
-// --- Updated PostRowView ---
+// --- Updated PostRowView with Category Badge ---
 struct PostRowView: View {
-    // ✅ Use 'let' instead of '@State' to prevent state forking
     let store: StoreOf<CommunityFeature>
     let post: CommunityPost
 
@@ -92,51 +137,74 @@ struct PostRowView: View {
                 .padding(.leading, DesignSystem.Spacing.medium)
 
             VStack(alignment: .leading, spacing: DesignSystem.Spacing.small) {
-                // User Info, Title, Content, Image remain the same
                 HStack {
-                    Text("Anonymous User").font(.ds.caption.weight(.semibold))
-                    Text("· \(post.creationDate, style: .relative)").font(.ds.caption).foregroundStyle(.secondary)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Anonymous User").font(.ds.caption.weight(.semibold))
+                        HStack {
+                            Text(post.creationDate, style: .relative).font(.ds.caption).foregroundStyle(.secondary)
+                            Text("·").font(.ds.caption).foregroundStyle(.secondary)
+                            
+                            // Category Badge
+                            Text(post.category)
+                                .font(.system(size: 10, weight: .bold))
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(Color.ds.accent.opacity(0.1))
+                                .foregroundColor(.ds.accent)
+                                .clipShape(Capsule())
+                        }
+                    }
                     Spacer()
                 }
+                
                 if !post.title.isEmpty {
                     Text(post.title).font(.ds.headline).padding(.bottom, 2)
                 }
+                
                 Text(post.content).font(.ds.body).lineLimit(3).foregroundStyle(.secondary)
+                
                 if let image = postImage {
                     image
-                        .resizable().scaledToFill().frame(height: 50)
-                        .clipped().cornerRadius(4)
+                        .resizable().scaledToFill().frame(height: 150)
+                        .clipped().cornerRadius(12)
                         .padding(.top, DesignSystem.Spacing.extraSmall)
                 }
 
-                // ✅ Updated Action Buttons Row
-                HStack(spacing: DesignSystem.Spacing.medium) { // Reduced spacing slightly
-                    // Like Button
+                HStack(spacing: DesignSystem.Spacing.medium) {
+                    let isLiked = store.likedPostIDs.contains(post.id)
+                    
                     Button {
-                        // Send the like action with the post's ID
                         store.send(.likeButtonTapped(id: post.id))
                     } label: {
-                        HStack(spacing: 4) {
-                            // Use filled heart if liked
-                            Image(systemName: store.likedPostIDs.contains(post.id) ? "heart.fill" : "heart")
-                                .foregroundStyle(store.likedPostIDs.contains(post.id) ? .red : .secondary)
-                            // Display the like count if > 0
+                        HStack(spacing: 6) {
+                            Image(systemName: isLiked ? "heart.fill" : "heart")
+                                .foregroundStyle(isLiked ? .red : .secondary)
+                                .symbolEffect(.bounce, value: isLiked)
+                                .sensoryFeedback(.success, trigger: isLiked)
+                            
                             if post.likeCount > 0 {
                                 Text("\(post.likeCount)")
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
+                                    .contentTransition(.numericText())
                             }
                         }
+                        .padding(.vertical, 4)
+                        .padding(.horizontal, 8)
+                        .background(isLiked ? Color.red.opacity(0.1) : Color.clear)
+                        .clipShape(Capsule())
                     }
-                    .buttonStyle(.plain) // Use plain style
-
-                    // Reply/Share Button (Placeholder) - Hidden until implemented
-                    // Button {} label: {
-                    //    Image(systemName: "arrowshape.turn.up.forward")
-                    // }
-                    // .buttonStyle(.plain)
+                    .buttonStyle(.plain)
 
                     Spacer()
+                    
+                    Button {
+                        // Share action
+                    } label: {
+                        Image(systemName: "square.and.arrow.up")
+                            .font(.system(size: 14))
+                            .foregroundStyle(.secondary)
+                    }
                 }
                 .foregroundStyle(.secondary)
                 .padding(.top, DesignSystem.Spacing.small)
@@ -146,24 +214,20 @@ struct PostRowView: View {
     }
 }
 
-// --- Preview Needs Update ---
 #Preview {
     let container = try! ModelContainer(for: CommunityPost.self, configurations: ModelConfiguration(isStoredInMemoryOnly: true))
     let context = container.mainContext
     
-    let previewImageData = UIImage(systemName: "photo")?.jpegData(compressionQuality: 0.8)
-
     let samplePosts = [
-        CommunityPost(title: "Liked Post", content: "This one has some likes.", imageData: previewImageData, likeCount: 5),
-        CommunityPost(title: "New Post", content: "This one has no likes yet.")
+        CommunityPost(userId: "preview", title: "Finding Hope", content: "Today was a good day. I finally managed to take a walk and breathe properly.", category: "Recovery", likeCount: 5),
+        CommunityPost(userId: "preview", title: "Small Wins", content: "Managed to journal for 5 minutes today. It's a start.", category: "Daily Wins")
     ]
     
     let _ = samplePosts.forEach { context.insert($0) }
 
-    let store = Store(initialState: CommunityFeature.State(posts: samplePosts, isLoading: false, likedPostIDs: [samplePosts[0].id])) {
+    let store = Store(initialState: CommunityFeature.State(posts: samplePosts, isLoading: false)) {
         CommunityFeature()
             .dependency(\.modelContext, try! ModelContextBox(context))
-            .dependency(\.userDefaultsClient, .previewValue)
     }
 
     NavigationStack {

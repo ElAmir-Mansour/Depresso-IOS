@@ -1,10 +1,3 @@
-//
-//  DailyAssessmentFeature.swift
-//  Depresso
-//
-//  Created by ElAmir Mansour on 24/10/2025.
-//
-
 // In Features/Dashboard/DailyAssessmentFeature.swift
 import Foundation
 import ComposableArchitecture
@@ -14,13 +7,14 @@ import SwiftData
 struct DailyAssessmentFeature {
     @ObservableState
     struct State: Equatable {
-        var questions: [PHQ8.Question] = PHQ8.allQuestions // Re-use questions
+        var questions: [PHQ8.Question] = PHQ8.allQuestions
         var currentQuestionIndex: Int = 0
         var isCompleted: Bool = false
-
+        
         var progress: Double {
-            Double(currentQuestionIndex) / Double(questions.count)
+            Double(currentQuestionIndex + 1) / Double(questions.count)
         }
+        
         var isNextButtonEnabled: Bool {
             questions[currentQuestionIndex].answer != nil
         }
@@ -31,23 +25,24 @@ struct DailyAssessmentFeature {
         case answerQuestion(index: Int, answer: PHQ8.Answer)
         case nextButtonTapped
         case backButtonTapped
-        case saveAssessment // New action
+        case saveAssessment
         case delegate(Delegate)
-
-        enum Delegate {
+        
+        @CasePathable
+        enum Delegate: Equatable {
             case assessmentCompleted(DailyAssessment)
             case cancel
         }
     }
 
+    @Dependency(\.date.now) var now
     @Dependency(\.dismiss) var dismiss
-    @Dependency(\.date.now) var now // Use dependency for date
 
-    var body: some Reducer<State, Action> {
+    var body: some ReducerOf<Self> {
         BindingReducer()
         Reduce { state, action in
             switch action {
-            case let .answerQuestion(index, answer):
+            case .answerQuestion(let index, let answer):
                 state.questions[index].answer = answer
                 return .none
 
@@ -55,8 +50,7 @@ struct DailyAssessmentFeature {
                 if state.currentQuestionIndex < state.questions.count - 1 {
                     state.currentQuestionIndex += 1
                 } else {
-                    // Instead of showing analysis, trigger save
-                    state.isCompleted = true // Mark as complete to show save button
+                    state.isCompleted = true
                     return .send(.saveAssessment)
                 }
                 return .none
@@ -69,16 +63,17 @@ struct DailyAssessmentFeature {
 
             case .saveAssessment:
                 let score = state.questions.compactMap(\.answer?.rawValue).reduce(0, +)
-                let assessment = DailyAssessment(date: now, score: score)
-                // Success haptic feedback!
-                DSHaptics.success()
-                // Send back to parent and dismiss
+                
                 return .run { send in
+                    let userId = (try? await MainActor.run { try UserManager.shared.getCurrentUserId() }) ?? "guest"
+                    let assessment = DailyAssessment(userId: userId, date: now, score: score)
+                    
+                    DSHaptics.success()
                     await send(.delegate(.assessmentCompleted(assessment)))
                     await self.dismiss()
                 }
 
-            case .delegate(.cancel): // Handle explicit cancel if needed
+            case .delegate(.cancel):
                  return .run { _ in await self.dismiss() }
 
             case .binding, .delegate:
