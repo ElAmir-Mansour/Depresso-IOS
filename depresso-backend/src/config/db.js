@@ -1,7 +1,11 @@
 require('dotenv').config();
 const { Pool } = require('pg');
 
-const connectionString = process.env.POSTGRES_URL || process.env.DATABASE_URL;
+const connectionString = process.env.POSTGRES_URL || process.env.DATABASE_URL || process.env.PRISMA_DATABASE_URL;
+
+console.log("DB Config Check - Is POSTGRES_URL present?", !!process.env.POSTGRES_URL);
+console.log("DB Config Check - Is DATABASE_URL present?", !!process.env.DATABASE_URL);
+console.log("DB Config Check - Selected String length:", connectionString ? connectionString.length : 0);
 
 const poolConfig = connectionString
   ? {
