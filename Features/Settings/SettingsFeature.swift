@@ -66,6 +66,14 @@ struct SettingsFeature {
         }
     }
     
+    enum SettingsError: Error, LocalizedError {
+        case noUserId
+        
+        var errorDescription: String? {
+            "Please sign in to delete your account"
+        }
+    }
+    
     @Dependency(\.aiClient) var aiClient
     @Dependency(\.authenticationClient) var authenticationClient
     @Dependency(\.notificationClient) var notificationClient
@@ -131,7 +139,10 @@ struct SettingsFeature {
                 return .run { send in
                     do {
                         let credentials = try await authenticationClient.signInWithApple()
-                        let currentUserId = try await MainActor.run { try UserManager.shared.getCurrentUserId() }
+                        let currentUserId = await MainActor.run { UserManager.shared.userId }
+                        guard let currentUserId = currentUserId, !currentUserId.isEmpty else {
+                            throw SettingsError.noUserId
+                        }
                         let fullName = [credentials.fullName?.givenName, credentials.fullName?.familyName]
                             .compactMap { $0 }
                             .joined(separator: " ")
@@ -188,7 +199,10 @@ struct SettingsFeature {
                 state.isDeletingAccount = true
                 return .run { send in
                     do {
-                        let userId = try await MainActor.run { try UserManager.shared.getCurrentUserId() }
+                        let userId = await MainActor.run { UserManager.shared.userId }
+                        guard let userId = userId, !userId.isEmpty else {
+                            throw SettingsError.noUserId
+                        }
                         try await APIClient.deleteAccount(userId: userId)
                         await send(.deleteAccountCompleted(.success(())))
                     } catch {
@@ -202,7 +216,12 @@ struct SettingsFeature {
                 
             case .deleteAccountCompleted(.failure(let error)):
                 state.isDeletingAccount = false
-                print("Failed to delete account: \(error)")
+                state.alert = AlertState {
+                    TextState("Delete Failed")
+                } message: {
+                    TextState(error.localizedDescription)
+                }
+                print("❌ Failed to delete account: \(error)")
                 return .none
                 
             case .notificationsToggled(let enabled):
