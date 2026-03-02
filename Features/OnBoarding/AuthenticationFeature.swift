@@ -51,6 +51,8 @@ struct AuthenticationFeature {
                 
                 let email = credentials.email
                 
+                print("🍎 Apple Sign In succeeded. AppleUserId: \(credentials.userId)")
+                
                 return .run { send in
                     do {
                         let result = try await APIClient.appleLogin(
@@ -60,15 +62,24 @@ struct AuthenticationFeature {
                             identityToken: credentials.identityToken
                         )
                         
+                        print("✅ Backend login successful. UserID: \(result.userId), IsNewUser: \(result.isNewUser), Name: \(result.name ?? "nil")")
+                        
                         // Update local user ID, token, and Profile
+                        // Use backend name/email if available, fallback to Apple credentials
                         await MainActor.run {
                             UserManager.shared.setUserId(result.userId)
                             UserManager.shared.setSessionToken(result.sessionToken)
-                            UserManager.shared.setUserProfile(name: fullName.isEmpty ? nil : fullName, email: email)
+                            UserManager.shared.setUserProfile(
+                                name: result.name ?? (fullName.isEmpty ? nil : fullName),
+                                email: result.email ?? email
+                            )
                         }
+                        
+                        print("📲 UserManager updated with user data")
                         
                         await send(.delegate(.authenticationCompleted(isNewUser: result.isNewUser)))
                     } catch {
+                        print("❌ Backend login failed: \(error)")
                         await send(.signInCompleted(.failure(AuthError(message: error.localizedDescription))))
                     }
                 }

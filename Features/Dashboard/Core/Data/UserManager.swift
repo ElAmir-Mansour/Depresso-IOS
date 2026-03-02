@@ -25,6 +25,8 @@ class UserManager: ObservableObject {
         self.userEmail = UserDefaults.standard.string(forKey: userEmailKey)
         // Load token from Keychain
         self.sessionToken = KeychainHelper.retrieve(key: tokenKeychainKey)
+        
+        print("🔄 UserManager initialized - UserID: \(userId ?? "nil"), Has Token: \(sessionToken != nil)")
     }
     
     func isUserAuthenticated() -> Bool {
@@ -45,11 +47,14 @@ class UserManager: ObservableObject {
     func setUserId(_ id: String) {
         self.userId = id
         UserDefaults.standard.set(id, forKey: userDefaultsKey)
+        UserDefaults.standard.synchronize() // Force immediate persistence
+        print("💾 UserManager: Saved userId '\(id)' to UserDefaults")
     }
     
     func setSessionToken(_ token: String) {
         self.sessionToken = token
         KeychainHelper.save(token, forKey: tokenKeychainKey)
+        print("🔐 UserManager: Saved session token to Keychain")
     }
     
     func setUserProfile(name: String?, email: String?) {
@@ -57,6 +62,8 @@ class UserManager: ObservableObject {
         self.userEmail = email
         UserDefaults.standard.set(name, forKey: userNameKey)
         UserDefaults.standard.set(email, forKey: userEmailKey)
+        UserDefaults.standard.synchronize()
+        print("👤 UserManager: Saved profile - Name: '\(name ?? "nil")', Email: '\(email ?? "nil")'")
     }
     
     func clearAll() {

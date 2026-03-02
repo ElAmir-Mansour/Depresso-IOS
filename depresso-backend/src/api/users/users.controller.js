@@ -120,15 +120,29 @@ exports.appleLogin = async (req, res) => {
         
         // Check if user exists
         const result = await pool.query(
-            'SELECT id FROM Users WHERE apple_user_id = $1',
+            'SELECT id, name, email FROM Users WHERE apple_user_id = $1',
             [appleUserId]
         );
 
         let userId;
+        let userName = null;
+        let userEmail = null;
         let isNewUser = false;
 
         if (result.rows.length > 0) {
             userId = result.rows[0].id;
+            userName = result.rows[0].name;
+            userEmail = result.rows[0].email;
+            
+            // Update name/email if provided and currently empty
+            if ((fullName && !userName) || (email && !userEmail)) {
+                await pool.query(
+                    'UPDATE Users SET name = COALESCE($1, name), email = COALESCE($2, email) WHERE id = $3',
+                    [fullName, email, userId]
+                );
+                userName = fullName || userName;
+                userEmail = email || userEmail;
+            }
         } else {
             // Create new user
             userId = uuidv4();
@@ -136,6 +150,8 @@ exports.appleLogin = async (req, res) => {
                 'INSERT INTO Users (id, apple_user_id, email, name) VALUES ($1, $2, $3, $4)',
                 [userId, appleUserId, email, fullName]
             );
+            userName = fullName;
+            userEmail = email;
             isNewUser = true;
         }
 
@@ -145,7 +161,9 @@ exports.appleLogin = async (req, res) => {
         return res.status(isNewUser ? 201 : 200).json({ 
             userId, 
             sessionToken, 
-            isNewUser 
+            isNewUser,
+            name: userName,
+            email: userEmail
         });
     } catch (error) {
         console.error('Apple login error:', error);

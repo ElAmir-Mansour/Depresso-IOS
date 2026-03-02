@@ -336,7 +336,7 @@ body: Request(userId: userId)
     }
     
     // MARK: - Authentication (Apple Sign In)
-    static func appleLogin(appleUserId: String, email: String?, fullName: String?, identityToken: String?) async throws -> (userId: String, sessionToken: String, isNewUser: Bool) {
+    static func appleLogin(appleUserId: String, email: String?, fullName: String?, identityToken: String?) async throws -> (userId: String, sessionToken: String, isNewUser: Bool, name: String?, email: String?) {
         struct Request: Codable {
             let appleUserId: String
             let email: String?
@@ -348,6 +348,8 @@ body: Request(userId: userId)
             let userId: String
             let sessionToken: String
             let isNewUser: Bool
+            let name: String?
+            let email: String?
         }
         
         let response: Response = try await request(
@@ -361,7 +363,7 @@ body: Request(userId: userId)
             )
         )
         
-        return (response.userId, response.sessionToken, response.isNewUser)
+        return (response.userId, response.sessionToken, response.isNewUser, response.name, response.email)
     }
     
     static func linkAppleAccount(userId: String, appleUserId: String, email: String?, fullName: String?, identityToken: String?) async throws -> String {

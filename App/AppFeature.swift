@@ -82,8 +82,10 @@ struct AppFeature {
                 return .send(.syncProfile)
             
             case .splashCompleted:
-                let userId = UserDefaults.standard.string(forKey: "depresso_user_id") ?? ""
-                print("🔍 Splash completed. User ID: \(userId.isEmpty ? "EMPTY" : userId)")
+                // Use UserManager which is already initialized and synced
+                let userId = UserManager.shared.userId ?? ""
+                let hasToken = UserManager.shared.sessionToken != nil
+                print("🔍 Splash completed. User ID: \(userId.isEmpty ? "EMPTY" : userId), Has Token: \(hasToken)")
                 
                 if userId.isEmpty {
                     print("➡️ No user ID → Showing authentication")
@@ -106,6 +108,8 @@ struct AppFeature {
             case .auth(.presented(.delegate(.authenticationCompleted(let isNewUser)))):
                 state.authState = nil
                 
+                print("🎯 Auth completed. IsNewUser: \(isNewUser), UserID: \(UserManager.shared.userId ?? "nil")")
+                
                 if isNewUser {
                     state.currentFlow = .welcomeTour
                 } else {
@@ -117,7 +121,12 @@ struct AppFeature {
                     state.currentFlow = .mainApp
                     UserDefaults.standard.set(true, forKey: "hasSeenWelcome")
                     UserDefaults.standard.set(true, forKey: "hasCompletedOnboarding")
-                    return .merge(.send(.syncProfile), .send(.checkAchievements))
+                    
+                    // Immediately sync profile to get user's name from backend
+                    return .merge(
+                        .send(.syncProfile),
+                        .send(.checkAchievements)
+                    )
                 }
                 return .none
                 
@@ -178,7 +187,8 @@ struct AppFeature {
                 return .none
 
             case .syncProfile:
-                let userId = UserDefaults.standard.string(forKey: "depresso_user_id") ?? ""
+                // Use UserManager as the single source of truth
+                let userId = UserManager.shared.userId ?? ""
                 guard !userId.isEmpty else { return .none }
                 return .run { _ in
                     do {
@@ -186,15 +196,19 @@ struct AppFeature {
                         await MainActor.run {
                             UserManager.shared.setUserProfile(name: profile.name, email: nil)
                         }
+                        print("✅ Profile synced from backend: \(profile.name ?? "no name")")
                     } catch {
-                        print("⚠️ Profile sync failed (Expected for fresh guests)")
+                        print("⚠️ Profile sync failed: \(error)")
                     }
                 }
 
             case .checkAchievements:
                 return .run { [modelContext] send in
-                    let userId = (try? await MainActor.run { try UserManager.shared.getCurrentUserId() }) ?? ""
-                    guard !userId.isEmpty else { return }
+                    let userId = await MainActor.run { UserManager.shared.userId ?? "" }
+                    guard !userId.isEmpty else { 
+                        print("⚠️ checkAchievements: No userId available")
+                        return 
+                    }
                     
                     let newOnes = await AchievementManager.shared.checkAchievements(userId: userId, context: modelContext.context)
                     let all = await AchievementManager.shared.getAllAchievements(userId: userId, context: modelContext.context)
