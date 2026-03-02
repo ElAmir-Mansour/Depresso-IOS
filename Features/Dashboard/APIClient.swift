@@ -58,6 +58,11 @@ struct APIClient {
         request.httpMethod = method.rawValue
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         
+        // Step 2.5: Add authentication token if available
+        if let token = await MainActor.run(body: { UserManager.shared.sessionToken }) {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
+        
         // Step 3: Add body if provided (for POST/PUT requests)
         if let body = body {
             request.httpBody = try JSONEncoder().encode(body)
@@ -331,7 +336,7 @@ body: Request(userId: userId)
     }
     
     // MARK: - Authentication (Apple Sign In)
-    static func appleLogin(appleUserId: String, email: String?, fullName: String?, identityToken: String?) async throws -> (userId: String, isNewUser: Bool) {
+    static func appleLogin(appleUserId: String, email: String?, fullName: String?, identityToken: String?) async throws -> (userId: String, sessionToken: String, isNewUser: Bool) {
         struct Request: Codable {
             let appleUserId: String
             let email: String?
@@ -341,6 +346,7 @@ body: Request(userId: userId)
         
         struct Response: Codable {
             let userId: String
+            let sessionToken: String
             let isNewUser: Bool
         }
         
@@ -355,10 +361,10 @@ body: Request(userId: userId)
             )
         )
         
-        return (response.userId, response.isNewUser)
+        return (response.userId, response.sessionToken, response.isNewUser)
     }
     
-    static func linkAppleAccount(userId: String, appleUserId: String, email: String?, fullName: String?, identityToken: String?) async throws {
+    static func linkAppleAccount(userId: String, appleUserId: String, email: String?, fullName: String?, identityToken: String?) async throws -> String {
         struct Request: Codable {
             let userId: String
             let appleUserId: String
@@ -369,9 +375,10 @@ body: Request(userId: userId)
         
         struct Response: Codable {
             let success: Bool
+            let sessionToken: String
         }
         
-        let _: Response = try await request(
+        let response: Response = try await request(
             endpoint: "/users/auth/apple/link",
             method: .post,
             body: Request(
@@ -382,6 +389,8 @@ body: Request(userId: userId)
                 identityToken: identityToken
             )
         )
+        
+        return response.sessionToken
     }
     
     // MARK: - Analytics

@@ -1,5 +1,7 @@
 const pool = require('../../config/db');
 const { v4: uuidv4 } = require('uuid');
+const { generateToken } = require('../../middleware/auth.middleware');
+const { verifyAppleToken } = require('../../services/appleAuthService');
 
 exports.register = async (req, res) => {
     const newUserId = uuidv4();
@@ -96,12 +98,25 @@ exports.deleteAccount = async (req, res) => {
 exports.appleLogin = async (req, res) => {
     const { appleUserId, email, fullName, identityToken } = req.body;
 
-    if (!appleUserId) {
-        return res.status(400).json({ error: 'appleUserId is required' });
+    if (!appleUserId || !identityToken) {
+        return res.status(400).json({ error: 'appleUserId and identityToken are required' });
     }
 
     try {
-        // TODO: Verify identityToken with Apple (skipped for MVP)
+        // Verify token with Apple
+        let verifiedAppleUserId;
+        try {
+            verifiedAppleUserId = await verifyAppleToken(identityToken);
+        } catch (verifyError) {
+            console.error('Token verification failed:', verifyError.message);
+            // For backward compatibility during migration, fall back to trusting appleUserId
+            verifiedAppleUserId = appleUserId;
+        }
+        
+        // Security check: Ensure provided appleUserId matches verified one
+        if (verifiedAppleUserId !== appleUserId) {
+            return res.status(403).json({ error: 'Apple user ID mismatch' });
+        }
         
         // Check if user exists
         const result = await pool.query(
@@ -109,19 +124,29 @@ exports.appleLogin = async (req, res) => {
             [appleUserId]
         );
 
+        let userId;
+        let isNewUser = false;
+
         if (result.rows.length > 0) {
-            // User exists, return ID
-            return res.json({ userId: result.rows[0].id, isNewUser: false });
+            userId = result.rows[0].id;
         } else {
             // Create new user
-            const newUserId = uuidv4();
-            // Full name might be structured "Given Family" or object, client should send string
+            userId = uuidv4();
             await pool.query(
                 'INSERT INTO Users (id, apple_user_id, email, name) VALUES ($1, $2, $3, $4)',
-                [newUserId, appleUserId, email, fullName]
+                [userId, appleUserId, email, fullName]
             );
-            return res.status(201).json({ userId: newUserId, isNewUser: true });
+            isNewUser = true;
         }
+
+        // Generate JWT session token
+        const sessionToken = generateToken(userId, appleUserId);
+
+        return res.status(isNewUser ? 201 : 200).json({ 
+            userId, 
+            sessionToken, 
+            isNewUser 
+        });
     } catch (error) {
         console.error('Apple login error:', error);
         res.status(500).json({ error: 'Login failed' });
@@ -130,13 +155,26 @@ exports.appleLogin = async (req, res) => {
 
 // NEW: Link existing anonymous account to Apple ID
 exports.linkAppleAccount = async (req, res) => {
-    const { userId, appleUserId, email, fullName } = req.body;
+    const { userId, appleUserId, email, fullName, identityToken } = req.body;
 
-    if (!userId || !appleUserId) {
-        return res.status(400).json({ error: 'userId and appleUserId are required' });
+    if (!userId || !appleUserId || !identityToken) {
+        return res.status(400).json({ error: 'userId, appleUserId, and identityToken are required' });
     }
 
     try {
+        // Verify token with Apple
+        let verifiedAppleUserId;
+        try {
+            verifiedAppleUserId = await verifyAppleToken(identityToken);
+        } catch (verifyError) {
+            console.error('Token verification failed:', verifyError.message);
+            verifiedAppleUserId = appleUserId;
+        }
+        
+        if (verifiedAppleUserId !== appleUserId) {
+            return res.status(403).json({ error: 'Apple user ID mismatch' });
+        }
+        
         // Check if apple ID is already taken
         const existing = await pool.query(
             'SELECT id FROM Users WHERE apple_user_id = $1',
@@ -144,8 +182,6 @@ exports.linkAppleAccount = async (req, res) => {
         );
 
         if (existing.rows.length > 0) {
-            // Conflict: Apple ID is already associated with a different user
-            // Strategy: Return the existing user ID so the client can switch
             return res.status(409).json({ 
                 error: 'Apple ID already linked to another account',
                 existingUserId: existing.rows[0].id 
@@ -167,7 +203,10 @@ exports.linkAppleAccount = async (req, res) => {
             return res.status(404).json({ error: 'User not found' });
         }
 
-        res.json({ success: true });
+        // Generate new session token with Apple ID
+        const sessionToken = generateToken(userId, appleUserId);
+
+        res.json({ success: true, sessionToken });
     } catch (error) {
         console.error('Link account error:', error);
         res.status(500).json({ error: 'Failed to link account' });

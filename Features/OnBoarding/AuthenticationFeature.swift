@@ -60,9 +60,10 @@ struct AuthenticationFeature {
                             identityToken: credentials.identityToken
                         )
                         
-                        // Update local user ID and Profile
+                        // Update local user ID, token, and Profile
                         await MainActor.run {
                             UserManager.shared.setUserId(result.userId)
+                            UserManager.shared.setSessionToken(result.sessionToken)
                             UserManager.shared.setUserProfile(name: fullName.isEmpty ? nil : fullName, email: email)
                         }
                         
