@@ -18,7 +18,3 @@ CREATE TABLE IF NOT EXISTS MLAnalysisResults (
 
 CREATE INDEX IF NOT EXISTS idx_ml_analysis_user_id ON MLAnalysisResults(user_id);
 CREATE INDEX IF NOT EXISTS idx_ml_analysis_created_at ON MLAnalysisResults(created_at);
-
--- Grant permissions
-GRANT SELECT, INSERT, UPDATE ON MLAnalysisResults TO PUBLIC;
-GRANT USAGE, SELECT ON SEQUENCE mlanalysisresults_id_seq TO PUBLIC;

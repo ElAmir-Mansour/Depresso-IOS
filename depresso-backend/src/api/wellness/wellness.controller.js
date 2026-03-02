@@ -74,3 +74,62 @@ exports.completeUserTask = async (req, res) => {
         res.status(500).send('Server error');
     }
 };
+
+// Get CBT module content
+exports.getCBTModule = async (req, res) => {
+    const { userId } = req.query;
+    
+    if (!userId) {
+        return res.status(400).json({ error: 'userId is required' });
+    }
+    
+    try {
+        // Get user's most common distortions
+        const distortions = await pool.query(
+            `SELECT 
+                distortion->>'type' as distortion_type,
+                distortion->>'description' as description,
+                COUNT(*) as frequency
+            FROM UnifiedEntries,
+                 jsonb_array_elements(cbt_distortions) as distortion
+            WHERE user_id = $1
+            GROUP BY distortion->>'type', distortion->>'description'
+            ORDER BY frequency DESC
+            LIMIT 3`,
+            [userId]
+        );
+        
+        // CBT lessons based on distortions
+        const lessons = [
+            {
+                id: 1,
+                title: "Understanding Your Thoughts",
+                description: "Learn to identify and challenge negative thought patterns",
+                duration: "10 min",
+                exercises: 3
+            },
+            {
+                id: 2,
+                title: "Cognitive Distortions",
+                description: "Recognize common thinking traps",
+                duration: "15 min",
+                exercises: 5
+            },
+            {
+                id: 3,
+                title: "Thought Records",
+                description: "Practice documenting and reframing thoughts",
+                duration: "12 min",
+                exercises: 4
+            }
+        ];
+        
+        res.json({
+            topDistortions: distortions.rows,
+            recommendedLessons: lessons
+        });
+    } catch (error) {
+        console.error('Error fetching CBT module:', error);
+        res.status(500).json({ error: 'Failed to fetch CBT module' });
+    }
+};

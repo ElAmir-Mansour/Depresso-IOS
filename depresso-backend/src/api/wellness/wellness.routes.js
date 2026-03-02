@@ -14,4 +14,7 @@ router.post('/user-tasks', controller.createUserTask);
 // Mark a user's task as complete
 router.put('/user-tasks/:userTaskId', controller.completeUserTask);
 
+// Get CBT module content
+router.get('/cbt-module', controller.getCBTModule);
+
 module.exports = router;
