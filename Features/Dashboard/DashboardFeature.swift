@@ -109,9 +109,12 @@ struct DashboardFeature {
                     .run { [modelContext] send in
                         let userId = (try? await MainActor.run { try UserManager.shared.getCurrentUserId() }) ?? ""
                         let sevenDaysAgo = Calendar.current.date(byAdding: .day, value: -7, to: now)!
-                        let predicate = #Predicate<DailyAssessment> { $0.userId == userId && $0.date >= sevenDaysAgo }
-                        let descriptor = FetchDescriptor<DailyAssessment>(predicate: predicate, sortBy: [SortDescriptor(\.date)])
-                        let history = try modelContext.context.fetch(descriptor)
+                        
+                        let history: [DailyAssessment] = (try? await MainActor.run {
+                            let predicate = #Predicate<DailyAssessment> { $0.userId == userId && $0.date >= sevenDaysAgo }
+                            let descriptor = FetchDescriptor<DailyAssessment>(predicate: predicate, sortBy: [SortDescriptor(\.date)])
+                            return try modelContext.context.fetch(descriptor)
+                        }) ?? []
                         await send(.assessmentHistoryLoaded(.success(history)))
                         
                         if !userId.isEmpty {
@@ -152,9 +155,13 @@ struct DashboardFeature {
                     .run { [modelContext] send in
                         let userId = (try? await MainActor.run { try UserManager.shared.getCurrentUserId() }) ?? ""
                         let sevenDaysAgo = Calendar.current.date(byAdding: .day, value: -7, to: now)!
-                        let predicate = #Predicate<DailyAssessment> { $0.userId == userId && $0.date >= sevenDaysAgo }
-                        let descriptor = FetchDescriptor<DailyAssessment>(predicate: predicate, sortBy: [SortDescriptor(\.date)])
-                        let history = try modelContext.context.fetch(descriptor)
+                        
+                        let history: [DailyAssessment] = (try? await MainActor.run {
+                            let predicate = #Predicate<DailyAssessment> { $0.userId == userId && $0.date >= sevenDaysAgo }
+                            let descriptor = FetchDescriptor<DailyAssessment>(predicate: predicate, sortBy: [SortDescriptor(\.date)])
+                            return try modelContext.context.fetch(descriptor)
+                        }) ?? []
+                        
                         await send(.assessmentHistoryLoaded(.success(history)))
                     },
                     .send(.checkForAssessmentStatus)

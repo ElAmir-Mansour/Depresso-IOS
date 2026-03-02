@@ -4,9 +4,14 @@ import ComposableArchitecture
 
 // MARK: - API Configuration
 enum APIConfig {
-  //   static let baseURL = "http://localhost:3000/api/v1"
-    // When testing on physical device, use your Mac's IP:
-   static let baseURL = "http://192.168.1.6:3000/api/v1"
+    // 🌍 PRODUCTION: Use this once you deploy to Koyeb/Render/Vercel
+    static let baseURL = "https://depresso-3b0j9kbnu-elamir-mansours-projects.vercel.app/api/v1"
+    
+    // 💻 SIMULATOR: Local testing
+    // static let baseURL = "http://localhost:3000/api/v1"
+    
+    // 📱 PHYSICAL DEVICE: Local testing (Your Mac's IP)
+    // static let baseURL = "http://192.168.1.6:3000/api/v1"
 }
 
 // MARK: - API Errors

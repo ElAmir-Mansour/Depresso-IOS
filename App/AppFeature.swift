@@ -187,9 +187,11 @@ struct AppFeature {
                 return .run { [modelContext] send in
                     let userId = (try? await MainActor.run { try UserManager.shared.getCurrentUserId() }) ?? ""
                     guard !userId.isEmpty else { return }
+                    
                     let newOnes = await AchievementManager.shared.checkAchievements(userId: userId, context: modelContext.context)
-                    if !newOnes.isEmpty { await send(.newlyUnlockedAchievements(newOnes)) }
                     let all = await AchievementManager.shared.getAllAchievements(userId: userId, context: modelContext.context)
+                    
+                    if !newOnes.isEmpty { await send(.newlyUnlockedAchievements(newOnes)) }
                     await send(.achievementsRefreshed(all))
                 }
 
