@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const path = require('path');
 
 const userRoutes = require('./api/users/users.routes');
 const metricsRoutes = require('./api/metrics/metrics.routes');
@@ -18,6 +19,11 @@ app.use(bodyParser.json());
 
 app.get('/', (req, res) => {
     res.send('Depresso Backend is running.');
+});
+
+// Serve the dashboard
+app.get('/dashboard', (req, res) => {
+    res.sendFile(path.join(__dirname, '../dashboard.html'));
 });
 
 // API Routes

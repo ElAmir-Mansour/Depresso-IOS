@@ -63,7 +63,12 @@ exports.submitMetrics = async (req, res) => {
     } catch (error) {
         await client.query('ROLLBACK');
         console.error('Error submitting metrics:', error);
-        res.status(500).send('Server error');
+        console.error('Error details:', error.message, error.stack);
+        res.status(500).json({ 
+            error: 'Server error', 
+            message: error.message || 'Failed to submit metrics',
+            details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        });
     } finally {
         client.release();
     }
