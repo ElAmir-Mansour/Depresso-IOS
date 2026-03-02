@@ -3,6 +3,8 @@ const router = express.Router();
 const controller = require('./community.controller');
 
 router.get('/posts', controller.getAllPosts);
+router.get('/trending', controller.getTrendingPosts);
+router.get('/stats', controller.getCommunityStats);
 router.post('/posts', controller.createPost);
 router.post('/posts/:postId/like', controller.likePost);
 router.delete('/posts/:postId/like', controller.unlikePost);

@@ -1,65 +1,51 @@
-# 📦 NEW FILES TO ADD TO XCODE
+📁 NEW FILES TO ADD TO XCODE PROJECT
 
-**Location:** Features/Dashboard/Core/Design System/Components/
+Open Depresso.xcodeproj in Xcode, then:
 
-**Files:**
-1. DSSyncIndicator.swift
-2. DSFirstTimeExperience.swift
+1. Right-click on "Depresso" in Project Navigator
+2. Select "Add Files to Depresso..."
+3. Navigate to and select these files:
 
-## Quick Add Instructions:
+✨ NEW FILES (MUST ADD):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-### Option 1: Using Xcode GUI
-1. Open Depresso.xcworkspace
-2. In Project Navigator, navigate to:
-   Depresso → Features → Dashboard → Core → Design System → Components
-3. Right-click on "Components" folder
-4. Select "Add Files to Depresso..."
-5. Navigate to the files above
-6. Select both files
-7. ✅ UNCHECK "Copy items if needed" (files already in correct location)
-8. ✅ CHECK "Depresso" target
-9. Click "Add"
+📊 Insights Feature (NEW Tab):
+├── Features/Insights/InsightsFeature.swift
+└── Features/Insights/InsightsView.swift
 
-### Option 2: Using Terminal (Automated)
-Run this command from project root:
+🏘️ Community Enhancements:
+└── Features/Community/CommunityTrendsView.swift
 
-```bash
-# This will open Xcode with the files ready to add
-open -a "Xcode" \
-  "Features/Dashboard/Core/Design System/Components/DSSyncIndicator.swift" \
-  "Features/Dashboard/Core/Design System/Components/DSFirstTimeExperience.swift"
-```
+🧠 Dashboard CBT Card:
+└── Features/Dashboard/CBTQuickAccessCard.swift
 
-Then drag the open files into the Components folder in Project Navigator.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
----
+IMPORTANT:
+✅ Check "Depresso" target
+✅ Choose "Create groups" (not folder references)
+✅ Click "Add"
 
-## Files Already Modified (No action needed):
-- ✅ DS+Color.swift (enhanced semantic colors)
-- ✅ DSButton.swift (added success variant)
-- ✅ DashboardFeature.swift (added sync & FTUE logic)
-- ✅ DashboardView.swift (integrated sync indicator & FTUE)
+Then BUILD the project (⌘+B)
 
----
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-## After Adding Files:
+Backend files (already created, no Xcode action needed):
+- depresso-backend/src/services/textAnalysisService.js
+- depresso-backend/src/api/analysis/analysis.controller.js
+- depresso-backend/src/api/analysis/analysis.routes.js
+- depresso-backend/migrations/012_create_unified_entries.sql
 
-1. Clean build folder: Cmd+Shift+K
-2. Build: Cmd+B
-3. Run on simulator: Cmd+R
-4. Test first-time experience:
-   - Delete app from simulator
-   - Run again
-   - Should see FTUE overlay on Dashboard
-
----
-
-## Verification Checklist:
-
-- [ ] Files appear in Project Navigator under Components/
-- [ ] Files have target membership checkbox checked
-- [ ] Build succeeds without errors
-- [ ] Sync indicator visible in Dashboard toolbar
-- [ ] FTUE overlay shows for first-time users
-- [ ] All buttons have proper variants
+Modified files (already updated, no action needed):
+- depresso-backend/src/api/journal/journal.controller.js
+- depresso-backend/src/api/community/community.controller.js
+- depresso-backend/src/api/community/community.routes.js
+- depresso-backend/src/app.js
+- Features/Dashboard/APIClient.swift
+- Features/Community/CommunityFeature.swift
+- Features/Community/CommunityView.swift
+- App/AppFeature.swift
+- App/ContentView.swift
+- Features/Dashboard/Core/Design System/Components/CustomTabBar.swift
+- Features/Dashboard/DashboardView.swift
 

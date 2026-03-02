@@ -4,6 +4,7 @@ const researchController = require('./research.controller');
 
 // Overview stats
 router.get('/stats', researchController.getStats);
+router.get('/overview', researchController.getStats); // Alias for stats
 
 // Sentiment analysis data
 router.get('/sentiment', researchController.getSentimentData);

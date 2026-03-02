@@ -78,6 +78,9 @@ struct ContentView: View {
                     CommunityView(store: store.scope(state: \.communityState, action: \.community))
                         .padding(.bottom, 80)
                 case 3:
+                    InsightsView(store: store.scope(state: \.insightsState, action: \.insights))
+                        .padding(.bottom, 80)
+                case 4:
                     SupportView(store: store.scope(state: \.supportState, action: \.support))
                         .padding(.bottom, 80)
                 default:

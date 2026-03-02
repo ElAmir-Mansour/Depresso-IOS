@@ -9,7 +9,8 @@ struct CustomTabBar: View {
         TabItem(icon: "house.fill", title: "Dashboard", index: 0),
         TabItem(icon: "book.pages.fill", title: "Journal", index: 1),
         TabItem(icon: "person.3.fill", title: "Community", index: 2),
-        TabItem(icon: "lifepreserver.fill", title: "Support", index: 3)
+        TabItem(icon: "chart.xyaxis.line", title: "Insights", index: 3),
+        TabItem(icon: "lifepreserver.fill", title: "Support", index: 4)
     ]
     
     var body: some View {

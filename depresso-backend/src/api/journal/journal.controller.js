@@ -1,5 +1,6 @@
 const pool = require('../../config/db');
 const aiService = require('../../services/aiService');
+const textAnalysisService = require('../../services/textAnalysisService');
 
 // Create a new journal entry
 exports.createEntry = async (req, res) => {
@@ -14,6 +15,30 @@ exports.createEntry = async (req, res) => {
             'INSERT INTO JournalEntries (user_id, title, content) VALUES ($1, $2, $3) RETURNING *',
             [userId, title, content]
         );
+        
+        // Auto-analyze the entry
+        if (content && content.trim()) {
+            try {
+                const analysis = await textAnalysisService.analyzeText(content, {});
+                await pool.query(
+                    `INSERT INTO UnifiedEntries (
+                        user_id, source, content, original_id,
+                        sentiment, sentiment_score, cbt_distortions,
+                        emotion_tags, keywords, risk_level,
+                        word_count, character_count
+                    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
+                    [
+                        userId, 'cbt_journal', content, result.rows[0].id.toString(),
+                        analysis.sentiment, analysis.sentimentScore, JSON.stringify(analysis.cbtDistortions),
+                        analysis.emotions.map(e => e.emotion), analysis.keywords, analysis.riskLevel,
+                        analysis.metadata.wordCount, analysis.metadata.characterCount
+                    ]
+                );
+            } catch (analysisError) {
+                console.error('Analysis failed but entry saved:', analysisError);
+            }
+        }
+        
         res.status(201).json(result.rows[0]);
     } catch (error) {
         console.error('Error creating journal entry:', error);
@@ -115,6 +140,31 @@ exports.addMessageToEntry = async (req, res) => {
         );
 
         await client2.query('COMMIT');
+        
+        // Auto-analyze user's message in background (don't block response)
+        setImmediate(async () => {
+            try {
+                const analysis = await textAnalysisService.analyzeText(content, {});
+                await pool.query(
+                    `INSERT INTO UnifiedEntries (
+                        user_id, source, content, original_id,
+                        sentiment, sentiment_score, cbt_distortions,
+                        emotion_tags, keywords, risk_level,
+                        word_count, character_count
+                    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+                    ON CONFLICT DO NOTHING`,
+                    [
+                        userId, 'ai_chat', content, aiMessageResult.rows[0].id.toString(),
+                        analysis.sentiment, analysis.sentimentScore, JSON.stringify(analysis.cbtDistortions),
+                        analysis.emotions.map(e => e.emotion), analysis.keywords, analysis.riskLevel,
+                        analysis.metadata.wordCount, analysis.metadata.characterCount
+                    ]
+                );
+                console.log(`✅ Analyzed AI chat message for user ${userId}`);
+            } catch (analysisError) {
+                console.error('Background analysis failed:', analysisError);
+            }
+        });
         
         // Send success response
         res.status(201).json(aiMessageResult.rows[0]);

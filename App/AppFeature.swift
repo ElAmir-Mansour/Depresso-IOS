@@ -11,6 +11,7 @@ struct AppFeature {
         var journalState = AICompanionJournalFeature.State()
         var dashboardState = DashboardFeature.State()
         var communityState = CommunityFeature.State()
+        var insightsState = InsightsFeature.State()
         var supportState = SupportFeature.State()
         var breathingState = BreathingFeature.State()
         
@@ -43,6 +44,7 @@ struct AppFeature {
         case journal(AICompanionJournalFeature.Action)
         case dashboard(DashboardFeature.Action)
         case community(CommunityFeature.Action)
+        case insights(InsightsFeature.Action)
         case support(SupportFeature.Action)
         case breathing(BreathingFeature.Action)
         case auth(PresentationAction<AuthenticationFeature.Action>)
@@ -70,6 +72,7 @@ struct AppFeature {
         Scope(state: \.journalState, action: \.journal) { AICompanionJournalFeature() }
         Scope(state: \.dashboardState, action: \.dashboard) { DashboardFeature() }
         Scope(state: \.communityState, action: \.community) { CommunityFeature() }
+        Scope(state: \.insightsState, action: \.insights) { InsightsFeature() }
         Scope(state: \.supportState, action: \.support) { SupportFeature() }
         Scope(state: \.breathingState, action: \.breathing) { BreathingFeature() }
 

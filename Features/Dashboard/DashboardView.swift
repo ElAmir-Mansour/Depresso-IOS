@@ -101,6 +101,9 @@ struct DashboardView: View {
                 AIInsightsCard(insights: store.aiInsights)
                     .padding(.horizontal, Layout.screenPadding)
             }
+            
+            CBTQuickAccessCard()
+                .padding(.horizontal, Layout.screenPadding)
         }
     }
     

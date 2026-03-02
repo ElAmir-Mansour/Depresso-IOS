@@ -9,28 +9,19 @@ struct CommunityView: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                // Category Filter Bar
-                categoryFilterBar
+                // View Mode Selector (Feed / Trending)
+                viewModeSelector
+                
+                // Category Filter Bar (only show in feed mode)
+                if store.selectedView == .feed {
+                    categoryFilterBar
+                }
                 
                 ZStack {
-                    if store.isLoading {
-                        loadingView
-                    } else if let errorMessage = store.errorMessage {
-                        DSEmptyState(
-                            icon: "exclamationmark.triangle",
-                            title: "Error",
-                            message: errorMessage
-                        )
-                    } else if store.filteredPosts.isEmpty {
-                        DSEmptyState(
-                            icon: "text.bubble",
-                            title: store.selectedCategory == "All" ? "No Stories Yet" : "No \(store.selectedCategory) Stories",
-                            message: "Be the first to share your journey in this category.",
-                            actionTitle: "Share Your Story",
-                            action: { store.send(.addPostButtonTapped) }
-                        )
+                    if store.selectedView == .trending {
+                        trendingContent
                     } else {
-                        postsList
+                        feedContent
                     }
                 }
             }
@@ -50,6 +41,73 @@ struct CommunityView: View {
             .sheet(item: $store.scope(state: \.destination?.addPost, action: \.destination.addPost)) { addPostStore in
                 AddPostView(store: addPostStore)
             }
+        }
+    }
+    
+    private var viewModeSelector: some View {
+        HStack(spacing: 0) {
+            ForEach(CommunityFeature.State.ViewMode.allCases) { mode in
+                Button {
+                    store.send(.selectView(mode))
+                } label: {
+                    Text(mode.rawValue)
+                        .font(.ds.body.weight(.semibold))
+                        .foregroundColor(store.selectedView == mode ? .white : .ds.accent)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .background(store.selectedView == mode ? Color.ds.accent : Color.clear)
+                }
+            }
+        }
+        .background(Color.ds.accent.opacity(0.1))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .padding()
+    }
+    
+    @ViewBuilder
+    private var feedContent: some View {
+        if store.isLoading {
+            loadingView
+        } else if let errorMessage = store.errorMessage {
+            DSEmptyState(
+                icon: "exclamationmark.triangle",
+                title: "Error",
+                message: errorMessage
+            )
+        } else if store.filteredPosts.isEmpty {
+            DSEmptyState(
+                icon: "text.bubble",
+                title: store.selectedCategory == "All" ? "No Stories Yet" : "No \(store.selectedCategory) Stories",
+                message: "Be the first to share your journey in this category.",
+                actionTitle: "Share Your Story",
+                action: { store.send(.addPostButtonTapped) }
+            )
+        } else {
+            postsList
+        }
+    }
+    
+    @ViewBuilder
+    private var trendingContent: some View {
+        if let stats = store.communityStats {
+            CommunityTrendsView(
+                trendingPosts: store.trendingPosts,
+                stats: stats,
+                onPostTap: { postId in
+                    // Navigate to post detail
+                    if let uuid = UUID(uuidString: postId) {
+                        store.send(.viewPost(id: uuid))
+                    }
+                }
+            )
+        } else {
+            VStack {
+                ProgressView()
+                Text("Loading trending data...")
+                    .font(.ds.caption)
+                    .foregroundStyle(.secondary)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
     }
     

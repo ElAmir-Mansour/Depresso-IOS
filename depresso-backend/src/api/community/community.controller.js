@@ -1,4 +1,5 @@
 const pool = require('../../config/db');
+const textAnalysisService = require('../../services/textAnalysisService');
 
 exports.getAllPosts = async (req, res) => {
     try {
@@ -22,6 +23,32 @@ exports.createPost = async (req, res) => {
             'INSERT INTO CommunityPosts (user_id, title, content) VALUES ($1, $2, $3) RETURNING *',
             [userId, title, content]
         );
+        
+        // Auto-analyze the post in background
+        setImmediate(async () => {
+            try {
+                const analysis = await textAnalysisService.analyzeText(content, {});
+                await pool.query(
+                    `INSERT INTO UnifiedEntries (
+                        user_id, source, content, original_id,
+                        sentiment, sentiment_score, cbt_distortions,
+                        emotion_tags, keywords, risk_level,
+                        word_count, character_count
+                    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+                    ON CONFLICT DO NOTHING`,
+                    [
+                        userId, 'community_post', content, result.rows[0].id.toString(),
+                        analysis.sentiment, analysis.sentimentScore, JSON.stringify(analysis.cbtDistortions),
+                        analysis.emotions.map(e => e.emotion), analysis.keywords, analysis.riskLevel,
+                        analysis.metadata.wordCount, analysis.metadata.characterCount
+                    ]
+                );
+                console.log(`✅ Analyzed community post for user ${userId}`);
+            } catch (analysisError) {
+                console.error('Background analysis failed:', analysisError);
+            }
+        });
+        
         res.status(201).json(result.rows[0]);
     } catch (error) {
         console.error('Error creating post:', error);
@@ -121,5 +148,65 @@ exports.getLikedPosts = async (req, res) => {
     } catch (error) {
         console.error('Error fetching liked posts:', error);
         res.status(500).send('Server error');
+    }
+};
+/**
+ * GET /api/v1/community/trending
+ * Get trending posts (most liked in the past week)
+ */
+exports.getTrendingPosts = async (req, res) => {
+    const { days = 7, limit = 10 } = req.query;
+    
+    try {
+        const result = await pool.query(
+            `SELECT id, title, content, like_count, created_at 
+            FROM CommunityPosts 
+            WHERE created_at >= NOW() - INTERVAL '${parseInt(days)} days'
+            ORDER BY like_count DESC, created_at DESC 
+            LIMIT $1`,
+            [parseInt(limit)]
+        );
+        res.json(result.rows);
+    } catch (error) {
+        console.error('Error fetching trending posts:', error);
+        res.status(500).send('Server error');
+    }
+};
+
+/**
+ * GET /api/v1/community/stats
+ * Get community engagement statistics
+ */
+exports.getCommunityStats = async (req, res) => {
+    try {
+        const stats = await pool.query(`
+            SELECT 
+                COUNT(*) as total_posts,
+                SUM(like_count) as total_likes,
+                AVG(like_count) as avg_likes_per_post,
+                COUNT(DISTINCT user_id) as active_users,
+                (SELECT COUNT(*) FROM CommunityPosts WHERE created_at >= NOW() - INTERVAL '7 days') as posts_this_week,
+                (SELECT COUNT(*) FROM CommunityPosts WHERE created_at >= NOW() - INTERVAL '1 day') as posts_today
+            FROM CommunityPosts
+        `);
+        
+        // Get sentiment distribution from analyzed posts
+        const sentimentDist = await pool.query(`
+            SELECT 
+                sentiment,
+                COUNT(*) as count,
+                AVG(sentiment_score) as avg_score
+            FROM UnifiedEntries
+            WHERE source = 'community_post'
+            GROUP BY sentiment
+        `);
+        
+        res.json({
+            overview: stats.rows[0],
+            sentimentDistribution: sentimentDist.rows
+        });
+    } catch (error) {
+        console.error('Error fetching community stats:', error);
+        res.status(500).json({ error: 'Failed to fetch community stats' });
     }
 };

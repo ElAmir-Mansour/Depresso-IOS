@@ -430,6 +430,58 @@ body: Request(userId: userId)
             )
         )
     }
+    
+    // MARK: - Unified Analysis
+    
+    static func submitForAnalysis(
+        userId: String,
+        source: String,
+        content: String,
+        originalId: String?,
+        context: AnalysisContext?
+    ) async throws -> AnalyzedEntryDTO {
+        struct RequestBody: Codable {
+            let userId: String
+            let source: String
+            let content: String
+            let originalId: String?
+            let context: AnalysisContext?
+        }
+        
+        return try await request(
+            endpoint: "/analysis/submit",
+            method: .post,
+            body: RequestBody(userId: userId, source: source, content: content, originalId: originalId, context: context)
+        )
+    }
+    
+    static func getAnalysisTrends(userId: String, days: Int = 30) async throws -> AnalysisTrendsDTO {
+        return try await request(
+            endpoint: "/analysis/trends?userId=\(userId)&days=\(days)",
+            method: .get
+        )
+    }
+    
+    static func getAnalysisInsights(userId: String) async throws -> AnalysisInsightsDTO {
+        return try await request(
+            endpoint: "/analysis/insights?userId=\(userId)",
+            method: .get
+        )
+    }
+    
+    static func getCommunityTrending(days: Int = 7, limit: Int = 10) async throws -> [CommunityPostDTO] {
+        return try await request(
+            endpoint: "/community/trending?days=\(days)&limit=\(limit)",
+            method: .get
+        )
+    }
+    
+    static func getCommunityStats() async throws -> CommunityStatsDTO {
+        return try await request(
+            endpoint: "/community/stats",
+            method: .get
+        )
+    }
 }
 
 // MARK: - Data Transfer Objects (DTOs)
@@ -488,7 +540,7 @@ struct AIChatMessageDTO: Codable {
     }
 }
 
-struct CommunityPostDTO: Codable {
+struct CommunityPostDTO: Codable, Equatable {
     let id: String
     let title: String?
     let content: String
@@ -537,6 +589,170 @@ struct UserProfileDTO: Codable {
         case bio
         case createdAt = "created_at"
         case updatedAt = "updated_at"
+    }
+}
+
+// MARK: - Analysis DTOs
+
+struct AnalysisContext: Codable {
+    let typingSpeed: Double?
+    let sessionDuration: Double?
+    let editCount: Int?
+    let timeOfDay: String?
+}
+
+struct AnalyzedEntryDTO: Codable {
+    let entry: UnifiedEntryDTO
+    let analysis: TextAnalysisDTO
+}
+
+struct UnifiedEntryDTO: Codable {
+    let id: String
+    let userId: String
+    let source: String
+    let content: String
+    let sentiment: String?
+    let sentimentScore: Double?
+    let emotionTags: [String]?
+    let keywords: [String]?
+    let riskLevel: String?
+    let createdAt: Date
+    
+    enum CodingKeys: String, CodingKey {
+        case id, content, sentiment, keywords
+        case userId = "user_id"
+        case source
+        case sentimentScore = "sentiment_score"
+        case emotionTags = "emotion_tags"
+        case riskLevel = "risk_level"
+        case createdAt = "created_at"
+    }
+}
+
+struct TextAnalysisDTO: Codable {
+    let sentiment: String
+    let sentimentScore: Double
+    let cbtDistortions: [CBTDistortionDTO]
+    let emotions: [EmotionDTO]
+    let riskLevel: String
+    let keywords: [String]
+    let metadata: AnalysisMetadataDTO
+}
+
+struct CBTDistortionDTO: Codable {
+    let type: String
+    let description: String
+}
+
+struct EmotionDTO: Codable {
+    let emotion: String
+    let confidence: Double
+}
+
+struct AnalysisMetadataDTO: Codable {
+    let wordCount: Int
+    let characterCount: Int
+    let typingSpeed: Double?
+    let sessionDuration: Double?
+    let timeOfDay: String?
+}
+
+struct AnalysisTrendsDTO: Codable, Equatable {
+    let sentimentTimeline: [SentimentTimelineDTO]
+    let cbtPatterns: [CBTPatternFrequencyDTO]
+    let emotions: [EmotionFrequencyDTO]
+}
+
+struct SentimentTimelineDTO: Codable, Equatable {
+    let date: Date
+    let avgSentiment: Double
+    let entryCount: Int
+    
+    enum CodingKeys: String, CodingKey {
+        case date
+        case avgSentiment = "avg_sentiment"
+        case entryCount = "entry_count"
+    }
+}
+
+struct CBTPatternFrequencyDTO: Codable, Equatable {
+    let distortionType: String?
+    let description: String?
+    let frequency: Int
+    
+    enum CodingKeys: String, CodingKey {
+        case distortionType = "distortion_type"
+        case description, frequency
+    }
+}
+
+struct EmotionFrequencyDTO: Codable, Equatable {
+    let emotion: String
+    let count: Int
+}
+
+struct AnalysisInsightsDTO: Codable, Equatable {
+    let overview: AnalysisOverviewDTO
+    let topDistortions: [CBTPatternFrequencyDTO]
+    let weeklyComparison: WeeklyComparisonAnalysisDTO
+}
+
+struct AnalysisOverviewDTO: Codable, Equatable {
+    let totalEntries: Int
+    let avgSentiment: Double
+    let positiveCount: Int
+    let negativeCount: Int
+    let avgTypingSpeed: Double?
+    let avgWordCount: Double?
+    
+    enum CodingKeys: String, CodingKey {
+        case totalEntries = "total_entries"
+        case avgSentiment = "avg_sentiment"
+        case positiveCount = "positive_count"
+        case negativeCount = "negative_count"
+        case avgTypingSpeed = "avg_typing_speed"
+        case avgWordCount = "avg_word_count"
+    }
+}
+
+struct WeeklyComparisonAnalysisDTO: Codable, Equatable {
+    let thisWeek: Double
+    let lastWeek: Double
+    let improvement: Double
+    let isImproving: Bool
+}
+
+struct CommunityStatsDTO: Codable, Equatable {
+    let overview: CommunityOverviewDTO
+    let sentimentDistribution: [SentimentDistributionDTO]
+}
+
+struct CommunityOverviewDTO: Codable, Equatable {
+    let totalPosts: Int
+    let totalLikes: Int
+    let avgLikesPerPost: Double
+    let activeUsers: Int
+    let postsThisWeek: Int
+    let postsToday: Int
+    
+    enum CodingKeys: String, CodingKey {
+        case totalPosts = "total_posts"
+        case totalLikes = "total_likes"
+        case avgLikesPerPost = "avg_likes_per_post"
+        case activeUsers = "active_users"
+        case postsThisWeek = "posts_this_week"
+        case postsToday = "posts_today"
+    }
+}
+
+struct SentimentDistributionDTO: Codable, Equatable {
+    let sentiment: String
+    let count: Int
+    let avgScore: Double?
+    
+    enum CodingKeys: String, CodingKey {
+        case sentiment, count
+        case avgScore = "avg_score"
     }
 }
 

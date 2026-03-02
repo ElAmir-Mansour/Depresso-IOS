@@ -12,6 +12,7 @@ const wellnessRoutes = require('./api/wellness/wellness.routes');
 const supportRoutes = require('./api/support/support.routes');
 const researchRoutes = require('./api/research/research.routes');
 const debugRoutes = require('./api/debug/debug.routes');
+const analysisRoutes = require('./api/analysis/analysis.routes');
 
 const app = express();
 
@@ -37,5 +38,6 @@ app.use('/api/v1/wellness', wellnessRoutes);
 app.use('/api/v1/support', supportRoutes);
 app.use('/api/v1/research', researchRoutes);
 app.use('/api/v1/debug', debugRoutes);
+app.use('/api/v1/analysis', analysisRoutes);
 
 module.exports = app;

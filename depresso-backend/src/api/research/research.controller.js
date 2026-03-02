@@ -96,32 +96,11 @@ exports.getSentimentData = async (req, res) => {
 // GET /api/v1/research/distortions - CBT Distortion frequency
 exports.getDistortionsData = async (req, res) => {
     try {
-        // Flatten distortions array and count occurrences
-        const result = await pool.query(`
-            SELECT 
-                UNNEST(distortions) as distortion,
-                COUNT(*) as count
-            FROM journalentries 
-            WHERE distortions IS NOT NULL AND array_length(distortions, 1) > 0
-            GROUP BY distortion
-            ORDER BY count DESC
-        `);
-
-        // Time series of distortion counts
-        const timeSeries = await pool.query(`
-            SELECT 
-                DATE(created_at) as date,
-                COUNT(*) as entries_with_distortions,
-                SUM(array_length(distortions, 1)) as total_distortions
-            FROM journalentries 
-            WHERE distortions IS NOT NULL AND array_length(distortions, 1) > 0
-            GROUP BY DATE(created_at)
-            ORDER BY date ASC
-        `);
-
+        // Return empty data since distortions column doesn't exist yet
         res.json({
-            frequency: result.rows,
-            timeSeries: timeSeries.rows
+            frequency: [],
+            timeSeries: [],
+            message: "CBT distortions tracking not yet implemented in database"
         });
     } catch (error) {
         console.error('Distortions data error:', error);

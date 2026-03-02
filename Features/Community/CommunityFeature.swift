@@ -23,10 +23,21 @@ struct CommunityFeature {
         @Presents var destination: Destination.State?
         
         var selectedCategory: String = "All"
+        var selectedView: ViewMode = .feed
+        
+        var trendingPosts: [CommunityPostDTO] = []
+        var communityStats: CommunityStatsDTO? = nil
         
         var comments: [UUID: [Comment]] = [:]
         var showCommentsForPost: UUID?
         @Presents var alert: AlertState<Action.Alert>?
+        
+        enum ViewMode: String, CaseIterable, Identifiable {
+            case feed = "Feed"
+            case trending = "Trending"
+            
+            var id: String { rawValue }
+        }
     }
 
     @Reducer(state: .equatable)
@@ -40,6 +51,9 @@ struct CommunityFeature {
         case likedIDsLoaded(Set<UUID>)
         case addPostButtonTapped
         case selectCategory(String)
+        case selectView(State.ViewMode)
+        case loadTrendingData
+        case trendingDataLoaded(Result<([CommunityPostDTO], CommunityStatsDTO), Error>)
         case destination(PresentationAction<Destination.Action>)
         case postSavedSuccessfully(CommunityPost)
         case saveFailed(Error)
@@ -148,6 +162,32 @@ struct CommunityFeature {
             case .selectCategory(let category):
                 state.selectedCategory = category
                 DSHaptics.selection()
+                return .none
+            
+            case .selectView(let view):
+                state.selectedView = view
+                DSHaptics.selection()
+                if view == .trending && state.trendingPosts.isEmpty {
+                    return .send(.loadTrendingData)
+                }
+                return .none
+            
+            case .loadTrendingData:
+                return .run { send in
+                    await send(.trendingDataLoaded(Result {
+                        async let trending = APIClient.getCommunityTrending()
+                        async let stats = APIClient.getCommunityStats()
+                        return try await (trending, stats)
+                    }))
+                }
+            
+            case .trendingDataLoaded(.success(let (trending, stats))):
+                state.trendingPosts = trending
+                state.communityStats = stats
+                return .none
+            
+            case .trendingDataLoaded(.failure(let error)):
+                print("❌ Failed to load trending data: \(error)")
                 return .none
 
             case .addPostButtonTapped:

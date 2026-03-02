@@ -13,32 +13,12 @@ exports.submitMetrics = async (req, res) => {
         await client.query('BEGIN');
 
         if (dailyMetrics) {
-            const {
-                steps, activeEnergy, heartRate,
-                distance, flightsClimbed, exerciseTime, standHours,
-                restingHeartRate, heartRateVariability, vo2Max,
-                walkingRunningDistance, cyclingDistance, swimmingDistance,
-                respiratoryRate, bodyMass, bodyFatPercentage, leanBodyMass,
-                mindfulMinutes, sleepHours
-            } = dailyMetrics;
+            const { steps, activeEnergy, heartRate } = dailyMetrics;
             
             await client.query(
-                `INSERT INTO DailyMetrics (
-                    user_id, steps, active_energy, heart_rate,
-                    distance, flights_climbed, exercise_time, stand_hours,
-                    resting_heart_rate, heart_rate_variability, vo2_max,
-                    walking_running_distance, cycling_distance, swimming_distance,
-                    respiratory_rate, body_mass, body_fat_percentage, lean_body_mass,
-                    mindful_minutes, sleep_hours
-                ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)`,
-                [
-                    userId, steps, activeEnergy, heartRate,
-                    distance, flightsClimbed, exerciseTime, standHours,
-                    restingHeartRate, heartRateVariability, vo2Max,
-                    walkingRunningDistance, cyclingDistance, swimmingDistance,
-                    respiratoryRate, bodyMass, bodyFatPercentage, leanBodyMass,
-                    mindfulMinutes, sleepHours
-                ]
+                `INSERT INTO DailyMetrics (user_id, steps, active_energy, heart_rate) 
+                 VALUES ($1, $2, $3, $4)`,
+                [userId, steps, activeEnergy, heartRate]
             );
         }
 

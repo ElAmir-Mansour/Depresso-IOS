@@ -1,0 +1,111 @@
+Command line invocation:
+    "/Applications/Xcode 2.app/Contents/Developer/usr/bin/xcodebuild" -workspace Depresso.xcworkspace -scheme Depresso -sdk iphonesimulator build
+
+Build settings from command line:
+    SDKROOT = iphonesimulator26.2
+
+Resolve Package Graph
+
+Fetching from https://github.com/apple/swift-collections (cached)
+
+Fetching from https://github.com/pointfreeco/xctest-dynamic-overlay (cached)
+
+Fetching from https://github.com/swiftlang/swift-syntax (cached)
+
+Fetching from https://github.com/pointfreeco/swift-sharing (cached)
+
+Fetching from https://github.com/pointfreeco/swift-identified-collections (cached)
+
+Fetching from https://github.com/pointfreeco/swift-concurrency-extras (cached)
+
+Fetching from https://github.com/pointfreeco/swift-custom-dump (cached)
+
+Fetching from https://github.com/pointfreeco/combine-schedulers (cached)
+
+Fetching from https://github.com/pointfreeco/swift-composable-architecture.git (cached)
+
+Fetching from https://github.com/pointfreeco/swift-dependencies (cached)
+
+Fetching from https://github.com/pointfreeco/swift-perception (cached)
+
+Fetching from https://github.com/pointfreeco/swift-clocks (cached)
+
+Fetching from https://github.com/pointfreeco/swift-case-paths (cached)
+
+Fetching from https://github.com/pointfreeco/swift-navigation (cached)
+
+Creating working copy of package ‘swift-syntax’
+
+Creating working copy of package ‘swift-concurrency-extras’
+
+Creating working copy of package ‘swift-perception’
+
+Creating working copy of package ‘combine-schedulers’
+
+Creating working copy of package ‘xctest-dynamic-overlay’
+
+Creating working copy of package ‘swift-collections’
+
+Checking out 1.3.2 of package ‘swift-concurrency-extras’
+
+Checking out 1.9.0 of package ‘xctest-dynamic-overlay’
+
+Checking out 2.0.9 of package ‘swift-perception’
+
+Checking out 1.1.0 of package ‘combine-schedulers’
+
+Creating working copy of package ‘swift-identified-collections’
+
+Checking out 1.3.0 of package ‘swift-collections’
+
+Creating working copy of package ‘swift-navigation’
+
+Creating working copy of package ‘swift-custom-dump’
+
+Creating working copy of package ‘swift-composable-architecture’
+
+Checking out 602.0.0 of package ‘swift-syntax’
+
+Checking out 2.6.0 of package ‘swift-navigation’
+
+Checking out 1.1.1 of package ‘swift-identified-collections’
+
+Checking out 1.4.1 of package ‘swift-custom-dump’
+
+Creating working copy of package ‘swift-dependencies’
+
+Creating working copy of package ‘swift-sharing’
+
+Creating working copy of package ‘swift-clocks’
+
+Checking out 1.23.2 of package ‘swift-composable-architecture’
+
+Creating working copy of package ‘swift-case-paths’
+
+Checking out 1.11.0 of package ‘swift-dependencies’
+
+Checking out 2.7.4 of package ‘swift-sharing’
+
+Checking out 1.0.6 of package ‘swift-clocks’
+
+Checking out 1.7.2 of package ‘swift-case-paths’
+
+Creating working copy of package ‘swift-identified-collections’
+
+Checking out 1.1.1 of package ‘swift-identified-collections’
+
+the package manifest at '/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-concurrency-extras/Package.swift' cannot be accessed (/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-concurrency-extras/Package.swift doesn't exist in file system)the package manifest at '/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-clocks/Package.swift' cannot be accessed (/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-clocks/Package.swift doesn't exist in file system)the package manifest at '/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/xctest-dynamic-overlay/Package.swift' cannot be accessed (/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/xctest-dynamic-overlay/Package.swift doesn't exist in file system)the package manifest at '/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-syntax/Package.swift' cannot be accessed (/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-syntax/Package.swift doesn't exist in file system)the package manifest at '/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-collections/Package.swift' cannot be accessed (/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-collections/Package.swift doesn't exist in file system)the package manifest at '/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-sharing/Package.swift' cannot be accessed (/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-sharing/Package.swift doesn't exist in file system)the package manifest at '/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-navigation/Package.swift' cannot be accessed (/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-navigation/Package.swift doesn't exist in file system)the package manifest at '/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-custom-dump/Package.swift' cannot be accessed (/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-custom-dump/Package.swift doesn't exist in file system)the package manifest at '/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-perception/Package.swift' cannot be accessed (/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-perception/Package.swift doesn't exist in file system)the package manifest at '/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-dependencies/Package.swift' cannot be accessed (/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-dependencies/Package.swift doesn't exist in file system)the package manifest at '/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-concurrency-extras/Package.swift' cannot be accessed (/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-concurrency-extras/Package.swift doesn't exist in file system)dependency 'swift-identified-collections' is missing; cloning again
+2026-03-02 03:49:12.681 xcodebuild[82779:9127675] Writing error result bundle to /var/folders/y_/778pc6zx20n81kg314ktfbm40000gn/T/ResultBundle_2026-02-03_03-49-0012.xcresult
+xcodebuild: error: Could not resolve package dependencies:
+  the package manifest at '/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-concurrency-extras/Package.swift' cannot be accessed (/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-concurrency-extras/Package.swift doesn't exist in file system)
+  the package manifest at '/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-clocks/Package.swift' cannot be accessed (/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-clocks/Package.swift doesn't exist in file system)
+  the package manifest at '/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/xctest-dynamic-overlay/Package.swift' cannot be accessed (/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/xctest-dynamic-overlay/Package.swift doesn't exist in file system)
+  the package manifest at '/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-syntax/Package.swift' cannot be accessed (/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-syntax/Package.swift doesn't exist in file system)
+  the package manifest at '/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-collections/Package.swift' cannot be accessed (/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-collections/Package.swift doesn't exist in file system)
+  the package manifest at '/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-sharing/Package.swift' cannot be accessed (/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-sharing/Package.swift doesn't exist in file system)
+  the package manifest at '/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-navigation/Package.swift' cannot be accessed (/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-navigation/Package.swift doesn't exist in file system)
+  the package manifest at '/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-custom-dump/Package.swift' cannot be accessed (/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-custom-dump/Package.swift doesn't exist in file system)
+  the package manifest at '/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-perception/Package.swift' cannot be accessed (/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-perception/Package.swift doesn't exist in file system)
+  the package manifest at '/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-dependencies/Package.swift' cannot be accessed (/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-dependencies/Package.swift doesn't exist in file system)
+  the package manifest at '/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-concurrency-extras/Package.swift' cannot be accessed (/Users/elamir/Library/Developer/Xcode/DerivedData/Depresso-gkzsqdiiwowakjaxjqpryhgjszjx/SourcePackages/checkouts/swift-concurrency-extras/Package.swift doesn't exist in file system)
+
