@@ -36,6 +36,17 @@ struct InsightsFeature {
         case selectPeriod(State.Period)
     }
     
+    enum InsightsError: Error, LocalizedError {
+        case noUserId
+        
+        var errorDescription: String? {
+            switch self {
+            case .noUserId:
+                return "Please sign in to view insights"
+            }
+        }
+    }
+    
     var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
@@ -49,7 +60,10 @@ struct InsightsFeature {
                 
                 return .run { [period = state.selectedPeriod] send in
                     await send(.dataLoaded(Result {
-                        let userId = try await UserManager.shared.getCurrentUserId()
+                        let userId = await MainActor.run { UserManager.shared.userId }
+                        guard let userId = userId, !userId.isEmpty else {
+                            throw InsightsError.noUserId
+                        }
                         
                         async let trends = APIClient.getAnalysisTrends(userId: userId, days: period.days)
                         async let insights = APIClient.getAnalysisInsights(userId: userId)
