@@ -38,6 +38,12 @@ struct SettingsView: View {
                     }
                 }
                 
+                Button {
+                    store.send(.editProfileButtonTapped)
+                } label: {
+                    Label("Edit Profile", systemImage: "pencil")
+                }
+                
                 Button(role: .destructive) {
                     store.send(.logoutButtonTapped)
                 } label: {
@@ -160,6 +166,11 @@ struct SettingsView: View {
             store.send(.task)
         }
         .alert($store.scope(state: \.alert, action: \.alert))
+        .sheet(item: $store.scope(state: \.profileEdit, action: \.profileEdit)) { profileStore in
+            NavigationStack {
+                ProfileEditView(store: profileStore)
+            }
+        }
     }
 }
 
