@@ -163,7 +163,12 @@ struct AppFeature {
             case .onboarding(.presented(.delegate(.onboardingCompleted))):
                 UserDefaults.standard.set(true, forKey: "hasCompletedOnboarding")
                 state.onboardingState = nil
-                return .send(.checkAchievements)
+                
+                // Trigger dashboard refresh to request HealthKit after onboarding
+                return .merge(
+                    .send(.checkAchievements),
+                    .send(.dashboard(.refresh))
+                )
                 
             case .support(.delegate(.userLoggedOut)):
                 // Deep clear session

@@ -131,6 +131,7 @@ struct DashboardFeature {
                 
                 // Check if we should show first-time experience
                 let hasSeenFTUE = UserDefaults.standard.bool(forKey: "hasSeenFirstTimeExperience")
+                let hasCompletedOnboarding = UserDefaults.standard.bool(forKey: "hasCompletedOnboarding")
                 
                 return .merge(
                     .run { send in
@@ -146,7 +147,8 @@ struct DashboardFeature {
                             await send(.achievementsLoaded(achievements))
                         }
                         
-                        if shouldLoadHealth {
+                        // Only request HealthKit after onboarding is completed
+                        if shouldLoadHealth && hasCompletedOnboarding {
                             try? await healthClient.requestAuthorization()
                             await send(.healthDataLoaded(Result {
                                 try await (healthClient.fetchHealthMetrics(), healthClient.fetchWeeklySteps(), healthClient.fetchWeeklyActiveEnergy(), healthClient.fetchWeeklyHeartRate())

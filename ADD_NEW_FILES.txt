@@ -4,29 +4,7 @@ just seen a great project about a an smart basket , get's trained every time som
    cartoon or plastic or others , and a screen outside asks the user if the basket actually made the right decisions and based on it the
    dataset is added there , what do you think of that and if there is something similar we could do in oru project ?
    
-   Profile
-Guest Mode
-Your data is saved locally and synced anonymously.
-Exit Guest Mode
 
-Appearance
-Theme
-System
-
-Notifications
-Daily Reminder
-Reminder Time
-9:00 AM
-Streak Warnings
-
-Privacy & AI
-AI Model
-Cloud (Google Gemini)
-Privacy Policy
-
-Data & Account
-Link with Apple
-Delete Account
 
 Open Depresso.xcodeproj in Xcode, then:
 

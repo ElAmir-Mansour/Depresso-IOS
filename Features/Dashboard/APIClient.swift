@@ -81,7 +81,15 @@ struct APIClient {
             throw APIError.serverError(httpResponse.statusCode, errorMessage)
         }
         
-        // Step 6: Decode the response
+        // Step 6: Handle 204 No Content
+        if httpResponse.statusCode == 204 || data.isEmpty {
+            // For empty responses, return empty EmptyResponse
+            if T.self == EmptyResponse.self {
+                return EmptyResponse() as! T
+            }
+        }
+        
+        // Step 7: Decode the response
         do {
             let decoder = JSONDecoder()
             decoder.dateDecodingStrategy = .iso8601
