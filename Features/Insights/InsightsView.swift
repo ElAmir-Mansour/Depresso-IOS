@@ -58,28 +58,84 @@ struct InsightsView: View {
     
     @ViewBuilder
     private var insightsContent: some View {
-        if let insights = store.insights {
-            overviewCard(insights.overview)
+        // Show empty state if no data
+        if (store.trends?.sentimentTimeline.isEmpty ?? true) && 
+           (store.insights?.overview.totalEntries ?? 0) == 0 {
+            emptyStateView
+        } else {
+            if let insights = store.insights {
+                overviewCard(insights.overview)
+            }
+            
+            if let trends = store.trends, !trends.sentimentTimeline.isEmpty {
+                sentimentChartCard(trends.sentimentTimeline)
+            }
+            
+            if let insights = store.insights, !insights.topDistortions.isEmpty {
+                cbtPatternsCard(insights.topDistortions)
+            }
+            
+            if let trends = store.trends, !trends.emotions.isEmpty {
+                emotionsCard(trends.emotions)
+            }
+            
+            if let insights = store.insights {
+                progressCard(insights.weeklyComparison)
+            }
+            
+            if let communityStats = store.communityStats {
+                communityStatsCard(communityStats)
+            }
         }
-        
-        if let trends = store.trends, !trends.sentimentTimeline.isEmpty {
-            sentimentChartCard(trends.sentimentTimeline)
+    }
+    
+    private var emptyStateView: some View {
+        VStack(spacing: 24) {
+            Image(systemName: "chart.line.uptrend.xyaxis")
+                .font(.system(size: 70))
+                .foregroundColor(.ds.accent.opacity(0.6))
+                .padding(.top, 40)
+            
+            Text("Begin Your Journey")
+                .font(.title.bold())
+            
+            Text("Start exploring Depresso to unlock your insights:")
+                .font(.body)
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+            
+            VStack(alignment: .leading, spacing: 16) {
+                insightFeatureRow(icon: "book.fill", title: "Journal Entries", description: "Track your thoughts and feelings")
+                insightFeatureRow(icon: "message.fill", title: "AI Conversations", description: "Chat with your companion")
+                insightFeatureRow(icon: "person.3.fill", title: "Community Posts", description: "Share and connect")
+            }
+            .padding(20)
+            .background(Color.ds.accent.opacity(0.05))
+            .cornerRadius(16)
+            
+            Text("Your personalized insights will appear here as you use the app.")
+                .font(.caption)
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 40)
         }
-        
-        if let insights = store.insights, !insights.topDistortions.isEmpty {
-            cbtPatternsCard(insights.topDistortions)
-        }
-        
-        if let trends = store.trends, !trends.emotions.isEmpty {
-            emotionsCard(trends.emotions)
-        }
-        
-        if let insights = store.insights {
-            progressCard(insights.weeklyComparison)
-        }
-        
-        if let communityStats = store.communityStats {
-            communityStatsCard(communityStats)
+        .padding()
+    }
+    
+    private func insightFeatureRow(icon: String, title: String, description: String) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: icon)
+                .font(.title3)
+                .foregroundColor(.ds.accent)
+                .frame(width: 30)
+            
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(.subheadline.bold())
+                Text(description)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
         }
     }
     

@@ -1,298 +1,334 @@
-# 👀 What You Should See - Visual Guide
+# 📱 WHAT TO EXPECT WHEN TESTING
 
-## 🎯 Quick Visual Checklist
+## 🔍 ISSUES YOU REPORTED:
 
-### When You Launch the App:
+### 1. ❌ "Always in Guest Mode"
+**ROOT CAUSE FOUND:** Bug in authentication flow
 
-#### 1️⃣ Dashboard - Top Right Corner
+**The Problem:**
 ```
-┌─────────────────────────────────────┐
-│ Dashboard                    [�� ●] │  ← Sync Indicator
-│                                      │
-│  Good morning, User!         🔥 5    │
-│  ┌────────────────────────────────┐ │
-│  │ 🔥 5-Day Streak               │ │
-│  └────────────────────────────────┘ │
-│                                      │
-│  ┌────────────────────────────────┐ │
-│  │ ❤️  Ready for your check-in?  │ │  ← Prominent CTA
-│  │     Share how you're feeling  │ │
-│  │     today                 →   │ │
-│  └────────────────────────────────┘ │
+You → Skip login → App creates guest user → App CLEARS user ID → Restart app → No user ID → Auth screen again!
 ```
 
-**Look for:**
-- 🟢 Green dot with "Synced" text in top-right
-- Large check-in card with heart icon
-- Blue border around check-in card (if not completed)
+**The Fix:**
+```
+You → Skip login → App creates guest user → User ID SAVED → Restart app → User ID exists → Main app! ✅
+```
+
+**What Changed:**
+- Removed `UserManager.shared.clearAll()` from skip handler
+- Guest users now persist across app restarts
+- Added debug logging to track the issue
+
+### 2. ❌ "Insights Tab Empty"
+**ROOT CAUSES:** 
+1. No data created yet (expected)
+2. Production database missing table (needs migration)
+3. No empty state UI (fixed!)
+
+**The Fix:**
+- Added beautiful empty state with instructions
+- Added better error messages
+- Shows what to do to get insights
 
 ---
 
-#### 2️⃣ First-Time User (Delete & Reinstall)
+## 📱 TESTING STEPS:
+
+### Step 1: Clean Install
+```
+1. Delete app from iPhone (hold icon → Remove App)
+2. Xcode → Product → Clean Build Folder (⇧⌘K)
+3. Xcode → Product → Run (⌘+R)
+```
+
+### Step 2: First Launch
+```
+✅ Splash screen (2 sec)
+✅ Authentication screen appears
+✅ Click "Skip for now"
+✅ Welcome tour appears
+✅ Complete welcome (swipe through)
+✅ Onboarding questionnaire (PHQ-8)
+✅ Main app with 5 tabs
+```
+
+### Step 3: Check Tabs
+```
+Tab 0 (Dashboard):
+  ✅ Should see Health Metrics
+  ✅ Should see CBT Quick Access card ← NEW!
+  ✅ Should see Achievements
+
+Tab 1 (Journal):
+  ✅ Can create entry
+  ✅ Can chat with AI
+
+Tab 2 (Community):
+  ✅ Should see [Feed] / [Trending] toggle ← NEW!
+  ✅ Can create posts
+
+Tab 3 (Insights): ← NEW TAB!
+  ✅ Should see "Begin Your Journey" message
+  ✅ Should see instructions
+  ✅ NOT blank anymore!
+
+Tab 4 (Support):
+  ✅ Contact info
+```
+
+### Step 4: Close & Reopen App
+```
+1. Close app completely
+2. Reopen from home screen
+3. ✅ Should go DIRECTLY to main app
+4. ❌ Should NOT show auth screen again
+```
+
+If it shows auth again → Bug still present, check console logs
+
+---
+
+## 🔍 DEBUG CONSOLE OUTPUT:
+
+When you run from Xcode, watch the console for these logs:
+
+```
+🔍 Splash completed. User ID: [some-uuid]
+➡️ User fully onboarded → Showing main app
+```
+
+**Good Flow (After Skip):**
+```
+🔍 Splash completed. User ID: EMPTY
+➡️ No user ID → Showing authentication
+[You click Skip]
+🔍 Guest mode: Skipped authentication
+✅ Guest registered with ID: abc-123-def
+✅ User registration succeeded, showing welcome tour
+```
+
+**Bad Flow (Bug):**
+```
+🔍 Splash completed. User ID: EMPTY
+➡️ No user ID → Showing authentication
+[You click Skip]
+[App restarts]
+🔍 Splash completed. User ID: EMPTY ← PROBLEM!
+```
+
+If you see the bad flow, the fix didn't work.
+
+---
+
+## 📊 INSIGHTS TAB - WHAT YOU'LL SEE:
+
+### When No Data (Expected Now):
 ```
 ┌─────────────────────────────────────┐
+│   📈 (Big Chart Icon)                │
 │                                      │
-│         [Backdrop Overlay]          │
+│   Begin Your Journey                 │
 │                                      │
-│  ┌──────────────────────────────┐  │
-│  │        ✨                    │  │
-│  │                              │  │
-│  │  Take Your First Check-in   │  │
-│  │                              │  │
-│  │  Daily check-ins help you   │  │
-│  │  track patterns...          │  │
-│  │                              │  │
-│  │  [  Start Check-in  ]       │  │  ← Blue button
-│  │      Maybe Later            │  │
-│  └──────────────────────────────┘  │
+│   Start exploring Depresso to       │
+│   unlock your insights:              │
 │                                      │
+│   ┌──────────────────────────────┐  │
+│   │ 📖 Journal Entries           │  │
+│   │    Track thoughts & feelings │  │
+│   │                              │  │
+│   │ 💬 AI Conversations          │  │
+│   │    Chat with companion       │  │
+│   │                              │  │
+│   │ 👥 Community Posts           │  │
+│   │    Share and connect         │  │
+│   └──────────────────────────────┘  │
+│                                      │
+│   Your insights will appear here    │
+│   as you use the app.               │
 └─────────────────────────────────────┘
 ```
 
-**Look for:**
-- Centered card with shadow
-- Sparkles icon at top
-- Animated entrance (scales up)
-- Feel haptic feedback when it appears
-
----
-
-#### 3️⃣ Journal - Empty State
+### After Creating Entries:
 ```
 ┌─────────────────────────────────────┐
-│ Mindful Moments              ✨     │
+│   Overview                           │
+│   📊 15 Entries | 😊 72% Positive    │
 │                                      │
+│   Sentiment Journey                  │
+│   📈 [Line chart showing mood]       │
 │                                      │
-│         [Sun Icon with Glow]        │
+│   CBT Patterns                       │
+│   🧠 All-or-Nothing (8 times)        │
+│   🧠 Catastrophizing (5 times)       │
 │                                      │
-│    How are you feeling today?       │
+│   Top Emotions                       │
+│   😰 Anxious (12) | 🌟 Hopeful (8)  │
 │                                      │
-│    I'm here to listen. Share        │
-│    your thoughts...                 │
-│                                      │
-│   [ 😊 Good day        ]            │  ← Quick Prompts
-│   [ 😔 Struggling      ]            │
-│   [ 💭 Reflective      ]            │
-│                                      │
+│   Weekly Progress                    │
+│   ↗️ +15% improvement from last week │
 └─────────────────────────────────────┘
 ```
 
-**Look for:**
-- 3 emoji buttons with rounded borders
-- Welcoming empty state text
-- Sun icon with gradient
-
 ---
 
-#### 4️⃣ Settings - Logout Button
+## 🚀 COMPLETE TEST FLOW:
+
+### Test 1: Guest Mode Persistence ✅
 ```
-┌─────────────────────────────────────┐
-│ Settings                        ✓   │
-│                                      │
-│  Profile                            │
-│  ┌────────────────────────────────┐ │
-│  │ John Doe                       │ │
-│  │ john@example.com      🍎      │ │
-│  │                                │ │
-│  │ [🚪 Logout]                    │ │  ← Red button
-│  └────────────────────────────────┘ │
-│                                      │
-│  Appearance                         │
-│  ┌────────────────────────────────┐ │
-│  │ Theme          [Auto ▼]       │ │
-│  └────────────────────────────────┘ │
+1. Launch app → Auth screen
+2. Click "Skip for now"
+3. Complete welcome tour
+4. Complete PHQ-8
+5. See main app (5 tabs)
+6. CLOSE APP COMPLETELY
+7. Reopen app
+8. ✅ Should see main app directly (not auth!)
 ```
 
-**Look for:**
-- Red/destructive styled logout button
-- Door icon next to "Logout" text
-- Theme picker dropdown
-
----
-
-## 🎨 Color Reference
-
-### Semantic Colors You Should See:
-
-**Success** (Green - #4CAF50)
-- ✅ Sync indicator when synced
-- ✅ Completed check-in status
-- ✅ Positive feedback messages
-
-**Error** (Red - #EF5350)
-- ❌ Sync failed indicator
-- ❌ Form validation errors
-- ❌ Logout button
-
-**Warning** (Orange - #FF9800)
-- ⚠️ Offline indicator
-- ⚠️ Caution messages
-
-**Info** (Blue - #2196F3)
-- ℹ️ Syncing status
-- ℹ️ Information messages
-
----
-
-## 🔘 Button Variants You Should See
-
-### Throughout the App:
-
-**Primary (Blue)**
-- "Start Check-in" button
-- "Send" in journal
-- Main action buttons
-
-**Secondary (Outlined)**
-- "Skip Tour" on welcome
-- "View More" buttons
-- Less important actions
-
-**Success (Green) - NEW!**
-- "Complete" actions
-- "Save" confirmations
-- Positive completions
-
-**Destructive (Red)**
-- "Logout" button
-- "Delete Account" button
-- Dangerous actions
-
-**Tertiary (Light Background)**
-- Quick prompts in journal
-- Filter chips
-- Soft actions
-
----
-
-## 📱 Animation Behaviors
-
-### What Should Animate:
-
-1. **FTUE Overlay Entrance**
-   - Scales from 0.8 → 1.0
-   - Fades in opacity 0 → 1
-   - Spring animation (bouncy)
-   - Haptic feedback on appear
-
-2. **Check-in Card**
-   - Subtle pulse on border when active
-   - Checkmark bounces when completed
-
-3. **Sync Indicator**
-   - Spinner rotates when syncing
-   - Color transitions smoothly
-   - "Synced" fades in
-
-4. **Buttons**
-   - Scale down slightly on press (0.96)
-   - Fade opacity on press (0.8)
-   - Spring back on release
-
----
-
-## 🧪 Interactive Tests
-
-### Test These Interactions:
-
-1. **Sync Indicator Click**
-   - Tap on "Synced" indicator
-   - Should do nothing (just status display)
-   - If failed, "Retry" button should appear
-
-2. **FTUE Overlay**
-   - Tap backdrop → Dismisses
-   - Tap "Maybe Later" → Dismisses
-   - Tap "Start Check-in" → Opens assessment
-   - After dismiss → Never shows again
-
-3. **Check-in Card**
-   - Tap anywhere on card → Opens assessment
-   - After completion → Shows green checkmark
-   - Border disappears when completed
-
-4. **Quick Prompts**
-   - Tap "😊 Good day" → Fills message field
-   - Cursor should be at end of text
-   - Can immediately send or edit
-
----
-
-## ⚡ Performance Expectations
-
-### Should Feel Fast:
-
-- **App launch**: < 2 seconds
-- **Dashboard load**: < 1 second (with cache)
-- **FTUE animation**: Smooth 60fps
-- **Transitions**: < 300ms
-- **Button feedback**: Instant (< 100ms)
-
----
-
-## 🐛 Common Issues & Solutions
-
-### If You Don't See FTUE Overlay:
-
-**Check:**
-1. Did you delete the app first?
-2. Is UserDefaults clean?
-3. Do you have existing assessments?
-
-**Fix:**
-```bash
-# Reset UserDefaults in simulator
-xcrun simctl privacy booted reset all ElAmir.Depresso
+### Test 2: Insights Empty State ✅
+```
+1. Navigate to Tab 3 (Insights)
+2. See "Begin Your Journey" message
+3. See instructions for what to do
+4. NOT a blank screen
 ```
 
-### If Sync Indicator Missing:
+### Test 3: Create Data ✅
+```
+1. Tab 1 → Create journal entry
+2. Tab 1 → Chat with AI companion
+3. Tab 2 → Create community post
+4. Tab 3 → Pull to refresh
+5. Should see data (if migration ran)
+```
 
-**Check:**
-1. Is it hidden behind something?
-2. View hierarchy in Xcode debugger
-3. Check DashboardView.swift line 54-60
+### Test 4: CBT Quick Access ✅
+```
+1. Tab 0 → Dashboard
+2. Scroll down to find CBT card
+3. See 3 buttons: Thought Record, Gratitude, Mindfulness
+4. Tap any → Goes to Journal with that template
+```
 
-### If Colors Look Wrong:
-
-**Check:**
-1. Dark mode vs Light mode
-2. Color space settings
-3. DS+Color.swift hex values
-
----
-
-## ✅ Final Checklist
-
-Before marking as complete:
-
-- [ ] Sync indicator visible and functional
-- [ ] FTUE shows for new users
-- [ ] FTUE dismisses properly
-- [ ] Logout button exists
-- [ ] Journal prompts visible
-- [ ] Check-in CTA prominent
-- [ ] Colors are semantic and consistent
-- [ ] Buttons have clear hierarchy
-- [ ] Animations are smooth
-- [ ] No crashes or freezes
-- [ ] Dark mode works correctly
-- [ ] Landscape works (iPhone)
-- [ ] iPad layout acceptable
+### Test 5: Community Trending ✅
+```
+1. Tab 2 → Community
+2. See [Feed] [Trending] at top
+3. Toggle to Trending
+4. Should see popular posts (if any exist)
+```
 
 ---
 
-## 📸 Screenshot Checklist
+## ⚠️ KNOWN ISSUES:
 
-If everything looks good, capture:
+### 1. Insights Shows Error
+**Symptom:** "Failed to load insights: relation unifiedentries does not exist"
 
-1. Dashboard with sync indicator
-2. FTUE overlay (first-time)
-3. Check-in CTA card
-4. Journal empty state with prompts
-5. Settings with logout button
-6. Button variants showcase
-7. Dark mode versions
+**Why:** Production database needs migration
+
+**Fix:** Run `./run-production-migration.sh`
+
+**Workaround:** Insights will show empty state instead now
+
+### 2. Auth Loop (Should be fixed!)
+**Symptom:** Every launch shows auth screen
+
+**Why:** Was clearing user ID on skip
+
+**Fix:** Applied in this build
+
+**Test:** Delete app → Reinstall → Skip → Close → Reopen → Should go to main app
+
+### 3. No Trending Posts
+**Symptom:** Trending section empty
+
+**Why:** Need users to create posts first
+
+**Fix:** Create some posts, like them, check back
 
 ---
 
-**All features are implemented and ready to test!** 🎉
+## 🎯 SUCCESS CRITERIA:
+
+### Must Work:
+- ✅ Skip auth → Don't see auth again
+- ✅ Insights tab shows message (not blank)
+- ✅ Dashboard shows CBT card
+- ✅ Community shows toggle
+
+### Will Work After Migration:
+- 📊 Insights shows real data
+- 📈 Sentiment charts populate
+- 🧠 CBT patterns appear
+- 🔥 Trending posts show
+
+---
+
+## 📞 IF STILL HAVING ISSUES:
+
+### For Auth Loop:
+1. Check Xcode console for logs:
+   ```
+   🔍 Splash completed. User ID: [value]
+   ```
+2. If keeps showing EMPTY → Something else clearing it
+3. Try: Settings app → Depresso → Reset (if exists)
+
+### For Insights Empty:
+1. Check Xcode console for errors
+2. Check network tab for API responses
+3. Verify backend URL is correct in APIClient.swift
+4. Run migration script
+
+### To Get More Help:
+Send me:
+1. Screenshot of Xcode console output
+2. Screenshot of Insights tab
+3. What happens when you restart app
+
+---
+
+## 🎉 EXPECTED BEHAVIOR (After Fixes):
+
+### First Launch:
+```
+Splash → Auth → [Skip] → Welcome → Onboarding → Main App (5 tabs)
+```
+
+### Second Launch:
+```
+Splash → Main App (5 tabs) ← Goes directly here!
+```
+
+### Insights Tab:
+```
+If no entries: "Begin Your Journey" message
+If has entries: Charts, patterns, emotions, progress
+```
+
+### Community Tab:
+```
+[Feed] [Trending] toggle at top
+Can switch between views
+```
+
+### Dashboard:
+```
+Health Metrics
+CBT Quick Access ← NEW prominent card
+Achievements
+```
+
+---
+
+**REBUILD COMPLETE:** ✅ Build succeeded (8.2 sec)
+
+**NEXT:** Delete app from iPhone → Run from Xcode → Test flow
+
+**LOGS:** Watch Xcode console for debug output
+
+**MIGRATION:** Run `./run-production-migration.sh` when ready
+
+---

@@ -83,16 +83,21 @@ struct AppFeature {
             
             case .splashCompleted:
                 let userId = UserDefaults.standard.string(forKey: "depresso_user_id") ?? ""
+                print("🔍 Splash completed. User ID: \(userId.isEmpty ? "EMPTY" : userId)")
                 
                 if userId.isEmpty {
+                    print("➡️ No user ID → Showing authentication")
                     state.currentFlow = .authentication
                     state.authState = AuthenticationFeature.State()
                 } else if !state.hasSeenWelcome {
+                    print("➡️ User exists but no welcome → Showing welcome tour")
                     state.currentFlow = .welcomeTour
                 } else if !state.hasCompletedOnboarding {
+                    print("➡️ User exists but no onboarding → Showing main app with onboarding")
                     state.currentFlow = .mainApp
                     state.onboardingState = OnboardingFeature.State()
                 } else {
+                    print("➡️ User fully onboarded → Showing main app")
                     state.currentFlow = .mainApp
                     return .send(.checkAchievements)
                 }
@@ -118,23 +123,23 @@ struct AppFeature {
                 
             case .auth(.presented(.delegate(.skipped))):
                 state.authState = nil
-                // Reset features for fresh guest session
-                state.dashboardState = DashboardFeature.State()
-                state.journalState = AICompanionJournalFeature.State()
-                state.communityState = CommunityFeature.State()
+                print("🔍 Guest mode: Skipped authentication")
                 
-                // Guest flow: They always see welcome tour then onboarding
+                // Guest flow: Register anonymous user
                 return .run { send in
-                    await MainActor.run { UserManager.shared.clearAll() }
                     do {
                         try await UserManager.shared.ensureUserRegistered()
+                        let userId = await UserManager.shared.userId ?? "unknown"
+                        print("✅ Guest registered with ID: \(userId)")
                         await send(.userRegistrationCompleted(.success(())))
                     } catch {
+                        print("❌ Guest registration failed: \(error)")
                         await send(.userRegistrationCompleted(.failure(error)))
                     }
                 }
                 
             case .userRegistrationCompleted(.success):
+                print("✅ User registration succeeded, showing welcome tour")
                 state.currentFlow = .welcomeTour
                 return .none
                 
