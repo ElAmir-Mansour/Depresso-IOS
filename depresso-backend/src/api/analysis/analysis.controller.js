@@ -31,8 +31,10 @@ exports.submitEntry = async (req, res) => {
                 userId, source, content, originalId,
                 analysis.sentiment, analysis.sentimentScore, JSON.stringify(analysis.cbtDistortions),
                 analysis.emotions.map(e => e.emotion), analysis.keywords, analysis.riskLevel,
-                analysis.metadata.typingSpeed, analysis.metadata.sessionDuration,
-                context.editCount || null, analysis.metadata.timeOfDay,
+                context?.typingSpeed || analysis.metadata.typingSpeed, 
+                context?.sessionDuration || analysis.metadata.sessionDuration,
+                context?.editCount || null, 
+                analysis.metadata.timeOfDay,
                 analysis.metadata.wordCount, analysis.metadata.characterCount
             ]
         );
