@@ -45,6 +45,7 @@ struct DashboardFeature {
         var syncStatus: SyncStatus = .synced
         var lastSyncTime: Date? = nil
         var showFirstTimeExperience: Bool = false
+        var showNamePrompt: Bool = false
         @Presents var destination: Destination.State?
         
         enum SyncStatus: Equatable {

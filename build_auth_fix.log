@@ -1,0 +1,48 @@
+Command line invocation:
+    "/Applications/Xcode 2.app/Contents/Developer/usr/bin/xcodebuild" -workspace Depresso.xcworkspace -scheme Depresso -configuration Debug -sdk iphonesimulator -destination "platform=iOS Simulator,name=iPhone 15 Pro" clean build
+
+Build settings from command line:
+    SDKROOT = iphonesimulator26.2
+
+Resolve Package Graph
+
+
+Resolved source packages:
+  xctest-dynamic-overlay: https://github.com/pointfreeco/xctest-dynamic-overlay @ 1.9.0
+  swift-sharing: https://github.com/pointfreeco/swift-sharing @ 2.7.4
+  swift-navigation: https://github.com/pointfreeco/swift-navigation @ 2.6.0
+  swift-syntax: https://github.com/swiftlang/swift-syntax @ 602.0.0
+  swift-case-paths: https://github.com/pointfreeco/swift-case-paths @ 1.7.2
+  combine-schedulers: https://github.com/pointfreeco/combine-schedulers @ 1.1.0
+  swift-identified-collections: https://github.com/pointfreeco/swift-identified-collections @ 1.1.1
+  swift-clocks: https://github.com/pointfreeco/swift-clocks @ 1.0.6
+  swift-perception: https://github.com/pointfreeco/swift-perception @ 2.0.9
+  swift-concurrency-extras: https://github.com/pointfreeco/swift-concurrency-extras @ 1.3.2
+  swift-custom-dump: https://github.com/pointfreeco/swift-custom-dump @ 1.4.1
+  swift-composable-architecture: https://github.com/pointfreeco/swift-composable-architecture.git @ 1.23.2
+  swift-collections: https://github.com/apple/swift-collections @ 1.3.0
+  swift-dependencies: https://github.com/pointfreeco/swift-dependencies @ 1.11.0
+
+2026-03-02 20:04:30.304 xcodebuild[29811:9477208] [MT] IDERunDestination: Supported platforms for the buildables in the current scheme is empty.
+2026-03-02 20:05:30.455 xcodebuild[29811:9477208] Writing error result bundle to /var/folders/y_/778pc6zx20n81kg314ktfbm40000gn/T/ResultBundle_2026-02-03_20-05-0030.xcresult
+xcodebuild: error: Unable to find a device matching the provided destination specifier:
+		{ platform:iOS Simulator, OS:latest, name:iPhone 15 Pro }
+
+	The requested device could not be found because no available devices matched the request.
+
+	Available destinations for the "Depresso" scheme:
+		{ platform:macOS, arch:arm64, variant:Designed for [iPad,iPhone], id:00008112-000D189136F9401E, name:My Mac }
+		{ platform:iOS, arch:arm64, id:00008150-0000559E26E2401C, name:ElAmir. }
+		{ platform:iOS, id:dvtdevice-DVTiPhonePlaceholder-iphoneos:placeholder, name:Any iOS Device }
+		{ platform:iOS Simulator, id:dvtdevice-DVTiOSDeviceSimulatorPlaceholder-iphonesimulator:placeholder, name:Any iOS Simulator Device }
+		{ platform:iOS Simulator, arch:arm64, id:39CF87BB-4499-4223-8A94-9784C9195E79, OS:26.2, name:iPad (A16) }
+		{ platform:iOS Simulator, arch:arm64, id:E010FEF5-4956-4176-AC7A-553292721F82, OS:26.2, name:iPad Air 11-inch (M3) }
+		{ platform:iOS Simulator, arch:arm64, id:60CF92FB-AF58-4B20-B819-C19D89DE7947, OS:26.2, name:iPad Air 13-inch (M3) }
+		{ platform:iOS Simulator, arch:arm64, id:3E416CAF-59DE-4E2C-AF24-2818E5C491B9, OS:26.2, name:iPad Pro 11-inch (M5) }
+		{ platform:iOS Simulator, arch:arm64, id:FE9E909C-B6FE-4BA3-B17A-1A1C609A72C6, OS:26.2, name:iPad Pro 13-inch (M5) }
+		{ platform:iOS Simulator, arch:arm64, id:4430F8F4-F647-4016-A224-869C1BF3EF6D, OS:26.2, name:iPad mini (A17 Pro) }
+		{ platform:iOS Simulator, arch:arm64, id:3E72AF44-3599-4992-BF27-E0A510AD5BE4, OS:26.2, name:iPhone 16e }
+		{ platform:iOS Simulator, arch:arm64, id:EEA8B028-2917-43A4-8353-172E057362EB, OS:26.2, name:iPhone 17 }
+		{ platform:iOS Simulator, arch:arm64, id:164D99F2-0105-4A29-8B04-0273356BB009, OS:26.2, name:iPhone 17 Pro }
+		{ platform:iOS Simulator, arch:arm64, id:5DD0C322-3C24-460B-B04A-C8913E7CB38A, OS:26.2, name:iPhone 17 Pro Max }
+		{ platform:iOS Simulator, arch:arm64, id:5FB3EDFD-0C74-4D28-829A-F70D765E7601, OS:26.2, name:iPhone Air }

@@ -48,7 +48,15 @@ class UserManager: ObservableObject {
         self.userId = id
         UserDefaults.standard.set(id, forKey: userDefaultsKey)
         UserDefaults.standard.synchronize() // Force immediate persistence
+        
+        // Verify the write
+        let readBack = UserDefaults.standard.string(forKey: userDefaultsKey)
         print("💾 UserManager: Saved userId '\(id)' to UserDefaults")
+        print("🔍 UserManager: Verification read: '\(readBack ?? "FAILED TO READ")'")
+        
+        if readBack != id {
+            print("❌ CRITICAL: UserDefaults write/read mismatch!")
+        }
     }
     
     func setSessionToken(_ token: String) {
@@ -63,7 +71,11 @@ class UserManager: ObservableObject {
         UserDefaults.standard.set(name, forKey: userNameKey)
         UserDefaults.standard.set(email, forKey: userEmailKey)
         UserDefaults.standard.synchronize()
+        
+        // Verify the write
+        let readBackName = UserDefaults.standard.string(forKey: userNameKey)
         print("👤 UserManager: Saved profile - Name: '\(name ?? "nil")', Email: '\(email ?? "nil")'")
+        print("🔍 UserManager: Verification read name: '\(readBackName ?? "nil")'")
     }
     
     func clearAll() {

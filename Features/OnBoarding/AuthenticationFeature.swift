@@ -62,7 +62,12 @@ struct AuthenticationFeature {
                             identityToken: credentials.identityToken
                         )
                         
-                        print("✅ Backend login successful. UserID: \(result.userId), IsNewUser: \(result.isNewUser), Name: \(result.name ?? "nil")")
+                        print("✅ Backend login successful.")
+                        print("   UserID: \(result.userId)")
+                        print("   IsNewUser: \(result.isNewUser)")
+                        print("   Name from backend: '\(result.name ?? "nil")'")
+                        print("   Email from backend: '\(result.email ?? "nil")'")
+                        print("   FullName from Apple: '\(fullName.isEmpty ? "empty" : fullName)'")
                         
                         // Update local user ID, token, and Profile
                         // Use backend name/email if available, fallback to Apple credentials
