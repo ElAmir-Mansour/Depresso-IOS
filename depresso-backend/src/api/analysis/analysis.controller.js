@@ -65,8 +65,8 @@ exports.getTrends = async (req, res) => {
         const sentimentTimeline = await pool.query(
             `SELECT 
                 DATE(created_at) as date,
-                COALESCE(AVG(sentiment_score), 0.5) as avg_sentiment,
-                COUNT(*) as entry_count
+                COALESCE(AVG(sentiment_score), 0.5)::FLOAT as avg_sentiment,
+                COUNT(*)::INTEGER as entry_count
             FROM UnifiedEntries
             WHERE user_id = $1 
                 AND created_at >= NOW() - INTERVAL '${parseInt(days)} days'
@@ -80,7 +80,7 @@ exports.getTrends = async (req, res) => {
             `SELECT 
                 distortion->>'type' as distortion_type,
                 distortion->>'description' as description,
-                COUNT(*) as frequency
+                COUNT(*)::INTEGER as frequency
             FROM UnifiedEntries,
                  jsonb_array_elements(cbt_distortions) as distortion
             WHERE user_id = $1
@@ -95,7 +95,7 @@ exports.getTrends = async (req, res) => {
         const emotionDist = await pool.query(
             `SELECT 
                 UNNEST(emotion_tags) as emotion,
-                COUNT(*) as count
+                COUNT(*)::INTEGER as count
             FROM UnifiedEntries
             WHERE user_id = $1
                 AND created_at >= NOW() - INTERVAL '${parseInt(days)} days'
@@ -130,15 +130,15 @@ exports.getInsights = async (req, res) => {
     }
     
     try {
-        // Overall stats - handle NULL values
+        // Overall stats - handle NULL values and cast to proper types
         const stats = await pool.query(
             `SELECT 
-                COUNT(*) as total_entries,
-                COALESCE(AVG(sentiment_score), 0.5) as avg_sentiment,
-                COUNT(CASE WHEN sentiment = 'positive' THEN 1 END) as positive_count,
-                COUNT(CASE WHEN sentiment = 'negative' THEN 1 END) as negative_count,
-                COALESCE(AVG(typing_speed), 0) as avg_typing_speed,
-                COALESCE(AVG(word_count), 0) as avg_word_count
+                COUNT(*)::INTEGER as total_entries,
+                COALESCE(AVG(sentiment_score), 0.5)::FLOAT as avg_sentiment,
+                COUNT(CASE WHEN sentiment = 'positive' THEN 1 END)::INTEGER as positive_count,
+                COUNT(CASE WHEN sentiment = 'negative' THEN 1 END)::INTEGER as negative_count,
+                COALESCE(AVG(typing_speed), 0)::FLOAT as avg_typing_speed,
+                COALESCE(AVG(word_count), 0)::FLOAT as avg_word_count
             FROM UnifiedEntries
             WHERE user_id = $1
                 AND created_at >= NOW() - INTERVAL '30 days'`,
@@ -149,7 +149,7 @@ exports.getInsights = async (req, res) => {
         const topDistortions = await pool.query(
             `SELECT 
                 distortion->>'description' as description,
-                COUNT(*) as frequency
+                COUNT(*)::INTEGER as frequency
             FROM UnifiedEntries,
                  jsonb_array_elements(cbt_distortions) as distortion
             WHERE user_id = $1
@@ -163,7 +163,7 @@ exports.getInsights = async (req, res) => {
         
         // Compare to previous period
         const thisWeek = await pool.query(
-            `SELECT COALESCE(AVG(sentiment_score), 0.5) as avg_sentiment
+            `SELECT COALESCE(AVG(sentiment_score), 0.5)::FLOAT as avg_sentiment
             FROM UnifiedEntries
             WHERE user_id = $1
                 AND created_at >= NOW() - INTERVAL '7 days'`,
@@ -171,7 +171,7 @@ exports.getInsights = async (req, res) => {
         );
         
         const lastWeek = await pool.query(
-            `SELECT COALESCE(AVG(sentiment_score), 0.5) as avg_sentiment
+            `SELECT COALESCE(AVG(sentiment_score), 0.5)::FLOAT as avg_sentiment
             FROM UnifiedEntries
             WHERE user_id = $1
                 AND created_at >= NOW() - INTERVAL '14 days'
