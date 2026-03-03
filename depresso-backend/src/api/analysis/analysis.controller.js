@@ -195,7 +195,7 @@ exports.getInsights = async (req, res) => {
                 avg_word_count: parseFloat(overview.avg_word_count) || 0
             },
             topDistortions: topDistortions.rows.map(d => ({
-                distortion_type: d.distortion_type || null,
+                distortion_type: null,
                 description: d.description || null,
                 frequency: parseInt(d.frequency) || 0
             })),
@@ -208,7 +208,7 @@ exports.getInsights = async (req, res) => {
         });
     } catch (error) {
         console.error('Error fetching insights:', error);
-        res.status(500).json({ error: 'Failed to fetch insights' });
+        res.status(500).json({ error: 'Failed to fetch insights', details: error.message });
     }
 };
 
