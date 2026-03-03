@@ -183,9 +183,22 @@ exports.getInsights = async (req, res) => {
         const lastWeekScore = parseFloat(lastWeek.rows[0]?.avg_sentiment || 0.5);
         const improvement = lastWeekScore !== 0 ? ((thisWeekScore - lastWeekScore) / lastWeekScore * 100).toFixed(1) : 0;
         
+        const overview = stats.rows[0] || {};
+        
         res.json({
-            overview: stats.rows[0],
-            topDistortions: topDistortions.rows,
+            overview: {
+                total_entries: parseInt(overview.total_entries) || 0,
+                avg_sentiment: parseFloat(overview.avg_sentiment) || 0.5,
+                positive_count: parseInt(overview.positive_count) || 0,
+                negative_count: parseInt(overview.negative_count) || 0,
+                avg_typing_speed: parseFloat(overview.avg_typing_speed) || 0,
+                avg_word_count: parseFloat(overview.avg_word_count) || 0
+            },
+            topDistortions: topDistortions.rows.map(d => ({
+                distortion_type: d.distortion_type || null,
+                description: d.description || null,
+                frequency: parseInt(d.frequency) || 0
+            })),
             weeklyComparison: {
                 thisWeek: thisWeekScore,
                 lastWeek: lastWeekScore,

@@ -201,9 +201,22 @@ exports.getCommunityStats = async (req, res) => {
             GROUP BY sentiment
         `);
         
+        const overview = stats.rows[0] || {};
+        
         res.json({
-            overview: stats.rows[0],
-            sentimentDistribution: sentimentDist.rows
+            overview: {
+                total_posts: parseInt(overview.total_posts) || 0,
+                total_likes: parseInt(overview.total_likes) || 0,
+                avg_likes_per_post: parseFloat(overview.avg_likes_per_post) || 0,
+                active_users: parseInt(overview.active_users) || 0,
+                posts_this_week: parseInt(overview.posts_this_week) || 0,
+                posts_today: parseInt(overview.posts_today) || 0
+            },
+            sentimentDistribution: sentimentDist.rows.map(s => ({
+                sentiment: s.sentiment || 'neutral',
+                count: parseInt(s.count) || 0,
+                avg_score: s.avg_score ? parseFloat(s.avg_score) : null
+            }))
         });
     } catch (error) {
         console.error('Error fetching community stats:', error);
