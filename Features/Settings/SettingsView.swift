@@ -38,10 +38,13 @@ struct SettingsView: View {
                     }
                 }
                 
-                Button {
-                    store.send(.editProfileButtonTapped)
-                } label: {
-                    Label("Edit Profile", systemImage: "pencil")
+                // Only show Edit Profile for authenticated users
+                if !store.isGuest {
+                    Button {
+                        store.send(.editProfileButtonTapped)
+                    } label: {
+                        Label("Edit Profile", systemImage: "pencil")
+                    }
                 }
                 
                 Button(role: .destructive) {

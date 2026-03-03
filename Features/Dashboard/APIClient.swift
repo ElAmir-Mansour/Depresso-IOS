@@ -101,9 +101,10 @@ struct APIClient {
     
     // MARK: - User Registration
     // Call this once when app first launches
-    static func registerUser() async throws -> String {
+    static func registerUser() async throws -> (userId: String, sessionToken: String) {
         struct Response: Codable {
             let userId: String
+            let sessionToken: String
         }
         
         let response: Response = try await request(
@@ -111,7 +112,7 @@ struct APIClient {
             method: .post
         )
         
-        return response.userId
+        return (response.userId, response.sessionToken)
     }
     
     // MARK: - Metrics Submission

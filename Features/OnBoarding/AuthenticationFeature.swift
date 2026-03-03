@@ -73,7 +73,7 @@ struct AuthenticationFeature {
                         // Use backend name/email if available, fallback to Apple credentials
                         await MainActor.run {
                             UserManager.shared.setUserId(result.userId)
-                            UserManager.shared.setSessionToken(result.sessionToken)
+                            UserManager.shared.setSessionToken(result.sessionToken, isAppleAuth: true)
                             UserManager.shared.setUserProfile(
                                 name: result.name ?? (fullName.isEmpty ? nil : fullName),
                                 email: result.email ?? email

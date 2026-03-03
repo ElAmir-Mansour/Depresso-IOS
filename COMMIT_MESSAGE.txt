@@ -1,0 +1,38 @@
+fix: Critical authentication bugs - Apple linking and guest mode
+
+Fixed two critical authentication issues:
+
+1. Edit Profile visible in guest mode
+   - Hide Edit Profile button when isGuest = true
+   - Add guard in editProfileButtonTapped to prevent access
+   
+2. Apple linking not persisting (CRITICAL)
+   - Backend returned new authenticated token after linking
+   - iOS was discarding it and keeping old guest token
+   - Fixed: Capture and save new token with setSessionToken(newToken, isAppleAuth: true)
+   
+3. Improved guest detection
+   - Changed from checking userName to tracking isLinkedToApple status
+   - More reliable and persistent across app restarts
+   
+4. Fixed database schema mismatch
+   - Migration 011 created 'full_name' column
+   - Code queried 'name' column
+   - Fixed migration and added 013 to rename existing columns
+
+iOS Changes:
+- UserManager.swift: Added isLinkedToApple tracking
+- SettingsFeature.swift: Fixed token saving, guest detection, profile editing guard
+- SettingsView.swift: Conditional Edit Profile visibility
+- AuthenticationFeature.swift: Mark Apple auth tokens
+
+Backend Changes:
+- migrations/011: Fixed column name full_name → name
+- migrations/013: New migration to fix existing databases
+- run-migration-013.sh: Script to run migration
+
+The critical fix was in SettingsFeature.swift line 190:
+  let newToken = try await APIClient.linkAppleAccount(...)
+  UserManager.shared.setSessionToken(newToken, isAppleAuth: true)
+
+This line was completely missing, causing the token to be discarded.

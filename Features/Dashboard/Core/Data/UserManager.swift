@@ -9,11 +9,13 @@ class UserManager: ObservableObject {
     @Published private(set) var userName: String?
     @Published private(set) var userEmail: String?
     @Published private(set) var sessionToken: String?
+    @Published private(set) var isLinkedToApple: Bool = false
     
     private let userDefaultsKey = "depresso_user_id"
     private let userNameKey = "depresso_user_name"
     private let userEmailKey = "depresso_user_email"
     private let tokenKeychainKey = "depresso_session_token"
+    private let appleLinkedKey = "depresso_apple_linked"
     
     // Singleton instance
     static let shared = UserManager()
@@ -23,10 +25,11 @@ class UserManager: ObservableObject {
         self.userId = UserDefaults.standard.string(forKey: userDefaultsKey)
         self.userName = UserDefaults.standard.string(forKey: userNameKey)
         self.userEmail = UserDefaults.standard.string(forKey: userEmailKey)
+        self.isLinkedToApple = UserDefaults.standard.bool(forKey: appleLinkedKey)
         // Load token from Keychain
         self.sessionToken = KeychainHelper.retrieve(key: tokenKeychainKey)
         
-        print("🔄 UserManager initialized - UserID: \(userId ?? "nil"), Has Token: \(sessionToken != nil)")
+        print("🔄 UserManager initialized - UserID: \(userId ?? "nil"), Has Token: \(sessionToken != nil), Apple Linked: \(isLinkedToApple)")
     }
     
     func isUserAuthenticated() -> Bool {
@@ -39,9 +42,10 @@ class UserManager: ObservableObject {
             return
         }
         
-        let newUserId = try await APIClient.registerUser()
+        let (newUserId, sessionToken) = try await APIClient.registerUser()
         self.setUserId(newUserId)
-        print("✅ User registered with ID: \(newUserId)")
+        self.setSessionToken(sessionToken, isAppleAuth: false)
+        print("✅ Guest user registered - ID: \(newUserId), Has Token: true")
     }
     
     func setUserId(_ id: String) {
@@ -59,10 +63,14 @@ class UserManager: ObservableObject {
         }
     }
     
-    func setSessionToken(_ token: String) {
+    func setSessionToken(_ token: String, isAppleAuth: Bool = false) {
         self.sessionToken = token
         KeychainHelper.save(token, forKey: tokenKeychainKey)
-        print("🔐 UserManager: Saved session token to Keychain")
+        if isAppleAuth {
+            self.isLinkedToApple = true
+            UserDefaults.standard.set(true, forKey: appleLinkedKey)
+        }
+        print("🔐 UserManager: Saved session token to Keychain (Apple Auth: \(isAppleAuth))")
     }
     
     func setUserProfile(name: String?, email: String?) {
@@ -83,9 +91,11 @@ class UserManager: ObservableObject {
         self.userName = nil
         self.userEmail = nil
         self.sessionToken = nil
+        self.isLinkedToApple = false
         UserDefaults.standard.removeObject(forKey: userDefaultsKey)
         UserDefaults.standard.removeObject(forKey: userNameKey)
         UserDefaults.standard.removeObject(forKey: userEmailKey)
+        UserDefaults.standard.removeObject(forKey: appleLinkedKey)
         KeychainHelper.delete(key: tokenKeychainKey)
     }
     

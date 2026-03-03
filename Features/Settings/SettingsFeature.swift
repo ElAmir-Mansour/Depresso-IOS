@@ -16,7 +16,8 @@ struct SettingsFeature {
         // Profile Info
         var userName: String? = nil
         var userEmail: String? = nil
-        var isGuest: Bool { userName == nil }
+        var isLinkedToApple: Bool = false
+        var isGuest: Bool { !isLinkedToApple }
         
         // Preferences
         var theme: AppTheme = .system
@@ -91,6 +92,7 @@ struct SettingsFeature {
                 // Initial load
                 state.userName = UserManager.shared.userName
                 state.userEmail = UserManager.shared.userEmail
+                state.isLinkedToApple = UserManager.shared.isLinkedToApple
                 
                 // Load notification preferences (with default true for first time)
                 let preferencesSet = UserDefaults.standard.bool(forKey: "notifications_preference_set")
@@ -123,6 +125,12 @@ struct SettingsFeature {
                             await send(.profileUpdated(name: await MainActor.run { UserManager.shared.userName }, email: email))
                         }
                     },
+                    .run { send in
+                        let appleLinks = await MainActor.run { UserManager.shared.$isLinkedToApple.values }
+                        for await isLinked in appleLinks {
+                            await send(.profileUpdated(name: await MainActor.run { UserManager.shared.userName }, email: await MainActor.run { UserManager.shared.userEmail }))
+                        }
+                    },
                     .run { [notificationClient] send in
                         let status = await notificationClient.getAuthorizationStatus()
                         await send(.notificationPermissionStatusLoaded(status))
@@ -132,9 +140,20 @@ struct SettingsFeature {
             case let .profileUpdated(name, email):
                 state.userName = name
                 state.userEmail = email
+                state.isLinkedToApple = UserManager.shared.isLinkedToApple
                 return .none
             
             case .editProfileButtonTapped:
+                // Only allow editing if user is linked to Apple (not guest)
+                guard !state.isGuest else {
+                    state.alert = AlertState {
+                        TextState("Link Account Required")
+                    } message: {
+                        TextState("Please link your account with Apple ID before editing your profile.")
+                    }
+                    return .none
+                }
+                
                 state.profileEdit = ProfileEditFeature.State(
                     name: state.userName ?? "",
                     email: state.userEmail ?? ""
@@ -168,7 +187,7 @@ struct SettingsFeature {
                             .compactMap { $0 }
                             .joined(separator: " ")
                         
-                        try await APIClient.linkAppleAccount(
+                        let newToken = try await APIClient.linkAppleAccount(
                             userId: currentUserId,
                             appleUserId: credentials.userId,
                             email: credentials.email,
@@ -177,6 +196,7 @@ struct SettingsFeature {
                         )
                         
                         await MainActor.run {
+                            UserManager.shared.setSessionToken(newToken, isAppleAuth: true)
                             UserManager.shared.setUserProfile(name: fullName.isEmpty ? nil : fullName, email: credentials.email)
                         }
                         
@@ -190,6 +210,7 @@ struct SettingsFeature {
                 state.isLinkingAccount = false
                 state.userName = UserManager.shared.userName
                 state.userEmail = UserManager.shared.userEmail
+                state.isLinkedToApple = UserManager.shared.isLinkedToApple
                 state.alert = AlertState { TextState("Success") } message: { TextState("Your account has been successfully linked to Apple ID.") }
                 return .none
                 
