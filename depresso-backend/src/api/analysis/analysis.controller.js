@@ -61,13 +61,12 @@ exports.getTrends = async (req, res) => {
     }
     
     try {
-        // Sentiment timeline
+        // Sentiment timeline - handle NULL sentiment_score
         const sentimentTimeline = await pool.query(
             `SELECT 
                 DATE(created_at) as date,
-                AVG(sentiment_score) as avg_sentiment,
-                COUNT(*) as entry_count,
-                ARRAY_AGG(DISTINCT sentiment) as sentiments
+                COALESCE(AVG(sentiment_score), 0.5) as avg_sentiment,
+                COUNT(*) as entry_count
             FROM UnifiedEntries
             WHERE user_id = $1 
                 AND created_at >= NOW() - INTERVAL '${parseInt(days)} days'
@@ -76,7 +75,7 @@ exports.getTrends = async (req, res) => {
             [userId]
         );
         
-        // CBT distortion frequency
+        // CBT distortion frequency - handle NULL cbt_distortions
         const cbtFrequency = await pool.query(
             `SELECT 
                 distortion->>'type' as distortion_type,
@@ -86,12 +85,13 @@ exports.getTrends = async (req, res) => {
                  jsonb_array_elements(cbt_distortions) as distortion
             WHERE user_id = $1
                 AND created_at >= NOW() - INTERVAL '${parseInt(days)} days'
+                AND cbt_distortions IS NOT NULL
             GROUP BY distortion->>'type', distortion->>'description'
             ORDER BY frequency DESC`,
             [userId]
         );
         
-        // Emotion distribution
+        // Emotion distribution - handle NULL emotion_tags
         const emotionDist = await pool.query(
             `SELECT 
                 UNNEST(emotion_tags) as emotion,
@@ -99,6 +99,8 @@ exports.getTrends = async (req, res) => {
             FROM UnifiedEntries
             WHERE user_id = $1
                 AND created_at >= NOW() - INTERVAL '${parseInt(days)} days'
+                AND emotion_tags IS NOT NULL
+                AND array_length(emotion_tags, 1) > 0
             GROUP BY emotion
             ORDER BY count DESC
             LIMIT 10`,
@@ -128,30 +130,31 @@ exports.getInsights = async (req, res) => {
     }
     
     try {
-        // Overall stats
+        // Overall stats - handle NULL values
         const stats = await pool.query(
             `SELECT 
                 COUNT(*) as total_entries,
-                AVG(sentiment_score) as avg_sentiment,
+                COALESCE(AVG(sentiment_score), 0.5) as avg_sentiment,
                 COUNT(CASE WHEN sentiment = 'positive' THEN 1 END) as positive_count,
                 COUNT(CASE WHEN sentiment = 'negative' THEN 1 END) as negative_count,
-                AVG(typing_speed) as avg_typing_speed,
-                AVG(word_count) as avg_word_count
+                COALESCE(AVG(typing_speed), 0) as avg_typing_speed,
+                COALESCE(AVG(word_count), 0) as avg_word_count
             FROM UnifiedEntries
             WHERE user_id = $1
                 AND created_at >= NOW() - INTERVAL '30 days'`,
             [userId]
         );
         
-        // Most common CBT distortions
+        // Most common CBT distortions - handle NULL
         const topDistortions = await pool.query(
             `SELECT 
-                distortion->>'description' as distortion,
+                distortion->>'description' as description,
                 COUNT(*) as frequency
             FROM UnifiedEntries,
                  jsonb_array_elements(cbt_distortions) as distortion
             WHERE user_id = $1
                 AND created_at >= NOW() - INTERVAL '30 days'
+                AND cbt_distortions IS NOT NULL
             GROUP BY distortion->>'description'
             ORDER BY frequency DESC
             LIMIT 3`,
@@ -160,7 +163,7 @@ exports.getInsights = async (req, res) => {
         
         // Compare to previous period
         const thisWeek = await pool.query(
-            `SELECT AVG(sentiment_score) as avg_sentiment
+            `SELECT COALESCE(AVG(sentiment_score), 0.5) as avg_sentiment
             FROM UnifiedEntries
             WHERE user_id = $1
                 AND created_at >= NOW() - INTERVAL '7 days'`,
@@ -168,7 +171,7 @@ exports.getInsights = async (req, res) => {
         );
         
         const lastWeek = await pool.query(
-            `SELECT AVG(sentiment_score) as avg_sentiment
+            `SELECT COALESCE(AVG(sentiment_score), 0.5) as avg_sentiment
             FROM UnifiedEntries
             WHERE user_id = $1
                 AND created_at >= NOW() - INTERVAL '14 days'
