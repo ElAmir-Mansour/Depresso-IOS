@@ -273,7 +273,9 @@ PORT=3000
 
 ---
 
-## 🔌 API Documentation
+## 🔌 API Documentation & Data Flow
+
+For an exhaustive breakdown of how data moves between the iOS app, the Node.js backend, PostgreSQL, and Google Gemini AI, please read our **[Comprehensive Data Flow Analysis](DATA_FLOW_ANALYSIS.md)**.
 
 ### Base URL
 ```
