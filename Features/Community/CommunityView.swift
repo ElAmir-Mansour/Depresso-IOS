@@ -5,63 +5,114 @@ import SwiftData
 
 struct CommunityView: View {
     @Bindable var store: StoreOf<CommunityFeature>
+    @Namespace private var animation
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 0) {
-                // View Mode Selector (Feed / Trending)
-                viewModeSelector
-                
-                // Category Filter Bar (only show in feed mode)
-                if store.selectedView == .feed {
-                    categoryFilterBar
-                }
-                
-                ZStack {
-                    if store.selectedView == .trending {
-                        trendingContent
-                    } else {
-                        feedContent
+            mainContentContainer
+                .navigationTitle("Community")
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button {
+                            DSHaptics.buttonPress()
+                            store.send(.addPostButtonTapped)
+                        } label: {
+                            Image(systemName: "square.and.pencil")
+                        }
                     }
                 }
-            }
-            .navigationTitle("Community")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
-                        store.send(.addPostButtonTapped)
-                    } label: {
-                        Image(systemName: "square.and.pencil")
-                    }
+                .task {
+                    store.send(.task)
                 }
-            }
-            .task {
-                store.send(.task)
-            }
-            .sheet(item: $store.scope(state: \.destination?.addPost, action: \.destination.addPost)) { addPostStore in
-                AddPostView(store: addPostStore)
-            }
+                .overlay(alignment: .bottomTrailing) {
+                    floatingActionButton
+                }
+                .sheet(item: $store.scope(state: \.destination?.addPost, action: \.destination.addPost)) { addPostStore in
+                    AddPostView(store: addPostStore)
+                }
         }
+    }
+    
+    private var mainContentContainer: some View {
+        VStack(spacing: 0) {
+            // View Mode Selector (Feed / Trending)
+            viewModeSelector
+            
+            // Category Filter Bar (only show in feed mode)
+            if store.selectedView == .feed {
+                categoryFilterBar
+            }
+            
+            ZStack {
+                if store.selectedView == .trending {
+                    trendingContent
+                } else {
+                    feedContent
+                }
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+        .background(Color.ds.backgroundPrimary.ignoresSafeArea(edges: .bottom))
+    }
+    
+    private var floatingActionButton: some View {
+        Button {
+            DSHaptics.buttonPress()
+            store.send(.addPostButtonTapped)
+        } label: {
+            HStack {
+                Image(systemName: "plus")
+                    .font(.title3.weight(.bold))
+                Text("Share Story")
+                    .font(.headline)
+            }
+            .padding(.horizontal, 20)
+            .padding(.vertical, 16)
+            .background(Color.ds.accent)
+            .foregroundColor(.white)
+            .clipShape(Capsule())
+            .shadow(color: Color.ds.accent.opacity(0.3), radius: 10, x: 0, y: 5)
+        }
+        .padding()
+        .padding(.bottom, 80) // Push above custom tab bar
     }
     
     private var viewModeSelector: some View {
         HStack(spacing: 0) {
-            ForEach(CommunityFeature.State.ViewMode.allCases) { mode in
-                Button {
-                    store.send(.selectView(mode))
-                } label: {
-                    Text(mode.rawValue)
-                        .font(.ds.body.weight(.semibold))
-                        .foregroundColor(store.selectedView == mode ? .white : .ds.accent)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 12)
-                        .background(store.selectedView == mode ? Color.ds.accent : Color.clear)
-                }
+            ForEach(CommunityFeature.State.ViewMode.allCases, id: \.self) { mode in
+                viewModeButton(for: mode)
             }
         }
-        .background(Color.ds.accent.opacity(0.1))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .background {
+            Color.ds.accent.opacity(0.1)
+        }
+        .clipShape(Capsule())
         .padding()
+    }
+    
+    private func viewModeButton(for mode: CommunityFeature.State.ViewMode) -> some View {
+        Button {
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                _ = store.send(.selectView(mode))
+            }
+        } label: {
+            Text(mode.rawValue)
+                .font(.ds.body.weight(.semibold))
+                .foregroundColor(store.selectedView == mode ? Color.white : Color.ds.accent)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 12)
+                .background {
+                    if store.selectedView == mode {
+                        Capsule()
+                            .fill(Color.ds.accent)
+                            .matchedGeometryEffect(id: "VIEW_MODE_BG", in: animation)
+                    } else {
+                        Color.clear
+                    }
+                }
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
     }
     
     @ViewBuilder
@@ -70,19 +121,20 @@ struct CommunityView: View {
             loadingView
         } else if let errorMessage = store.errorMessage {
             DSEmptyState(
-                icon: "exclamationmark.triangle",
-                title: "Error",
+                icon: DSIcons.errorState,
+                title: "Something went wrong",
                 message: errorMessage
             )
         } else if store.filteredPosts.isEmpty {
             DSEmptyState(
-                icon: "text.bubble",
+                icon: DSIcons.emptyState,
                 title: store.selectedCategory == "All" ? "No Stories Yet" : "No \(store.selectedCategory) Stories",
                 message: "Be the first to share your journey in this category.",
                 actionTitle: "Share Your Story",
                 action: { store.send(.addPostButtonTapped) }
             )
-        } else {
+        }
+ else {
             postsList
         }
     }
@@ -177,7 +229,25 @@ struct CommunityView: View {
     }
 }
 
-// --- Updated PostRowView with Category Badge ---
+// --- Pseudo Identity Helper ---
+struct PseudoIdentity {
+    let name: String
+    let color: Color
+    let icon: String
+    
+    init(userId: String) {
+        let names = ["Mindful Friend", "Brave Journey", "Gentle Soul", "Quiet Strength", "Hopeful Heart", "Peace Seeker", "Inner Light", "Calm Waters"]
+        let colors: [Color] = [.blue, .purple, .orange, .green, .pink, .teal, .indigo, .mint]
+        let icons = ["leaf.fill", "sparkles", "sun.max.fill", "moon.stars.fill", "bird.fill", "drop.fill", "heart.circle.fill", "star.circle.fill"]
+        
+        let hash = abs(userId.hashValue)
+        self.name = names[hash % names.count]
+        self.color = colors[hash % colors.count]
+        self.icon = icons[hash % icons.count]
+    }
+}
+
+// --- Updated PostRowView with Category Badge & Pseudo Identity ---
 struct PostRowView: View {
     let store: StoreOf<CommunityFeature>
     let post: CommunityPost
@@ -188,16 +258,23 @@ struct PostRowView: View {
     }
 
     var body: some View {
+        let identity = PseudoIdentity(userId: post.userId)
+        
         HStack(alignment: .top, spacing: DesignSystem.Spacing.medium) {
-            Image(systemName: "person.circle.fill")
-                .resizable().scaledToFit().frame(width: 40, height: 40)
-                .foregroundStyle(.gray.opacity(0.5))
-                .padding(.leading, DesignSystem.Spacing.medium)
+            ZStack {
+                Circle()
+                    .fill(identity.color.opacity(0.2))
+                    .frame(width: 40, height: 40)
+                Image(systemName: identity.icon)
+                    .foregroundColor(identity.color)
+                    .font(.system(size: 20))
+            }
+            .padding(.leading, DesignSystem.Spacing.medium)
 
             VStack(alignment: .leading, spacing: DesignSystem.Spacing.small) {
                 HStack {
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("Anonymous User").font(.ds.caption.weight(.semibold))
+                        Text(identity.name).font(.ds.caption.weight(.semibold)).foregroundColor(identity.color)
                         HStack {
                             Text(post.creationDate, style: .relative).font(.ds.caption).foregroundStyle(.secondary)
                             Text("·").font(.ds.caption).foregroundStyle(.secondary)
@@ -254,15 +331,36 @@ struct PostRowView: View {
                     }
                     .buttonStyle(.plain)
 
+                    Button {
+                        // Action handled by NavigationLink in CommunityView
+                    } label: {
+                        HStack(spacing: 6) {
+                            Image(systemName: "bubble.right")
+                                .foregroundStyle(.secondary)
+                            
+                            let actualCount = store.comments[post.id]?.count ?? 0
+                            
+                            if actualCount > 0 {
+                                Text("\(actualCount)")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                        .padding(.vertical, 4)
+                        .padding(.horizontal, 8)
+                    }
+                    .buttonStyle(.plain)
+
                     Spacer()
                     
-                    Button {
-                        // Share action
-                    } label: {
+                    ShareLink(item: "\(post.title.isEmpty ? "A story" : post.title) on Depresso\n\n\(post.content)") {
                         Image(systemName: "square.and.arrow.up")
                             .font(.system(size: 14))
                             .foregroundStyle(.secondary)
+                            .padding(.vertical, 4)
+                            .padding(.horizontal, 8)
                     }
+                    .buttonStyle(.plain)
                 }
                 .foregroundStyle(.secondary)
                 .padding(.top, DesignSystem.Spacing.small)

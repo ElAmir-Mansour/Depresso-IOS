@@ -1,8 +1,29 @@
+// Features/Dashboard/Core/Design System/DSIcons.swift
 import SwiftUI
 
-// Advanced icon system with GitHub Octicons-inspired design
+// Depresso Dynamic Icon System
 enum DSIcons {
-    // Health & Metrics (Octicons style)
+    private static let custom = "custom:"
+    private static let theme = ThemeManager.shared
+    
+    // Navigation (Tab Bar)
+    static var home: String { theme.icon(for: .home) }
+    static var journal: String { theme.icon(for: .journal) }
+    static var community: String { theme.icon(for: .community) }
+    static var insights: String { theme.icon(for: .insights) }
+    static var support: String { theme.icon(for: .support) }
+    
+    // Gamification & Streaks
+    static var streak: String { theme.icon(for: .streak) }
+    static var bean: String { "custom:icon-coffee-bean" }
+    static var fire: String { "flame.fill" }
+    
+    // Feedback Illustrations
+    static var emptyState: String { theme.icon(for: .emptyState) }
+    static var errorState: String { theme.icon(for: .errorState) }
+    static var successState: String { theme.icon(for: .successState) }
+    
+    // --- SF Symbols fallback ---
     static let heart = "heart.fill"
     static let heartbeat = "waveform.path.ecg.rectangle.fill"
     static let steps = "figure.walk.circle.fill"
@@ -10,52 +31,27 @@ enum DSIcons {
     static let energy = "bolt.circle.fill"
     static let activity = "flame.circle.fill"
     static let mood = "face.smiling.fill"
-    
-    // Progress & Stats
-    static let chart = "chart.bar.fill"
-    static let chartLine = "chart.line.uptrend.xyaxis"
-    static let calendar = "calendar.circle.fill"
-    static let checkmark = "checkmark.seal.fill"
-    static let trophy = "trophy.circle.fill"
-    static let star = "star.circle.fill"
-    static let target = "scope"
-    
-    // Navigation (Tab Bar)
-    static let home = "squares.below.rectangle"
-    static let journal = "book.closed.fill"
-    static let community = "person.3.sequence.fill"
-    static let support = "heart.text.square.fill"
     static let settings = "gearshape.2.fill"
-    
-    // Actions
-    static let plus = "plus.circle.fill"
-    static let plusSquare = "plus.square.fill"
-    static let refresh = "arrow.triangle.2.circlepath.circle.fill"
     static let info = "info.circle.fill"
     static let warning = "exclamationmark.triangle.fill"
     static let bell = "bell.badge.fill"
     static let share = "square.and.arrow.up.circle.fill"
     
-    // Wellness & Mental Health
-    static let brain = "brain.head.profile"
-    static let meditation = "sparkles"
-    static let water = "drop.circle.fill"
-    static let sun = "sun.max.circle.fill"
-    static let moon = "moon.circle.fill"
-    static let leaf = "leaf.circle.fill"
+    // Helper to determine if an icon is custom
+    static func isCustom(_ name: String) -> Bool {
+        name.hasPrefix(custom)
+    }
     
-    // Streak & Progress
-    static let fire = "flame.fill"
-    static let streak = "arrow.up.right.circle.fill"
-    static let progress = "chart.pie.fill"
-    
-    // AI & Insights
-    static let ai = "sparkle.magnifyingglass"
-    static let insights = "lightbulb.fill"
-    static let robot = "brain"
+    // Helper to get the actual name (strips prefix)
+    static func actualName(_ name: String) -> String {
+        if name.hasPrefix(custom) {
+            return String(name.dropFirst(custom.count))
+        }
+        return name
+    }
 }
 
-// Advanced icon view with animations and effects
+// Icon View - Handles both SF Symbols and Custom SVGs
 struct DSIcon: View {
     let name: String
     let color: Color
@@ -80,69 +76,28 @@ struct DSIcon: View {
     }
     
     var body: some View {
-        Image(systemName: name)
-            .font(.system(size: size, weight: weight, design: .rounded))
-            .foregroundStyle(color.gradient)
-            .symbolRenderingMode(.hierarchical)
-            .scaleEffect(isAnimating && animated ? 1.1 : 1.0)
-            .animation(
-                animated ? .easeInOut(duration: 0.6).repeatForever(autoreverses: true) : nil,
-                value: isAnimating
-            )
-            .onAppear {
-                if animated {
-                    isAnimating = true
-                }
+        Group {
+            if DSIcons.isCustom(name) {
+                Image(DSIcons.actualName(name))
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: size, height: size)
+                    .foregroundStyle(color)
+            } else {
+                Image(systemName: name)
+                    .font(.system(size: size, weight: weight, design: .rounded))
+                    .foregroundStyle(color.gradient)
+                    .symbolRenderingMode(.hierarchical)
             }
-    }
-}
-
-// Gradient icon for premium look
-struct DSGradientIcon: View {
-    let name: String
-    let gradient: LinearGradient
-    let size: CGFloat
-    
-    init(_ name: String, gradient: LinearGradient, size: CGFloat = 24) {
-        self.name = name
-        self.gradient = gradient
-        self.size = size
-    }
-    
-    var body: some View {
-        Image(systemName: name)
-            .font(.system(size: size, weight: .bold, design: .rounded))
-            .foregroundStyle(gradient)
-            .symbolRenderingMode(.hierarchical)
-    }
-}
-
-// Animated badge icon
-struct DSBadgeIcon: View {
-    let name: String
-    let badgeCount: Int?
-    let color: Color
-    let size: CGFloat
-    
-    init(_ name: String, badge: Int? = nil, color: Color = .ds.accent, size: CGFloat = 24) {
-        self.name = name
-        self.badgeCount = badge
-        self.color = color
-        self.size = size
-    }
-    
-    var body: some View {
-        ZStack(alignment: .topTrailing) {
-            DSIcon(name, color: color, size: size)
-            
-            if let count = badgeCount, count > 0 {
-                Text("\(count)")
-                    .font(.system(size: 10, weight: .bold, design: .rounded))
-                    .foregroundColor(.white)
-                    .padding(4)
-                    .background(Color.red)
-                    .clipShape(Circle())
-                    .offset(x: 8, y: -8)
+        }
+        .scaleEffect(isAnimating && animated ? 1.1 : 1.0)
+        .animation(
+            animated ? .easeInOut(duration: 0.6).repeatForever(autoreverses: true) : nil,
+            value: isAnimating
+        )
+        .onAppear {
+            if animated {
+                isAnimating = true
             }
         }
     }

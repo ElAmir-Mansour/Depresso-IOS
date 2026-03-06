@@ -61,6 +61,26 @@ struct ContentView: View {
             store.send(.task)
         }
         .alert($store.scope(state: \.achievementAlert, action: \.achievementAlert))
+        .onOpenURL { url in
+            handleDeepLink(url)
+        }
+    }
+    
+    private func handleDeepLink(_ url: URL) {
+        guard url.scheme == "depresso" else { return }
+        
+        switch url.host {
+        case "checkin":
+            selectedTab = 0
+        case "journal":
+            selectedTab = 1
+        case "community":
+            selectedTab = 2
+        case "insights":
+            selectedTab = 3
+        default:
+            selectedTab = 0
+        }
     }
     
     private var mainContent: some View {
@@ -69,23 +89,18 @@ struct ContentView: View {
                 switch selectedTab {
                 case 0:
                     DashboardView(store: store.scope(state: \.dashboardState, action: \.dashboard))
-                        .padding(.bottom, 80)
                 case 1:
                     NavigationStack {
                         JournalView(store: store.scope(state: \.journalState, action: \.journal))
                     }
                 case 2:
                     CommunityView(store: store.scope(state: \.communityState, action: \.community))
-                        .padding(.bottom, 80)
                 case 3:
                     InsightsView(store: store.scope(state: \.insightsState, action: \.insights))
-                        .padding(.bottom, 80)
                 case 4:
                     SupportView(store: store.scope(state: \.supportState, action: \.support))
-                        .padding(.bottom, 80)
                 default:
                     DashboardView(store: store.scope(state: \.dashboardState, action: \.dashboard))
-                        .padding(.bottom, 80)
                 }
             }
             .transition(.opacity)

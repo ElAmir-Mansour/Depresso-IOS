@@ -12,6 +12,7 @@ struct InsightsFeature {
         var communityStats: CommunityStatsDTO? = nil
         var errorMessage: String? = nil
         var selectedPeriod: Period = .month
+        var selectedPattern: CBTPatternFrequencyDTO? = nil
         
         enum Period: String, CaseIterable, Identifiable {
             case week = "7 Days"
@@ -34,6 +35,8 @@ struct InsightsFeature {
         case refresh
         case dataLoaded(Result<(AnalysisTrendsDTO, AnalysisInsightsDTO, CommunityStatsDTO), Error>)
         case selectPeriod(State.Period)
+        case patternTapped(CBTPatternFrequencyDTO)
+        case dismissPattern
     }
     
     enum InsightsError: Error, LocalizedError {
@@ -88,6 +91,15 @@ struct InsightsFeature {
             case .selectPeriod(let period):
                 state.selectedPeriod = period
                 return .send(.refresh)
+                
+            case .patternTapped(let pattern):
+                state.selectedPattern = pattern
+                DSHaptics.selection()
+                return .none
+                
+            case .dismissPattern:
+                state.selectedPattern = nil
+                return .none
             }
         }
     }

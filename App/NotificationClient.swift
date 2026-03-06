@@ -9,6 +9,7 @@ struct NotificationClient {
     var requestAuthorization: @Sendable () async throws -> Bool = { false }
     var scheduleDailyReminder: @Sendable (Date) async throws -> Void
     var scheduleStreakWarning: @Sendable (Int) async throws -> Void
+    var sendAchievementNotification: @Sendable (String, String) async throws -> Void
     var cancelAllNotifications: @Sendable () async -> Void
     var cancelNotification: @Sendable (String) async -> Void
     var getAuthorizationStatus: @Sendable () async -> UNAuthorizationStatus = { .notDetermined }
@@ -81,6 +82,26 @@ extension NotificationClient: DependencyKey {
             try await center.add(request)
         },
         
+        sendAchievementNotification: { title, message in
+            let center = UNUserNotificationCenter.current()
+            
+            let content = UNMutableNotificationContent()
+            content.title = "🏆 Achievement Unlocked!"
+            content.body = "\(title): \(message)"
+            content.sound = .default
+            content.badge = 1
+            content.categoryIdentifier = "ACHIEVEMENT"
+            
+            // Immediate notification
+            let request = UNNotificationRequest(
+                identifier: "achievement_\(UUID().uuidString)",
+                content: content,
+                trigger: nil // Immediate
+            )
+            
+            try await center.add(request)
+        },
+        
         cancelAllNotifications: {
             let center = UNUserNotificationCenter.current()
             center.removeAllPendingNotificationRequests()
@@ -106,6 +127,7 @@ extension NotificationClient: DependencyKey {
         requestAuthorization: { true },
         scheduleDailyReminder: { _ in },
         scheduleStreakWarning: { _ in },
+        sendAchievementNotification: { _, _ in },
         cancelAllNotifications: { },
         cancelNotification: { _ in },
         getAuthorizationStatus: { .authorized }

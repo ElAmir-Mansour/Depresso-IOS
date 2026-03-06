@@ -223,3 +223,46 @@ exports.getCommunityStats = async (req, res) => {
         res.status(500).json({ error: 'Failed to fetch community stats' });
     }
 };
+
+// NEW: Get comments for a post
+exports.getComments = async (req, res) => {
+    const { postId } = req.params;
+
+    try {
+        const result = await pool.query(
+            `SELECT id, post_id, user_id, content, created_at 
+             FROM PostComments 
+             WHERE post_id = $1 
+             ORDER BY created_at ASC`,
+            [postId]
+        );
+        res.json(result.rows);
+    } catch (error) {
+        console.error('Error fetching comments:', error);
+        res.status(500).send('Server error');
+    }
+};
+
+// NEW: Add comment to a post
+exports.addComment = async (req, res) => {
+    const { postId } = req.params;
+    const { userId, content } = req.body;
+
+    if (!userId || !content) {
+        return res.status(400).send('userId and content are required.');
+    }
+
+    try {
+        const result = await pool.query(
+            `INSERT INTO PostComments (post_id, user_id, content) 
+             VALUES ($1, $2, $3) 
+             RETURNING id, post_id, user_id, content, created_at`,
+            [postId, userId, content]
+        );
+
+        res.status(201).json(result.rows[0]);
+    } catch (error) {
+        console.error('Error adding comment:', error);
+        res.status(500).send('Server error');
+    }
+};

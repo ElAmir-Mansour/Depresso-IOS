@@ -78,6 +78,14 @@ CREATE TABLE PostLikes (
     PRIMARY KEY (user_id, post_id)
 );
 
+CREATE TABLE PostComments (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    post_id UUID REFERENCES CommunityPosts(id) ON DELETE CASCADE,
+    user_id UUID REFERENCES Users(id) ON DELETE CASCADE,
+    content TEXT NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- 6. Wellness Tasks
 CREATE TABLE WellnessTasks (
     id SERIAL PRIMARY KEY,

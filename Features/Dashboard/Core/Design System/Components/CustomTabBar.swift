@@ -6,11 +6,11 @@ struct CustomTabBar: View {
     @Namespace private var animation
     
     let tabs: [TabItem] = [
-        TabItem(icon: "house.fill", title: "Dashboard", index: 0),
-        TabItem(icon: "book.pages.fill", title: "Journal", index: 1),
-        TabItem(icon: "person.3.fill", title: "Community", index: 2),
-        TabItem(icon: "chart.xyaxis.line", title: "Insights", index: 3),
-        TabItem(icon: "lifepreserver.fill", title: "Support", index: 4)
+        TabItem(icon: DSIcons.home, title: "Dashboard", index: 0),
+        TabItem(icon: DSIcons.journal, title: "Journal", index: 1),
+        TabItem(icon: DSIcons.community, title: "Community", index: 2),
+        TabItem(icon: DSIcons.insights, title: "Insights", index: 3),
+        TabItem(icon: DSIcons.support, title: "Support", index: 4)
     ]
     
     var body: some View {
@@ -63,12 +63,8 @@ struct TabBarButton: View {
                             .frame(width: 64, height: 40)
                     }
                     
-                    Image(systemName: tab.icon)
-                        .font(.system(size: 22, weight: .semibold, design: .rounded))
-                        .foregroundColor(isSelected ? .ds.accent : .secondary)
-                        .symbolRenderingMode(.hierarchical)
+                    DSIcon(tab.icon, color: isSelected ? .ds.accent : .secondary, size: 22)
                         .scaleEffect(isSelected ? 1.15 : 1.0)
-                        .symbolEffect(.bounce, value: isSelected)
                 }
                 .frame(height: 40)
                 

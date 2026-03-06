@@ -21,6 +21,7 @@ struct SettingsFeature {
         
         // Preferences
         var theme: AppTheme = .system
+        var style: AppStyle = .classic
         var notificationsEnabled: Bool = true
         var streakWarningsEnabled: Bool = true
         var dailyReminderTime: Date = Calendar.current.date(bySettingHour: 9, minute: 0, second: 0, of: Date()) ?? Date()
@@ -57,6 +58,7 @@ struct SettingsFeature {
         case notificationsToggled(Bool)
         case streakWarningsToggled(Bool)
         case reminderTimeChanged(Date)
+        case styleToggled(AppStyle)
         case openSystemSettings
         case notificationPermissionStatusLoaded(UNAuthorizationStatus)
         
@@ -110,6 +112,13 @@ struct SettingsFeature {
                 if let savedTime = UserDefaults.standard.object(forKey: "daily_reminder_time") as? Date {
                     state.dailyReminderTime = savedTime
                 }
+                
+                if let savedThemeString = UserDefaults.standard.string(forKey: "app_theme"),
+                   let savedTheme = AppTheme(rawValue: savedThemeString) {
+                    state.theme = savedTheme
+                }
+                
+                state.style = ThemeManager.shared.currentStyle
                 
                 // Observe changes
                 return .merge(
@@ -264,6 +273,11 @@ struct SettingsFeature {
                     TextState(error.localizedDescription)
                 }
                 print("❌ Failed to delete account: \(error)")
+                return .none
+                
+            case .styleToggled(let newStyle):
+                state.style = newStyle
+                ThemeManager.shared.currentStyle = newStyle
                 return .none
                 
             case .notificationsToggled(let enabled):

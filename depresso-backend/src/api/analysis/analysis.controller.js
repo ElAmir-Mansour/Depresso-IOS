@@ -120,7 +120,7 @@ exports.getTrends = async (req, res) => {
 
 /**
  * GET /api/v1/analysis/insights
- * Get personalized insights for a user
+ * Get personalized clinical insights for a user
  */
 exports.getInsights = async (req, res) => {
     const { userId } = req.query;
@@ -130,24 +130,60 @@ exports.getInsights = async (req, res) => {
     }
     
     try {
-        // Overall stats - handle NULL values and cast to proper types
+        // 1. Overall stats (30 days)
         const stats = await pool.query(
             `SELECT 
                 COUNT(*)::INTEGER as total_entries,
                 COALESCE(AVG(sentiment_score), 0.5)::FLOAT as avg_sentiment,
+                STDDEV(sentiment_score)::FLOAT as mood_stability,
                 COUNT(CASE WHEN sentiment = 'positive' THEN 1 END)::INTEGER as positive_count,
-                COUNT(CASE WHEN sentiment = 'negative' THEN 1 END)::INTEGER as negative_count,
-                COALESCE(AVG(typing_speed), 0)::FLOAT as avg_typing_speed,
-                COALESCE(AVG(word_count), 0)::FLOAT as avg_word_count
+                COUNT(CASE WHEN sentiment = 'negative' THEN 1 END)::INTEGER as negative_count
             FROM UnifiedEntries
             WHERE user_id = $1
                 AND created_at >= NOW() - INTERVAL '30 days'`,
             [userId]
         );
         
-        // Most common CBT distortions - handle NULL
+        // 2. Correlation: Mood vs Steps
+        const correlation = await pool.query(
+            `WITH DailyMood AS (
+                SELECT DATE(created_at) as date, AVG(sentiment_score) as mood
+                FROM UnifiedEntries
+                WHERE user_id = $1 AND created_at >= NOW() - INTERVAL '30 days'
+                GROUP BY DATE(created_at)
+            ),
+            DailyActivity AS (
+                SELECT DATE(created_at) as date, SUM(steps) as steps
+                FROM DailyMetrics
+                WHERE user_id = $1 AND created_at >= NOW() - INTERVAL '30 days'
+                GROUP BY DATE(created_at)
+            )
+            SELECT 
+                CORR(m.mood, a.steps)::FLOAT as correlation_coefficient,
+                AVG(CASE WHEN a.steps > 5000 THEN m.mood END)::FLOAT as mood_high_activity,
+                AVG(CASE WHEN a.steps <= 5000 THEN m.mood END)::FLOAT as mood_low_activity
+            FROM DailyMood m
+            JOIN DailyActivity a ON m.date = a.date`,
+            [userId]
+        );
+
+        // 3. Time of Day Analysis
+        const timeOfDay = await pool.query(
+            `SELECT 
+                time_of_day,
+                AVG(sentiment_score)::FLOAT as avg_sentiment,
+                COUNT(*)::INTEGER as frequency
+            FROM UnifiedEntries
+            WHERE user_id = $1 AND created_at >= NOW() - INTERVAL '30 days'
+            GROUP BY time_of_day
+            ORDER BY avg_sentiment DESC`,
+            [userId]
+        );
+        
+        // 4. Most common CBT distortions
         const topDistortions = await pool.query(
             `SELECT 
+                distortion->>'type' as distortion_type,
                 distortion->>'description' as description,
                 COUNT(*)::INTEGER as frequency
             FROM UnifiedEntries,
@@ -155,55 +191,57 @@ exports.getInsights = async (req, res) => {
             WHERE user_id = $1
                 AND created_at >= NOW() - INTERVAL '30 days'
                 AND cbt_distortions IS NOT NULL
-            GROUP BY distortion->>'description'
+            GROUP BY distortion->>'type', distortion->>'description'
             ORDER BY frequency DESC
             LIMIT 3`,
             [userId]
         );
         
-        // Compare to previous period
-        const thisWeek = await pool.query(
-            `SELECT COALESCE(AVG(sentiment_score), 0.5)::FLOAT as avg_sentiment
-            FROM UnifiedEntries
-            WHERE user_id = $1
-                AND created_at >= NOW() - INTERVAL '7 days'`,
+        // 5. Comparison
+        const comparison = await pool.query(
+            `SELECT 
+                (SELECT AVG(sentiment_score) FROM UnifiedEntries WHERE user_id = $1 AND created_at >= NOW() - INTERVAL '7 days') as this_week,
+                (SELECT AVG(sentiment_score) FROM UnifiedEntries WHERE user_id = $1 AND created_at >= NOW() - INTERVAL '14 days' AND created_at < NOW() - INTERVAL '7 days') as last_week`,
             [userId]
         );
-        
-        const lastWeek = await pool.query(
-            `SELECT COALESCE(AVG(sentiment_score), 0.5)::FLOAT as avg_sentiment
-            FROM UnifiedEntries
-            WHERE user_id = $1
-                AND created_at >= NOW() - INTERVAL '14 days'
-                AND created_at < NOW() - INTERVAL '7 days'`,
-            [userId]
-        );
-        
-        const thisWeekScore = parseFloat(thisWeek.rows[0]?.avg_sentiment || 0.5);
-        const lastWeekScore = parseFloat(lastWeek.rows[0]?.avg_sentiment || 0.5);
-        const improvement = lastWeekScore !== 0 ? ((thisWeekScore - lastWeekScore) / lastWeekScore * 100).toFixed(1) : 0;
         
         const overview = stats.rows[0] || {};
+        const corrData = correlation.rows[0] || {};
+        const thisWeek = parseFloat(comparison.rows[0]?.this_week || 0.5);
+        const lastWeek = parseFloat(comparison.rows[0]?.last_week || 0.5);
         
+        // Generate Dynamic AI Recommendation
+        let recommendation = "Keep tracking your journey to unlock more personalized insights.";
+        if (corrData.correlation_coefficient > 0.3) {
+            recommendation = "We noticed a strong link between your physical activity and mood. On days you walk more, you feel significantly more positive!";
+        } else if (overview.mood_stability > 0.3) {
+            recommendation = "Your mood has been quite variable lately. Deep breathing exercises or guided journaling might help find some balance.";
+        } else if (timeOfDay.rows.length > 0 && timeOfDay.rows[timeOfDay.rows.length - 1].avg_sentiment < 0.4) {
+            const worstTime = timeOfDay.rows[timeOfDay.rows.length - 1].time_of_day;
+            recommendation = `You tend to feel more anxious during the ${worstTime}. Consider scheduling a short mindfulness break during this time.`;
+        }
+
         res.json({
             overview: {
                 total_entries: parseInt(overview.total_entries) || 0,
                 avg_sentiment: parseFloat(overview.avg_sentiment) || 0.5,
                 positive_count: parseInt(overview.positive_count) || 0,
                 negative_count: parseInt(overview.negative_count) || 0,
-                avg_typing_speed: parseFloat(overview.avg_typing_speed) || 0,
-                avg_word_count: parseFloat(overview.avg_word_count) || 0
+                mood_stability: 1.0 - Math.min(parseFloat(overview.mood_stability || 0), 1.0) // Stability is inverse of volatility
             },
-            topDistortions: topDistortions.rows.map(d => ({
-                distortion_type: null,
-                description: d.description || null,
-                frequency: parseInt(d.frequency) || 0
-            })),
+            correlations: {
+                mood_activity_corr: parseFloat(corrData.correlation_coefficient) || 0,
+                mood_boost_pct: corrData.mood_high_activity && corrData.mood_low_activity ? 
+                    ((corrData.mood_high_activity - corrData.mood_low_activity) / corrData.mood_low_activity * 100).toFixed(1) : 0
+            },
+            timeOfDayAnalysis: timeOfDay.rows,
+            topDistortions: topDistortions.rows,
+            recommendation: recommendation,
             weeklyComparison: {
-                thisWeek: thisWeekScore,
-                lastWeek: lastWeekScore,
-                improvement: parseFloat(improvement),
-                isImproving: thisWeekScore > lastWeekScore
+                thisWeek: thisWeek,
+                lastWeek: lastWeek,
+                improvement: lastWeek !== 0 ? parseFloat(((thisWeek - lastWeek) / lastWeek * 100).toFixed(1)) : 0,
+                isImproving: thisWeek > lastWeek
             }
         });
     } catch (error) {

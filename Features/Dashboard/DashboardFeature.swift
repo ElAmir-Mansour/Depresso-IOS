@@ -109,10 +109,10 @@ struct DashboardFeature {
                     },
                     .run { [modelContext] send in
                         let userId = (try? await MainActor.run { try UserManager.shared.getCurrentUserId() }) ?? ""
-                        let sevenDaysAgo = Calendar.current.date(byAdding: .day, value: -7, to: now)!
+                        let historyLimit = Calendar.current.date(byAdding: .day, value: -90, to: now)!
                         
                         let history: [DailyAssessment] = (try? await MainActor.run {
-                            let predicate = #Predicate<DailyAssessment> { $0.userId == userId && $0.date >= sevenDaysAgo }
+                            let predicate = #Predicate<DailyAssessment> { $0.userId == userId && $0.date >= historyLimit }
                             let descriptor = FetchDescriptor<DailyAssessment>(predicate: predicate, sortBy: [SortDescriptor(\.date)])
                             return try modelContext.context.fetch(descriptor)
                         }) ?? []
@@ -157,10 +157,10 @@ struct DashboardFeature {
                     },
                     .run { [modelContext] send in
                         let userId = (try? await MainActor.run { try UserManager.shared.getCurrentUserId() }) ?? ""
-                        let sevenDaysAgo = Calendar.current.date(byAdding: .day, value: -7, to: now)!
+                        let historyLimit = Calendar.current.date(byAdding: .day, value: -90, to: now)!
                         
                         let history: [DailyAssessment] = (try? await MainActor.run {
-                            let predicate = #Predicate<DailyAssessment> { $0.userId == userId && $0.date >= sevenDaysAgo }
+                            let predicate = #Predicate<DailyAssessment> { $0.userId == userId && $0.date >= historyLimit }
                             let descriptor = FetchDescriptor<DailyAssessment>(predicate: predicate, sortBy: [SortDescriptor(\.date)])
                             return try modelContext.context.fetch(descriptor)
                         }) ?? []
@@ -222,17 +222,24 @@ struct DashboardFeature {
                   }
                   
                   return .run { send in
+                      let localCurrent = StreakCalculator.calculateCurrentStreak(from: history)
+                      let localLongest = StreakCalculator.calculateLongestStreak(from: history)
+                      
                       do {
                           let userId = try await MainActor.run { try UserManager.shared.getCurrentUserId() }
-                          let streak = try await APIClient.getStreak(userId: userId)
-                          UserDefaults.standard.set(streak.current, forKey: "current_streak")
-                          await send(.streakLoaded(.success(streak)))
+                          let backendStreak = try await APIClient.getStreak(userId: userId)
+                          
+                          // Use the best available data
+                          let finalCurrent = max(localCurrent, backendStreak.current)
+                          let finalLongest = max(localLongest, backendStreak.longest)
+                          
+                          UserDefaults.standard.set(finalCurrent, forKey: "current_streak")
+                          await send(.streakLoaded(.success((finalCurrent, finalLongest))))
                           await send(.checkForAssessmentStatus)
                       } catch {
-                          let current = StreakCalculator.calculateCurrentStreak(from: history)
-                          let longest = StreakCalculator.calculateLongestStreak(from: history)
-                          UserDefaults.standard.set(current, forKey: "current_streak")
-                          await send(.streakLoaded(.success((current, longest))))
+                          print("❌ Backend streak fetch failed, using local calculation: \(error)")
+                          UserDefaults.standard.set(localCurrent, forKey: "current_streak")
+                          await send(.streakLoaded(.success((localCurrent, localLongest))))
                           await send(.checkForAssessmentStatus)
                       }
                   }
@@ -244,6 +251,17 @@ struct DashboardFeature {
              case .streakLoaded(.success(let streak)):
                   state.currentStreak = streak.current
                   state.longestStreak = streak.longest
+                  
+                  // Share data with widget via App Group
+                  if let sharedDefaults = UserDefaults(suiteName: "group.com.depresso.app") {
+                      sharedDefaults.set(state.currentStreak, forKey: "currentStreak")
+                      sharedDefaults.set(state.canTakeAssessmentToday == false, forKey: "hasCheckedInToday")
+                      // Save mood emoji if available
+                      if let latestAssessment = state.assessmentHistory.last {
+                          let moodEmoji = getMoodEmoji(for: latestAssessment.score)
+                          sharedDefaults.set(moodEmoji, forKey: "todayMood")
+                      }
+                  }
                   
                   state.aiInsights = InsightGenerator.generateInsights(
                       currentMetrics: state.healthMetrics,
@@ -275,7 +293,14 @@ struct DashboardFeature {
 
              case .destination(.presented(.dailyAssessment(.delegate(.assessmentCompleted(let assessment))))):
                   state.destination = nil
-                  return .run { [modelContext] send in
+                  // Update local state immediately for responsiveness
+                  if !state.assessmentHistory.contains(where: { $0.id == assessment.id }) {
+                      state.assessmentHistory.append(assessment)
+                      state.assessmentHistory.sort { $0.date < $1.date }
+                  }
+                  state.canTakeAssessmentToday = false
+                  
+                  return .run { [history = state.assessmentHistory, modelContext] send in
                       let userId = (try? await MainActor.run { try UserManager.shared.getCurrentUserId() }) ?? ""
                       if !userId.isEmpty {
                           assessment.userId = userId
@@ -287,10 +312,21 @@ struct DashboardFeature {
                       }
                       
                       do {
-                          let streak = try await APIClient.getStreak(userId: userId)
-                          UserDefaults.standard.set(streak.current, forKey: "current_streak")
-                          await send(.streakLoaded(.success(streak)))
+                          let localCurrent = StreakCalculator.calculateCurrentStreak(from: history)
+                          let localLongest = StreakCalculator.calculateLongestStreak(from: history)
+                          
+                          let backendStreak = try await APIClient.getStreak(userId: userId)
+                          
+                          let finalCurrent = max(localCurrent, backendStreak.current)
+                          let finalLongest = max(localLongest, backendStreak.longest)
+                          
+                          UserDefaults.standard.set(finalCurrent, forKey: "current_streak")
+                          await send(.streakLoaded(.success((finalCurrent, finalLongest))))
                       } catch {
+                          print("❌ Backend streak fetch failed, using local calculation: \(error)")
+                          let current = StreakCalculator.calculateCurrentStreak(from: history)
+                          let longest = StreakCalculator.calculateLongestStreak(from: history)
+                          await send(.streakLoaded(.success((current, longest))))
                           await send(.checkForAssessmentStatus)
                       }
                   }
@@ -313,6 +349,17 @@ struct DashboardFeature {
             }
         }
         .ifLet(\.$destination, action: \.destination)
+    }
+    
+    // Helper function to get mood emoji based on PHQ-8 score
+    private func getMoodEmoji(for score: Int) -> String {
+        switch score {
+        case 0...4: return "😊"  // Minimal
+        case 5...9: return "🙂"  // Mild
+        case 10...14: return "😐" // Moderate
+        case 15...19: return "😟" // Moderately Severe
+        default: return "😔"     // Severe
+        }
     }
 }
 

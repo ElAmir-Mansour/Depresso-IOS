@@ -58,7 +58,10 @@ struct CommunityFeature {
         case postSavedSuccessfully(CommunityPost)
         case saveFailed(Error)
         case likeButtonTapped(id: CommunityPost.ID)
+        case addComment(postId: UUID, text: String)
+        case commentAdded(postId: UUID, comment: Comment)
         case viewPost(id: CommunityPost.ID)
+        case commentsLoaded(postId: UUID, Result<[Comment], Error>)
         case reportPostTapped(id: CommunityPost.ID)
         case alert(PresentationAction<Alert>)
         
@@ -135,11 +138,15 @@ struct CommunityFeature {
                             print("❌ Error syncing with backend: \(error)")
                         }
                     },
-                    .run { send in
+                    .run { [userDefaultsClient] send in
                         do {
-                            await send(.likedIDsLoaded(Set<UUID>()))
+                            let userId = try await MainActor.run { try UserManager.shared.getCurrentUserId() }
+                            let likedPostIdStrings = try await APIClient.getLikedPosts(userId: userId)
+                            let likedPostIDs = Set(likedPostIdStrings.compactMap { UUID(uuidString: $0) })
+                            await send(.likedIDsLoaded(likedPostIDs))
                         } catch {
-                            await send(.likedIDsLoaded(Set<UUID>()))
+                            let ids = await userDefaultsClient.loadLikedPostIDs()
+                            await send(.likedIDsLoaded(ids))
                         }
                     }
                 )
@@ -277,17 +284,91 @@ struct CommunityFeature {
                         print("❌ Failed to sync like with backend: \(error)")
                     }
                 }
-
-            case .viewPost(let id):
-                if state.viewedPostIDs.contains(id) { return .none }
-                state.viewedPostIDs.insert(id)
                 
-                return .run { _ in
+            case .addComment(let postId, let text):
+                // Create an optimistic local comment
+                let optimisticComment = Comment(id: UUID(), author: "You", content: text, date: Date())
+                var currentComments = state.comments[postId] ?? []
+                currentComments.append(optimisticComment)
+                state.comments[postId] = currentComments
+                DSHaptics.success()
+                
+                return .run { send in
                     do {
                         let userId = try await MainActor.run { try UserManager.shared.getCurrentUserId() }
-                        try await APIClient.trackAnalytics(userId: userId, eventType: "view", postId: id.uuidString)
-                    } catch {}
+                        let commentDTO = try await APIClient.addComment(postId: postId.uuidString, userId: userId, content: text)
+                        
+                        let backendComment = Comment(
+                            id: UUID(uuidString: commentDTO.id) ?? UUID(),
+                            author: "You", // Backend might not have names, but we know it's "You" for the local user
+                            content: commentDTO.content,
+                            date: commentDTO.createdAt
+                        )
+                        await send(.commentAdded(postId: postId, comment: backendComment))
+                    } catch {
+                        print("❌ Failed to add comment: \(error)")
+                    }
                 }
+                
+            case .commentAdded(let postId, let comment):
+                // Replace optimistic comment with the real one, or just re-fetch
+                // We'll just fetch all comments to ensure we have the most up-to-date state
+                return .run { send in
+                    do {
+                        let commentDTOs = try await APIClient.getComments(postId: postId.uuidString)
+                        let comments = commentDTOs.map { dto in
+                            Comment(
+                                id: UUID(uuidString: dto.id) ?? UUID(),
+                                author: "Anonymous", // Ideally, backend includes the author name or we use pseudo identity
+                                content: dto.content,
+                                date: dto.createdAt
+                            )
+                        }
+                        await send(.commentsLoaded(postId: postId, .success(comments)))
+                    } catch {
+                        await send(.commentsLoaded(postId: postId, .failure(error)))
+                    }
+                }
+
+            case .viewPost(let id):
+                var effects: [Effect<Action>] = []
+                
+                if !state.viewedPostIDs.contains(id) {
+                    state.viewedPostIDs.insert(id)
+                    effects.append(.run { _ in
+                        do {
+                            let userId = try await MainActor.run { try UserManager.shared.getCurrentUserId() }
+                            try await APIClient.trackAnalytics(userId: userId, eventType: "view", postId: id.uuidString)
+                        } catch {}
+                    })
+                }
+                
+                effects.append(.run { send in
+                    do {
+                        let commentDTOs = try await APIClient.getComments(postId: id.uuidString)
+                        let comments = commentDTOs.map { dto in
+                            Comment(
+                                id: UUID(uuidString: dto.id) ?? UUID(),
+                                author: dto.userId, // We can use PseudoIdentity in the View with this userId
+                                content: dto.content,
+                                date: dto.createdAt
+                            )
+                        }
+                        await send(.commentsLoaded(postId: id, .success(comments)))
+                    } catch {
+                        await send(.commentsLoaded(postId: id, .failure(error)))
+                    }
+                })
+                
+                return .merge(effects)
+                
+            case .commentsLoaded(let postId, .success(let comments)):
+                state.comments[postId] = comments
+                return .none
+                
+            case .commentsLoaded(_, .failure(let error)):
+                print("❌ Failed to load comments: \(error)")
+                return .none
                 
             case .reportPostTapped(let id):
                 state.alert = AlertState {

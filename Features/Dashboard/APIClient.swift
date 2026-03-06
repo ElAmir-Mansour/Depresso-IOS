@@ -38,6 +38,7 @@ struct APIClient {
         let config = URLSessionConfiguration.default
         config.timeoutIntervalForRequest = 120 // 2 minutes
         config.timeoutIntervalForResource = 300 // 5 minutes
+        config.requestCachePolicy = .reloadIgnoringLocalCacheData // Always fetch fresh data
         return URLSession(configuration: config)
     }()
 
@@ -57,6 +58,7 @@ struct APIClient {
         var request = URLRequest(url: url)
         request.httpMethod = method.rawValue
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.cachePolicy = .reloadIgnoringLocalAndRemoteCacheData // Bypass all caching
         
         // Step 2.5: Add authentication token if available
         if let token = await MainActor.run(body: { UserManager.shared.sessionToken }) {
@@ -263,6 +265,27 @@ body: Request(userId: userId)
         )
         
         return response.likedPostIds
+    }
+    
+    // NEW: Comments
+    static func getComments(postId: String) async throws -> [CommentDTO] {
+        return try await request(
+            endpoint: "/community/posts/\(postId)/comments",
+            method: .get
+        )
+    }
+    
+    static func addComment(postId: String, userId: String, content: String) async throws -> CommentDTO {
+        struct Request: Codable {
+            let userId: String
+            let content: String
+        }
+        
+        return try await request(
+            endpoint: "/community/posts/\(postId)/comments",
+            method: .post,
+            body: Request(userId: userId, content: content)
+        )
     }
     
     // MARK: - Assessments
@@ -576,6 +599,22 @@ struct CommunityPostDTO: Codable, Equatable {
     }
 }
 
+struct CommentDTO: Codable, Equatable {
+    let id: String
+    let postId: String
+    let userId: String
+    let content: String
+    let createdAt: Date
+    
+    enum CodingKeys: String, CodingKey {
+        case id
+        case postId = "post_id"
+        case userId = "user_id"
+        case content
+        case createdAt = "created_at"
+    }
+}
+
 struct AssessmentDTO: Codable {
     let id: Int
     let userId: String
@@ -711,10 +750,35 @@ struct EmotionFrequencyDTO: Codable, Equatable {
     let count: Int
 }
 
+struct TimeOfDayAnalysisDTO: Codable, Equatable {
+    let timeOfDay: String
+    let avgSentiment: Double
+    let frequency: Int
+
+    enum CodingKeys: String, CodingKey {
+        case timeOfDay = "time_of_day"
+        case avgSentiment = "avg_sentiment"
+        case frequency
+    }
+}
+
+struct CorrelationDTO: Codable, Equatable {
+    let moodActivityCorr: Double
+    let moodBoostPct: Double
+
+    enum CodingKeys: String, CodingKey {
+        case moodActivityCorr = "mood_activity_corr"
+        case moodBoostPct = "mood_boost_pct"
+    }
+}
+
 struct AnalysisInsightsDTO: Codable, Equatable {
     let overview: AnalysisOverviewDTO
+    let correlations: CorrelationDTO?
+    let timeOfDayAnalysis: [TimeOfDayAnalysisDTO]?
     let topDistortions: [CBTPatternFrequencyDTO]
     let weeklyComparison: WeeklyComparisonAnalysisDTO
+    let recommendation: String?
 }
 
 struct AnalysisOverviewDTO: Codable, Equatable {
@@ -722,19 +786,20 @@ struct AnalysisOverviewDTO: Codable, Equatable {
     let avgSentiment: Double
     let positiveCount: Int
     let negativeCount: Int
+    let moodStability: Double?
     let avgTypingSpeed: Double?
     let avgWordCount: Double?
-    
+
     enum CodingKeys: String, CodingKey {
         case totalEntries = "total_entries"
         case avgSentiment = "avg_sentiment"
         case positiveCount = "positive_count"
         case negativeCount = "negative_count"
+        case moodStability = "mood_stability"
         case avgTypingSpeed = "avg_typing_speed"
         case avgWordCount = "avg_word_count"
     }
 }
-
 struct WeeklyComparisonAnalysisDTO: Codable, Equatable {
     let thisWeek: Double
     let lastWeek: Double

@@ -65,18 +65,20 @@ struct JournalView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
-                HStack {
+                Menu {
                     Button {
-                        store.send(.guidedJournalButtonTapped)
+                        store.send(.guidedJournalTemplateSelected(GuidedJournalFeature.gratitudeTemplate))
                     } label: {
-                        Image(systemName: "sparkles")
+                        Label("Gratitude & Joy", systemImage: "heart.text.square")
                     }
                     
-                    if isTextFieldFocused {
-                        Button("Done") {
-                            isTextFieldFocused = false
-                        }
+                    Button {
+                        store.send(.guidedJournalTemplateSelected(GuidedJournalFeature.thoughtRecordTemplate))
+                    } label: {
+                        Label("Thought Record", systemImage: "brain.head.profile")
                     }
+                } label: {
+                    Image(systemName: "sparkles")
                 }
             }
         }
@@ -122,26 +124,15 @@ struct JournalView: View {
         VStack(spacing: 24) {
             Spacer(minLength: 80)
             
-            ZStack {
-                Circle()
-                    .fill(Color.ds.accent.opacity(0.08))
-                    .frame(width: 140, height: 140)
-                
-                Circle()
-                    .fill(Color.ds.accent.opacity(0.15))
-                    .frame(width: 100, height: 100)
-                
-                Image(systemName: "sun.haze.fill")
-                    .font(.system(size: 48))
-                    .foregroundStyle(Color.ds.accent.gradient)
-            }
+            DSIcon(DSIcons.successState, size: 140)
+                .shadow(color: .black.opacity(0.05), radius: 10, y: 5)
             
             VStack(spacing: 12) {
                 Text("How are you feeling today?")
                     .font(.ds.title3)
                     .foregroundStyle(Color.ds.textPrimary)
                 
-                Text("I'm here to listen. Share your thoughts, or choose a prompt to start.")
+                Text("Your morning brew is ready. Share your thoughts, or choose a prompt to start.")
                     .font(.ds.body)
                     .foregroundStyle(Color.secondary)
                     .multilineTextAlignment(.center)

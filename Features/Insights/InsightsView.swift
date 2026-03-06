@@ -5,6 +5,19 @@ import Charts
 
 struct InsightsView: View {
     @Bindable var store: StoreOf<InsightsFeature>
+    @Namespace private var animation
+    
+    // Derived state for the sheet presentation
+    private var isPatternSheetPresented: Binding<Bool> {
+        Binding(
+            get: { store.selectedPattern != nil },
+            set: { isPresented in
+                if !isPresented {
+                    store.send(.dismissPattern)
+                }
+            }
+        )
+    }
     
     var body: some View {
         NavigationStack {
@@ -21,11 +34,15 @@ struct InsightsView: View {
                 }
                 .padding()
             }
-            .background(Color.ds.backgroundPrimary)
+            .background(Color.ds.backgroundPrimary.ignoresSafeArea(edges: .bottom))
+            .safeAreaInset(edge: .bottom) {
+                Color.clear.frame(height: 80) // Space for custom tab bar
+            }
             .navigationTitle("Your Insights")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
+                        DSHaptics.light()
                         store.send(.refresh)
                     } label: {
                         Image(systemName: "arrow.clockwise")
@@ -35,25 +52,50 @@ struct InsightsView: View {
             .task {
                 store.send(.task)
             }
+            .sheet(isPresented: isPatternSheetPresented) {
+                if let pattern = store.selectedPattern {
+                    patternDetailSheet(pattern)
+                        .presentationDetents([.medium, .large])
+                        .presentationDragIndicator(.visible)
+                }
+            }
         }
     }
     
     private var periodSelector: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: 0) {
             ForEach(InsightsFeature.State.Period.allCases) { period in
-                Button {
-                    store.send(.selectPeriod(period))
-                } label: {
-                    Text(period.rawValue)
-                        .font(.ds.caption)
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 8)
-                        .background(store.selectedPeriod == period ? Color.ds.accent : Color.ds.accent.opacity(0.1))
-                        .foregroundColor(store.selectedPeriod == period ? .white : .ds.accent)
-                        .clipShape(Capsule())
-                }
+                periodButton(for: period)
             }
         }
+        .background { Color.ds.accent.opacity(0.1) }
+        .clipShape(Capsule())
+        .padding(.horizontal, 4)
+    }
+    
+    private func periodButton(for period: InsightsFeature.State.Period) -> some View {
+        Button {
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                _ = store.send(.selectPeriod(period))
+            }
+        } label: {
+            Text(period.rawValue)
+                .font(.ds.caption.weight(.semibold))
+                .foregroundColor(store.selectedPeriod == period ? .white : .ds.accent)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 10)
+                .background {
+                    if store.selectedPeriod == period {
+                        Capsule()
+                            .fill(Color.ds.accent)
+                            .matchedGeometryEffect(id: "PERIOD_BG", in: animation)
+                    } else {
+                        Color.clear
+                    }
+                }
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
     }
     
     @ViewBuilder
@@ -63,12 +105,24 @@ struct InsightsView: View {
            (store.insights?.overview.totalEntries ?? 0) == 0 {
             emptyStateView
         } else {
+            if let recommendation = store.insights?.recommendation {
+                aiRecommendationCard(recommendation)
+            }
+            
             if let insights = store.insights {
                 overviewCard(insights.overview)
             }
             
             if let trends = store.trends, !trends.sentimentTimeline.isEmpty {
                 sentimentChartCard(trends.sentimentTimeline)
+            }
+            
+            if let correlations = store.insights?.correlations, correlations.moodActivityCorr != 0 {
+                activityCorrelationCard(correlations)
+            }
+            
+            if let timeData = store.insights?.timeOfDayAnalysis, !timeData.isEmpty {
+                timeOfDayCard(timeData)
             }
             
             if let insights = store.insights, !insights.topDistortions.isEmpty {
@@ -139,6 +193,33 @@ struct InsightsView: View {
         }
     }
     
+    private func aiRecommendationCard(_ recommendation: String) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Image(systemName: "sparkles")
+                    .foregroundStyle(Color.ds.accent)
+                Text("Personalized AI Tip")
+                    .font(.ds.headline)
+                    .foregroundStyle(Color.ds.accent)
+                Spacer()
+            }
+            
+            Text(recommendation)
+                .font(.ds.body)
+                .lineSpacing(4)
+                .foregroundStyle(.primary)
+        }
+        .padding(20)
+        .background(
+            ZStack {
+                Color.ds.accent.opacity(0.05)
+                RoundedRectangle(cornerRadius: 20)
+                    .stroke(Color.ds.accent.opacity(0.1), lineWidth: 1)
+            }
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 20))
+    }
+
     private func overviewCard(_ overview: AnalysisOverviewDTO) -> some View {
         DSCard {
             VStack(alignment: .leading, spacing: 16) {
@@ -150,7 +231,7 @@ struct InsightsView: View {
                     Spacer()
                 }
                 
-                HStack(spacing: 20) {
+                HStack(spacing: 12) {
                     StatBox(
                         value: "\(overview.totalEntries)",
                         label: "Entries",
@@ -158,17 +239,105 @@ struct InsightsView: View {
                     )
                     
                     StatBox(
-                        value: String(format: "%.1f%%", overview.avgSentiment * 100),
-                        label: "Avg Mood",
-                        color: sentimentColor(overview.avgSentiment)
+                        value: String(format: "%.0f%%", (overview.moodStability ?? 0.8) * 100),
+                        label: "Stability",
+                        color: .purple
                     )
                     
                     StatBox(
-                        value: "\(overview.positiveCount)",
-                        label: "Positive",
-                        color: .green
+                        value: String(format: "%.0f%%", overview.avgSentiment * 100),
+                        label: "Avg Mood",
+                        color: sentimentColor(overview.avgSentiment)
                     )
                 }
+            }
+        }
+    }
+
+    private func activityCorrelationCard(_ correlations: CorrelationDTO) -> some View {
+        DSCard {
+            VStack(alignment: .leading, spacing: 16) {
+                HStack {
+                    Image(systemName: "figure.walk")
+                        .foregroundStyle(.orange)
+                    Text("Activity & Mood")
+                        .font(.ds.headline)
+                    Spacer()
+                }
+                
+                HStack(spacing: 20) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(String(format: "+%.0f%%", correlations.moodBoostPct))
+                            .font(.system(size: 32, weight: .heavy, design: .rounded))
+                            .foregroundStyle(.orange)
+                        Text("Mood Boost")
+                            .font(.ds.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("On days when you are more physically active, your mood score increases by an average of \(String(format: "%.0f%%", correlations.moodBoostPct)).")
+                            .font(.ds.caption)
+                            .foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
+                
+                // Progress bar style correlation indicator
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack {
+                        Text("Correlation Strength")
+                            .font(.system(size: 10, weight: .bold))
+                            .foregroundStyle(.tertiary)
+                        Spacer()
+                        Text(correlations.moodActivityCorr > 0.5 ? "Strong" : "Moderate")
+                            .font(.system(size: 10, weight: .bold))
+                            .foregroundStyle(.orange)
+                    }
+                    
+                    ProgressView(value: abs(correlations.moodActivityCorr), total: 1.0)
+                        .tint(.orange)
+                }
+            }
+        }
+    }
+
+    private func timeOfDayCard(_ data: [TimeOfDayAnalysisDTO]) -> some View {
+        DSCard {
+            VStack(alignment: .leading, spacing: 16) {
+                HStack {
+                    Image(systemName: "clock.fill")
+                        .foregroundStyle(.blue)
+                    Text("Mood by Time of Day")
+                        .font(.ds.headline)
+                    Spacer()
+                }
+                
+                HStack(alignment: .bottom, spacing: 12) {
+                    ForEach(data, id: \.timeOfDay) { item in
+                        VStack(spacing: 8) {
+                            Spacer(minLength: 0)
+                            
+                            Text(String(format: "%.0f", item.avgSentiment * 100))
+                                .font(.system(size: 10, weight: .bold, design: .rounded))
+                                .foregroundStyle(sentimentColor(item.avgSentiment))
+                            
+                            RoundedRectangle(cornerRadius: 6)
+                                .fill(sentimentColor(item.avgSentiment).opacity(0.3))
+                                .frame(width: 40, height: CGFloat(max(item.avgSentiment * 100, 10)))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 6)
+                                        .stroke(sentimentColor(item.avgSentiment).opacity(0.5), lineWidth: 1)
+                                )
+                            
+                            Text(item.timeOfDay.capitalized)
+                                .font(.system(size: 10))
+                                .foregroundStyle(.secondary)
+                        }
+                        .frame(maxWidth: .infinity)
+                    }
+                }
+                .frame(height: 140)
             }
         }
     }
@@ -191,12 +360,20 @@ struct InsightsView: View {
                             y: .value("Sentiment", item.avgSentiment)
                         )
                         .foregroundStyle(.blue.gradient)
+                        .interpolationMethod(.catmullRom)
                         
                         AreaMark(
                             x: .value("Date", item.date),
                             y: .value("Sentiment", item.avgSentiment)
                         )
-                        .foregroundStyle(.blue.opacity(0.1).gradient)
+                        .foregroundStyle(
+                            LinearGradient(
+                                colors: [.blue.opacity(0.3), .clear],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                        )
+                        .interpolationMethod(.catmullRom)
                     }
                     .frame(height: 200)
                     .chartYScale(domain: 0...1)
@@ -214,42 +391,43 @@ struct InsightsView: View {
                 HStack {
                     Image(systemName: "brain.head.profile")
                         .foregroundStyle(.purple)
-                    Text("CBT Patterns Detected")
+                    Text("Cognitive Patterns")
                         .font(.ds.headline)
                     Spacer()
                 }
                 
                 ForEach(patterns.indices, id: \.self) { index in
                     let pattern = patterns[index]
-                    HStack {
-                        Circle()
-                            .fill(Color.purple.opacity(0.3))
-                            .frame(width: 8, height: 8)
-                        
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(pattern.description ?? "Pattern")
-                                .font(.ds.body)
-                            Text("Detected \(pattern.frequency) times")
-                                .font(.ds.caption)
-                                .foregroundStyle(.secondary)
+                    Button {
+                        store.send(.patternTapped(pattern))
+                    } label: {
+                        HStack {
+                            Circle()
+                                .fill(Color.purple.opacity(0.3))
+                                .frame(width: 8, height: 8)
+                            
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(pattern.description ?? "Pattern")
+                                    .font(.ds.body)
+                                    .multilineTextAlignment(.leading)
+                                Text("Detected \(pattern.frequency) times")
+                                    .font(.ds.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                            
+                            Spacer()
+                            
+                            Image(systemName: "chevron.up.circle.fill")
+                                .foregroundStyle(.purple.opacity(0.5))
+                                .rotationEffect(.degrees(90))
                         }
-                        
-                        Spacer()
-                        
-                        Text("\(pattern.frequency)")
-                            .font(.system(.title3, design: .rounded).weight(.bold))
-                            .foregroundStyle(.purple)
                     }
+                    .buttonStyle(.plain)
                     
                     if index < patterns.count - 1 {
                         Divider()
                     }
                 }
-                
-                Text("💡 Recognizing these patterns is the first step to changing them!")
-                    .font(.ds.caption)
-                    .foregroundStyle(.secondary)
-                    .padding(.top, 8)
             }
         }
     }
@@ -260,26 +438,39 @@ struct InsightsView: View {
                 HStack {
                     Image(systemName: "face.smiling")
                         .foregroundStyle(.orange)
-                    Text("Emotions")
+                    Text("Emotion Cloud")
                         .font(.ds.headline)
                     Spacer()
                 }
                 
-                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-                    ForEach(emotions.prefix(6), id: \.emotion) { emotion in
-                        HStack {
-                            Text(emotionEmoji(emotion.emotion))
-                            Text(emotion.emotion.capitalized)
-                                .font(.ds.caption)
-                            Spacer()
-                            Text("\(emotion.count)")
-                                .font(.ds.caption.weight(.bold))
-                                .foregroundStyle(.secondary)
+                // Using a FlowLayout alternative (wrapping HStack)
+                // Since native FlowLayout requires iOS 16+ Layout protocol,
+                // we'll simulate it with a robust scrolling chip view for iOS 15+ compatibility
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 12) {
+                        ForEach(emotions.prefix(10), id: \.emotion) { emotion in
+                            HStack(spacing: 6) {
+                                Text(emotionEmoji(emotion.emotion))
+                                    .font(.system(size: 18))
+                                Text(emotion.emotion.capitalized)
+                                    .font(.system(size: 14, weight: .semibold))
+                                    .foregroundStyle(.primary)
+                                Text("\(emotion.count)")
+                                    .font(.system(size: 12, weight: .bold))
+                                    .foregroundStyle(.white)
+                                    .padding(.horizontal, 6)
+                                    .padding(.vertical, 2)
+                                    .background(Color.orange.opacity(0.8))
+                                    .clipShape(Capsule())
+                            }
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 8)
+                            .background(Color.orange.opacity(0.1))
+                            .clipShape(Capsule())
+                            .overlay(Capsule().stroke(Color.orange.opacity(0.2), lineWidth: 1))
                         }
-                        .padding(12)
-                        .background(Color.ds.backgroundSecondary)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
                     }
+                    .padding(.vertical, 4)
                 }
             }
         }
@@ -404,6 +595,94 @@ struct InsightsView: View {
         case "confused": return "😕"
         default: return "😊"
         }
+    }
+    private func patternDetailSheet(_ pattern: CBTPatternFrequencyDTO) -> some View {
+        VStack(spacing: 20) {
+            HStack {
+                Image(systemName: "brain.head.profile")
+                    .foregroundStyle(.purple)
+                    .font(.title2)
+                Text(pattern.description ?? "Cognitive Distortion")
+                    .font(.ds.headline)
+                Spacer()
+                Button {
+                    store.send(.dismissPattern)
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundStyle(.secondary)
+                        .font(.title2)
+                }
+            }
+            
+            VStack(alignment: .leading, spacing: 12) {
+                Text("What is this?")
+                    .font(.ds.caption.weight(.bold))
+                    .foregroundStyle(.secondary)
+                
+                Text(patternExplainer(pattern.description ?? ""))
+                    .font(.ds.body)
+                
+                Divider()
+                
+                Text("How to reframe it")
+                    .font(.ds.caption.weight(.bold))
+                    .foregroundStyle(.secondary)
+                
+                Text(patternReframe(pattern.description ?? ""))
+                    .font(.ds.body)
+                    .foregroundStyle(.purple)
+                    .padding()
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(Color.purple.opacity(0.05))
+                    .cornerRadius(12)
+            }
+            
+            Spacer()
+            
+            Button {
+                store.send(.dismissPattern)
+            } label: {
+                Text("Got it")
+                    .font(.ds.headline)
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color.ds.accent)
+                    .cornerRadius(16)
+            }
+        }
+        .padding(24)
+        .background(Color.ds.backgroundPrimary)
+    }
+
+    private func patternExplainer(_ description: String) -> String {
+        let desc = description.lowercased()
+        if desc.contains("catastrophizing") {
+            return "Expecting the worst-case scenario to happen, even when it's unlikely."
+        } else if desc.contains("black and white") || desc.contains("all or nothing") {
+            return "Seeing things in only two categories (perfect or failure) with no middle ground."
+        } else if desc.contains("mind reading") {
+            return "Assuming you know what others are thinking, usually something negative about you."
+        } else if desc.contains("overgeneralization") {
+            return "Taking one single negative event and seeing it as a never-ending pattern of defeat."
+        } else if desc.contains("personalization") {
+            return "Blaming yourself for everything that goes wrong, even when it's not your fault."
+        }
+        return "This is a common thinking pattern that can make you feel more anxious or sad than the situation warrants."
+    }
+
+    private func patternReframe(_ description: String) -> String {
+        let desc = description.lowercased()
+        if desc.contains("catastrophizing") {
+            return "Ask yourself: 'What is the most likely outcome?' and 'Could I handle the worst-case if it really happened?'"
+        } else if desc.contains("black and white") {
+            return "Try to find the 'shades of gray.' What parts of the situation are okay even if they aren't perfect?"
+        } else if desc.contains("mind reading") {
+            return "Remind yourself: 'I can't actually know what they're thinking. Is there a more neutral explanation?'"
+        } else if desc.contains("overgeneralization") {
+            return "Focus on the specific event. Just because this happened once doesn't mean it will always happen."
+        }
+        return "Try to look at the facts of the situation as if you were a neutral observer giving advice to a friend."
     }
 }
 

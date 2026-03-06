@@ -6,7 +6,7 @@ enum DesignSystem { }
 
 extension Color {
     /// The Design System's colors.
-    static let ds = DSColor()
+    static var ds: DSColor { DSColor() }
     
     init(hex: String) {
         let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
@@ -35,39 +35,33 @@ extension Color {
 }
 
 struct DSColor {
+    private let theme = ThemeManager.shared
+    
     // Backgrounds
-    let backgroundPrimary = Color("BackgroundPrimary")
-    let backgroundSecondary = Color(UIColor.secondarySystemBackground)
-    let cardBackground = Color(UIColor.secondarySystemGroupedBackground)
+    var backgroundPrimary: Color { theme.color(for: .backgroundPrimary) }
+    var backgroundSecondary: Color { theme.color(for: .backgroundSecondary) }
+    var cardBackground: Color { theme.color(for: .cardBackground) }
     
     // Text
-    let textPrimary = Color("TextPrimary")
-    let textSecondary = Color.secondary
-    let textTertiary = Color.gray
+    var textPrimary: Color { theme.color(for: .textPrimary) }
+    var textSecondary: Color { theme.color(for: .textPrimary).opacity(0.7) }
+    var textTertiary: Color { theme.color(for: .textPrimary).opacity(0.5) }
     
     // Accents
-    let accent = Color("Accent")
-    let accentLight = Color("Accent").opacity(0.15)
-    let accentDark = Color("Accent").opacity(0.8)
+    var accent: Color { theme.color(for: .accent) }
+    var accentLight: Color { theme.color(for: .accent).opacity(0.15) }
+    var accentDark: Color { theme.color(for: .accent).opacity(0.8) }
     
-    // Semantic Colors (Enhanced for better UX feedback)
-    let success = Color(hex: "#4CAF50")
-    let error = Color(hex: "#EF5350")
-    let warning = Color(hex: "#FF9800")
-    let info = Color(hex: "#2196F3")
-    
-    // Status Colors (from UX recommendations)
-    let positiveGreen = Color(hex: "#4CAF50")
-    let negativeRed = Color(hex: "#EF5350")
-    let neutralGray = Color(hex: "#9E9E9E")
-    
-    // States
-    let disabled = Color.gray.opacity(0.5)
-    let border = Color.gray.opacity(0.2)
+    // Semantic Colors
+    var success: Color { theme.color(for: .success) }
+    var error: Color { theme.color(for: .error) }
+    var warning: Color { theme.color(for: .warning) }
     
     // Enhanced backgrounds
-    let overlayBackground = Color.black.opacity(0.4)
-    let successBackground = Color(hex: "#4CAF50").opacity(0.1)
-    let errorBackground = Color(hex: "#EF5350").opacity(0.1)
-    let warningBackground = Color(hex: "#FF9800").opacity(0.1)
+    var successBackground: Color { theme.color(for: .success).opacity(0.1) }
+    var errorBackground: Color { theme.color(for: .error).opacity(0.1) }
+    var warningBackground: Color { theme.color(for: .warning).opacity(0.1) }
+    
+    var border: Color { theme.color(for: .textPrimary).opacity(0.1) }
+    var disabled: Color { theme.color(for: .textPrimary).opacity(0.3) }
 }

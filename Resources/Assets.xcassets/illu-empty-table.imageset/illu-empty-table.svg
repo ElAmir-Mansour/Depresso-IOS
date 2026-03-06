@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="none">
+  <circle cx="60" cy="60" r="50" fill="#F5F5DC" />
+  <path d="M40 85L80 85M60 85L60 65M35 65L85 65" stroke="#3E2723" stroke-width="4" stroke-linecap="round"/>
+  <path d="M85 85L85 55M85 70L95 70M95 85L95 55M85 55L95 55" stroke="#3E2723" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="52" y="65" width="16" height="10" rx="2" fill="#3E2723" />
+  <text x="60" y="72" font-family="sans-serif" font-size="4" font-weight="bold" fill="#F5F5DC" text-anchor="middle">CLOSED</text>
+  <line x1="56" y1="65" x2="56" y2="61" stroke="#3E2723" stroke-width="1.5"/>
+  <line x1="64" y1="65" x2="64" y2="61" stroke="#3E2723" stroke-width="1.5"/>
+</svg>

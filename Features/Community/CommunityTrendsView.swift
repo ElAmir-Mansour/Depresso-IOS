@@ -24,6 +24,9 @@ struct CommunityTrendsView: View {
             .padding()
         }
         .background(Color.ds.backgroundPrimary)
+        .safeAreaInset(edge: .bottom) {
+            Color.clear.frame(height: 80)
+        }
     }
     
     private var statsSection: some View {

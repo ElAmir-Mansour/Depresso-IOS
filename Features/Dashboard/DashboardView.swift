@@ -24,13 +24,16 @@ struct DashboardView: View {
                 ScrollView {
                     LazyVStack(spacing: Layout.sectionSpacing) {
                         headerGroup
-                        vitalsGroup
-                        reliefAndGoalsGroup
+                        actionGroup
+                        insightsGroup
+                        toolsGroup
                     }
                     .padding(.top, Layout.compactSpacing)
-                    .padding(.bottom, 100)
                 }
                 .background(dashboardBackground)
+                .safeAreaInset(edge: .bottom) {
+                    Color.clear.frame(height: 80) // Space for custom tab bar
+                }
                 
                 // First-Time User Experience Overlay
                 if store.showFirstTimeExperience && !store.hasCompletedFirstCheckin {
@@ -90,29 +93,29 @@ struct DashboardView: View {
     // MARK: - Component Groups
     
     private var headerGroup: some View {
+        heroSection
+            .padding(.horizontal, Layout.screenPadding)
+            .padding(.bottom, 8)
+    }
+    
+    private var actionGroup: some View {
         Group {
-            heroSection
-                .padding(.horizontal, Layout.screenPadding)
-            
             checkInCTASection
                 .padding(.horizontal, Layout.screenPadding)
             
+            goalsSection
+                .padding(.horizontal, Layout.screenPadding)
+        }
+    }
+    
+    private var insightsGroup: some View {
+        Group {
             if !store.aiInsights.isEmpty {
                 AIInsightsCard(insights: store.aiInsights)
                     .padding(.horizontal, Layout.screenPadding)
             }
             
-            CBTQuickAccessCard()
-                .padding(.horizontal, Layout.screenPadding)
-        }
-    }
-    
-    private var vitalsGroup: some View {
-        Group {
             progressRingsSection
-                .padding(.horizontal, Layout.screenPadding)
-            
-            healthMetricsSection
                 .padding(.horizontal, Layout.screenPadding)
             
             if let comparison = store.weeklyComparison {
@@ -122,25 +125,24 @@ struct DashboardView: View {
         }
     }
     
-    private var reliefAndGoalsGroup: some View {
+    private var toolsGroup: some View {
         Group {
-            chartsSection
-            
             quickReliefSection
                 .padding(.horizontal, Layout.screenPadding)
-            
-            goalsSection
+                
+            CBTQuickAccessCard()
                 .padding(.horizontal, Layout.screenPadding)
         }
     }
     
     // MARK: - Hero Section
     @ViewBuilder private var heroSection: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 20) {
+            // Greeting & Profile
             HStack {
-                VStack(alignment: .leading, spacing: 6) {
+                VStack(alignment: .leading, spacing: 4) {
                     Text(greetingText)
-                        .font(.system(.title, design: .rounded).weight(.bold))
+                        .font(.system(size: 28, weight: .bold, design: .rounded))
                         .foregroundStyle(.primary)
                     
                     Text(motivationalText)
@@ -150,80 +152,44 @@ struct DashboardView: View {
                 
                 Spacer()
                 
-                Circle()
-                    .fill(
-                        LinearGradient(
-                            colors: [Color.ds.accent, Color.ds.accent.opacity(0.7)],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-                    .frame(width: 48, height: 48)
-                    .overlay(
-                        Image(systemName: "person.fill")
-                            .foregroundStyle(.white)
-                            .font(.system(size: 20))
-                    )
+                NavigationLink(value: "achievements") {
+                    ZStack(alignment: .topTrailing) {
+                        Circle()
+                            .fill(
+                                LinearGradient(
+                                    colors: [Color.ds.accent.opacity(0.8), Color.ds.accent],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                            .frame(width: 48, height: 48)
+                            .overlay(
+                                Image(systemName: "person.fill")
+                                    .foregroundStyle(.white)
+                                    .font(.system(size: 20))
+                            )
+                            .shadow(color: Color.ds.accent.opacity(0.3), radius: 8, y: 4)
+                        
+                        // Badge Notification Dot (if achievements unlocked)
+                        if !store.achievements.filter({ $0.isUnlocked }).isEmpty {
+                            Circle()
+                                .fill(Color.red)
+                                .frame(width: 12, height: 12)
+                                .overlay(Circle().stroke(Color.ds.backgroundPrimary, lineWidth: 2))
+                                .offset(x: 2, y: -2)
+                        }
+                    }
+                }
+                .buttonStyle(.plain)
             }
+            .padding(.top, 8)
             
+            // Streak Banner
             StreakBannerView(
                 currentStreak: store.currentStreak,
                 longestStreak: store.longestStreak
             )
-            
-            // Achievements Summary
-            NavigationLink(value: "achievements") {
-                HStack {
-                    HStack(spacing: -8) {
-                        ForEach(store.achievements.filter { $0.isUnlocked }.prefix(3)) { achievement in
-                            ZStack {
-                                Circle()
-                                    .fill(Color.ds.accent.opacity(0.1))
-                                    .frame(width: 32, height: 32)
-                                
-                                Image(systemName: achievement.iconName)
-                                    .font(.system(size: 14))
-                                    .foregroundStyle(Color.ds.accent)
-                            }
-                            .overlay(Circle().stroke(Color(UIColor.secondarySystemGroupedBackground), lineWidth: 2))
-                        }
-                        
-                        let unlockedCount = store.achievements.filter({ $0.isUnlocked }).count
-                        if unlockedCount > 3 {
-                            Circle()
-                                .fill(Color.gray.opacity(0.1))
-                                .frame(width: 32, height: 32)
-                                .overlay(
-                                    Text("+\(unlockedCount - 3)")
-                                        .font(.system(size: 10, weight: .bold))
-                                        .foregroundStyle(.secondary)
-                                )
-                                .overlay(Circle().stroke(Color(UIColor.secondarySystemGroupedBackground), lineWidth: 2))
-                        }
-                    }
-                    
-                    Text(store.achievements.filter { $0.isUnlocked }.isEmpty ? "Start earning badges" : "Your Achievements")
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundStyle(.secondary)
-                        .padding(.leading, 8)
-                    
-                    Spacer()
-                    
-                    Image(systemName: "chevron.right")
-                        .font(.system(size: 12, weight: .bold))
-                        .foregroundStyle(.tertiary)
-                }
-                .padding(.horizontal, 12)
-                .padding(.vertical, 8)
-                .background(Color.ds.accent.opacity(0.05))
-                .clipShape(RoundedRectangle(cornerRadius: 12))
-            }
-            .buttonStyle(PlainButtonStyle())
         }
-        .padding(Layout.cardPadding)
-        .background(Color(UIColor.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: Layout.cardCornerRadius))
-        .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 2)
     }
 
     // MARK: - Check-in CTA Section
@@ -232,49 +198,53 @@ struct DashboardView: View {
             DSHaptics.medium()
             store.send(.takeAssessmentButtonTapped)
         } label: {
-            HStack(spacing: 16) {
-                ZStack {
-                    Circle()
-                        .fill(store.canTakeAssessmentToday ? Color.ds.accent.opacity(0.1) : Color.green.opacity(0.1))
-                        .frame(width: 56, height: 56)
+            HStack(spacing: 20) {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(store.canTakeAssessmentToday ? "Daily Check-in" : "Check-in Complete!")
+                        .font(.system(size: 22, weight: .bold, design: .rounded))
+                        .foregroundStyle(.white)
                     
-                    Image(systemName: store.canTakeAssessmentToday ? "heart.text.square" : "checkmark.circle.fill")
-                        .font(.system(size: 28))
-                        .foregroundStyle(store.canTakeAssessmentToday ? Color.ds.accent : Color.green)
-                        .symbolEffect(.bounce, value: !store.canTakeAssessmentToday)
-                }
-                
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(store.canTakeAssessmentToday ? "Ready for your check-in?" : "Check-in Complete!")
-                        .font(.system(.headline, design: .rounded).weight(.bold))
-                        .foregroundStyle(.primary)
-                    
-                    Text(store.canTakeAssessmentToday ? "Share how you're feeling today" : "Great job tracking your mood today")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
+                    Text(store.canTakeAssessmentToday ? "Take 2 minutes to track your mood and unlock personalized insights." : "Great job tracking your mood today. See you tomorrow!")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundStyle(.white.opacity(0.9))
+                        .lineLimit(2)
+                        .multilineTextAlignment(.leading)
                 }
                 
                 Spacer()
                 
                 if store.canTakeAssessmentToday {
-                    Image(systemName: "chevron.right")
-                        .font(.system(size: 14, weight: .bold))
-                        .foregroundStyle(.tertiary)
+                    ZStack {
+                        Circle()
+                            .fill(Color.white.opacity(0.2))
+                            .frame(width: 48, height: 48)
+                        
+                        Image(systemName: "arrow.right")
+                            .font(.system(size: 20, weight: .bold))
+                            .foregroundStyle(.white)
+                    }
+                } else {
+                    Image(systemName: "checkmark.seal.fill")
+                        .font(.system(size: 40))
+                        .foregroundStyle(.white)
                 }
             }
-            .padding(Layout.cardPadding)
-            .background(Color(UIColor.secondarySystemGroupedBackground))
-            .clipShape(RoundedRectangle(cornerRadius: Layout.cardCornerRadius))
-            .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 2)
-            .overlay(
-                RoundedRectangle(cornerRadius: Layout.cardCornerRadius)
-                    .stroke(store.canTakeAssessmentToday ? Color.ds.accent.opacity(0.3) : Color.clear, lineWidth: 2)
+            .padding(24)
+            .background(
+                LinearGradient(
+                    colors: store.canTakeAssessmentToday ? 
+                        [Color.ds.accent, Color.ds.accent.opacity(0.8)] : 
+                        [Color.green.opacity(0.8), Color.green.opacity(0.6)],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
             )
-            .opacity(store.canTakeAssessmentToday ? 1.0 : 0.7)
+            .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+            .shadow(color: store.canTakeAssessmentToday ? Color.ds.accent.opacity(0.4) : Color.green.opacity(0.3), radius: 15, x: 0, y: 8)
         }
         .buttonStyle(PlainButtonStyle())
         .disabled(!store.canTakeAssessmentToday)
-        .animation(.spring(response: 0.3), value: store.canTakeAssessmentToday)
+        .animation(.spring(response: 0.4, dampingFraction: 0.7), value: store.canTakeAssessmentToday)
     }
     
     @ViewBuilder private var quickReliefSection: some View {
@@ -319,41 +289,6 @@ struct DashboardView: View {
                 }
             }
         }
-    }
-    
-    private var chartsSection: some View {
-        VStack(spacing: Layout.cardSpacing) {
-            DashboardCard(title: "Weekly Steps") {
-                if store.isLoading {
-                    ProgressView().frame(height: 150)
-                } else if store.weeklySteps.isEmpty {
-                    Text("No step data available.").font(.ds.caption).foregroundStyle(.secondary).frame(maxWidth: .infinity, alignment: .center)
-                } else {
-                    StepsChartView(stepsData: store.weeklySteps).frame(height: 150)
-                }
-            }
-            
-            DashboardCard(title: "Weekly Active Energy") {
-                if store.isLoading {
-                    ProgressView().frame(height: 150)
-                } else if store.weeklyEnergy.isEmpty {
-                    Text("No energy data available.").font(.ds.caption).foregroundStyle(.secondary).frame(maxWidth: .infinity, alignment: .center)
-                } else {
-                    EnergyChartView(energyData: store.weeklyEnergy).frame(height: 150)
-                }
-            }
-            
-            DashboardCard(title: "Weekly Heart Rate") {
-                if store.isLoading {
-                    ProgressView().frame(height: 150)
-                } else if store.weeklyHeartRate.isEmpty {
-                    Text("No heart rate data available.").font(.ds.caption).foregroundStyle(.secondary).frame(maxWidth: .infinity, alignment: .center)
-                } else {
-                    HeartRateChartView(heartRateData: store.weeklyHeartRate).frame(height: 150)
-                }
-            }
-        }
-        .padding(.horizontal, Layout.screenPadding)
     }
     
     private var goalsSection: some View {
@@ -420,77 +355,6 @@ struct DashboardView: View {
             }
         }
     }
-    
-    @ViewBuilder private var healthMetricsSection: some View {
-         VStack(alignment: .leading, spacing: 16) {
-             HStack {
-                 Image(systemName: "heart.text.square.fill")
-                     .font(.title3)
-                     .foregroundStyle(Color.ds.accent)
-                 
-                 Text("Today's Vitals")
-                     .font(.system(.title3, design: .rounded).weight(.semibold))
-                     .foregroundStyle(.primary)
-                 
-                 Spacer()
-             }
-             
-             if store.isLoading {
-                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-                     DSSkeletonHealthCard()
-                     DSSkeletonHealthCard()
-                     DSSkeletonHealthCard()
-                     DSSkeletonHealthCard()
-                 }
-             } else if store.healthMetrics.isEmpty {
-                  VStack(spacing: 20) {
-                      ZStack {
-                          Circle()
-                              .fill(Color.blue.opacity(0.1))
-                              .frame(width: 80, height: 80)
-                          Image(systemName: "heart.text.square.fill")
-                              .font(.system(size: 40))
-                              .foregroundStyle(.blue)
-                      }
-                      
-                      VStack(spacing: 8) {
-                          Text("Connect Apple Health")
-                              .font(.headline)
-                              .foregroundStyle(.primary)
-                          
-                          Text("We'll analyze your sleep, activity, and heart rate to provide personalized mental health insights.")
-                              .font(.subheadline)
-                              .foregroundStyle(.secondary)
-                              .multilineTextAlignment(.center)
-                              .padding(.horizontal, 32)
-                      }
-                      
-                      Button {
-                          store.send(.refresh)
-                      } label: {
-                          Text("Connect Health")
-                              .font(.headline)
-                              .foregroundColor(.white)
-                              .padding(.horizontal, 32)
-                              .padding(.vertical, 12)
-                              .background(Color.blue)
-                              .cornerRadius(12)
-                      }
-                  }
-                  .frame(maxWidth: .infinity)
-                  .padding(.vertical, 40)
-                  .background(Color(UIColor.secondarySystemGroupedBackground))
-                  .clipShape(RoundedRectangle(cornerRadius: Layout.cardCornerRadius))
-                  .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 2)
-             } else {
-                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-                     ForEach(store.healthMetrics) { metric in
-                         EnhancedMetricCard(metric: metric)
-                     }
-                 }
-             }
-         }
-    }
 }
 
 // MARK: - Reusable Dashboard Card
@@ -515,48 +379,6 @@ struct DashboardCard<Content: View>: View {
         .background(Color(UIColor.secondarySystemGroupedBackground))
         .clipShape(RoundedRectangle(cornerRadius: Layout.cardCornerRadius))
         .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 2)
-    }
-}
-
-// MARK: - Chart Views
-struct StepsChartView: View {
-     let stepsData: [StepData]
-     var body: some View {
-         Chart(stepsData) { data in BarMark(x: .value("Day", data.date, unit: .day), y: .value("Steps", data.count)).foregroundStyle(Color.ds.accent.gradient) }
-         .chartXAxis { AxisMarks(values: .stride(by: .day)) { _ in AxisValueLabel(format: .dateTime.weekday(.narrow), centered: true) } }
-         .chartYAxis { AxisMarks(position: .leading) }
-     }
- }
-
-struct EnergyChartView: View {
-    let energyData: [EnergyData]
-    var body: some View {
-        Chart(energyData) { data in
-            LineMark(
-                x: .value("Day", data.date, unit: .day),
-                y: .value("Energy", data.value)
-            )
-            .foregroundStyle(Color.green.gradient)
-            .interpolationMethod(.catmullRom)
-        }
-        .chartXAxis { AxisMarks(values: .stride(by: .day)) { _ in AxisValueLabel(format: .dateTime.weekday(.narrow), centered: true) } }
-        .chartYAxis { AxisMarks(position: .leading) }
-    }
-}
-
-struct HeartRateChartView: View {
-    let heartRateData: [HeartRateData]
-    var body: some View {
-        Chart(heartRateData) { data in
-            LineMark(
-                x: .value("Day", data.date, unit: .day),
-                y: .value("Heart Rate", data.value)
-            )
-            .foregroundStyle(Color.pink.gradient)
-            .interpolationMethod(.catmullRom)
-        }
-        .chartXAxis { AxisMarks(values: .stride(by: .day)) { _ in AxisValueLabel(format: .dateTime.weekday(.narrow), centered: true) } }
-        .chartYAxis { AxisMarks(position: .leading) }
     }
 }
 

@@ -45,10 +45,21 @@ struct DepressoApp: App {
         // Setup notification categories
         NotificationClient.setupNotificationCategories()
     }
+    
+    @AppStorage("app_theme") private var appTheme = "System"
+    
+    private var colorScheme: ColorScheme? {
+        switch appTheme {
+        case "Light": return .light
+        case "Dark": return .dark
+        default: return nil
+        }
+    }
 
     var body: some Scene {
         WindowGroup {
             ContentView(store: DepressoApp.store)
+                .preferredColorScheme(colorScheme)
         }
       .modelContainer(Self.container)
     }

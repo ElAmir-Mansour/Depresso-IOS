@@ -62,7 +62,7 @@ struct AICompanionJournalFeature {
 
           case retryLastMessage
           case syncUnsyncedMessages
-          case guidedJournalButtonTapped
+          case guidedJournalTemplateSelected(GuidedJournalFeature.CBTTemplate)
           case destination(PresentationAction<Destination.Action>)
           
           @CasePathable
@@ -155,8 +155,8 @@ struct AICompanionJournalFeature {
                     }
                 }
                 
-             case .guidedJournalButtonTapped:
-                state.destination = .guidedJournal(.init(template: GuidedJournalFeature.gratitudeTemplate))
+             case .guidedJournalTemplateSelected(let template):
+                state.destination = .guidedJournal(.init(template: template))
                 return .none
                 
              case .destination(.presented(.guidedJournal(.submissionCompleted(.success)))):

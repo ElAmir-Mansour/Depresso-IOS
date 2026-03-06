@@ -26,15 +26,18 @@ struct DSEmptyState: View {
         VStack(spacing: DesignSystem.Spacing.large) {
             Spacer()
             
-            // Icon
+            // Illustration/Icon
             ZStack {
-                Circle()
-                    .fill(Color.ds.accentLight)
-                    .frame(width: 100, height: 100)
-                
-                Image(systemName: icon)
-                    .font(.system(size: 48))
-                    .foregroundStyle(Color.ds.accent)
+                if DSIcons.isCustom(icon) {
+                    DSIcon(icon, size: 140)
+                        .shadow(color: .black.opacity(0.05), radius: 10, y: 5)
+                } else {
+                    Circle()
+                        .fill(Color.ds.accentLight)
+                        .frame(width: 100, height: 100)
+                    
+                    DSIcon(icon, color: .ds.accent, size: 48)
+                }
             }
             
             // Text Content

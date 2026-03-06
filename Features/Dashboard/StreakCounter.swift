@@ -16,23 +16,39 @@ struct StreakCounterView: View {
             }
             
             HStack(spacing: DesignSystem.Spacing.large) {
-                // Current Streak
+                // Current Streak - Dynamic visualization
                 VStack(spacing: DesignSystem.Spacing.small) {
                     ZStack {
                         Circle()
                             .fill(Color.ds.accent.opacity(0.1))
                             .frame(width: 80, height: 80)
                         
-                        VStack(spacing: 4) {
-                            Text("🔥")
-                                .font(.system(size: 32))
+                        if ThemeManager.shared.currentStyle == .coffee {
+                            // The Bean Jar (Coffee Theme)
+                            DSIcon(jarAsset, size: 60)
+                                .offset(y: -4)
+                            
                             Text("\(currentStreak)")
-                                .font(.system(.title, design: .rounded).weight(.bold))
-                                .foregroundColor(.ds.accent)
+                                .font(.system(size: 16, weight: .bold, design: .rounded))
+                                .foregroundColor(.white)
+                                .padding(6)
+                                .background(Color.ds.accent)
+                                .clipShape(Circle())
+                                .offset(x: 20, y: 20)
+                        } else {
+                            // Classic Streak Visualization
+                            VStack(spacing: 4) {
+                                Image(systemName: "flame.fill")
+                                    .font(.system(size: 32))
+                                    .foregroundStyle(Color.ds.accent.gradient)
+                                Text("\(currentStreak)")
+                                    .font(.system(.title, design: .rounded).weight(.bold))
+                                    .foregroundColor(.ds.accent)
+                            }
                         }
                     }
                     
-                    Text("Current")
+                    Text(ThemeManager.shared.currentStyle == .coffee ? "Beans Collected" : "Days")
                         .font(.ds.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -71,7 +87,7 @@ struct StreakCounterView: View {
             }
         }
         .padding()
-        .background(Color(UIColor.secondarySystemGroupedBackground))
+        .background(Color.ds.cardBackground)
         .clipShape(RoundedRectangle(cornerRadius: 16))
         .overlay {
             if showConfetti {
@@ -90,6 +106,16 @@ struct StreakCounterView: View {
         }
         .onAppear {
             previousStreak = currentStreak
+        }
+    }
+    
+    private var jarAsset: String {
+        if currentStreak == 0 {
+            return "custom:jar-empty"
+        } else if currentStreak < 7 {
+            return "custom:jar-half-full"
+        } else {
+            return "custom:jar-full"
         }
     }
     
@@ -146,34 +172,31 @@ struct StreakCalculator {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())
         
-        // Sort by date descending (most recent first)
-        let sortedAssessments = assessments.sorted { $0.date > $1.date }
+        // Normalize dates to start of day and get unique dates sorted descending
+        let uniqueDates = Array(Set(assessments.map { calendar.startOfDay(for: $0.date) }))
+            .sorted(by: >)
         
-        // Check if there's an assessment today or yesterday
-        guard let mostRecent = sortedAssessments.first else { return 0 }
-        let mostRecentDay = calendar.startOfDay(for: mostRecent.date)
+        guard let mostRecent = uniqueDates.first else { return 0 }
         
-        // If most recent is more than 1 day ago, streak is broken
-        let daysSinceRecent = calendar.dateComponents([.day], from: mostRecentDay, to: today).day ?? 0
-        if daysSinceRecent > 1 {
-            return 0
+        // Check if the most recent assessment is today or yesterday
+        let daysFromToday = calendar.dateComponents([.day], from: mostRecent, to: today).day ?? 0
+        
+        // Relaxed check: <= 1 allows today (0), yesterday (1), or even future due to TZ shift (-1)
+        if daysFromToday > 1 {
+            return 0 // Streak broken
         }
         
-        // Count consecutive days
-        var streak = 0
-        var expectedDate = today
-        
-        for assessment in sortedAssessments {
-            let assessmentDay = calendar.startOfDay(for: assessment.date)
+        var streak = 1
+        for i in 1..<uniqueDates.count {
+            let prev = uniqueDates[i-1]
+            let curr = uniqueDates[i]
+            let gap = calendar.dateComponents([.day], from: curr, to: prev).day ?? 0
             
-            if assessmentDay == expectedDate {
+            if gap == 1 {
                 streak += 1
-                expectedDate = calendar.date(byAdding: .day, value: -1, to: expectedDate)!
-            } else if assessmentDay < expectedDate {
-                // Gap in streak
-                break
+            } else {
+                break // Gap found
             }
-            // Skip duplicates on same day
         }
         
         return streak
@@ -184,33 +207,24 @@ struct StreakCalculator {
         guard !assessments.isEmpty else { return 0 }
         
         let calendar = Calendar.current
-        let sortedAssessments = assessments.sorted { $0.date < $1.date }
+        // Normalize dates to start of day and get unique dates sorted ascending
+        let uniqueDates = Array(Set(assessments.map { calendar.startOfDay(for: $0.date) }))
+            .sorted(by: <)
         
-        var maxStreak = 0
-        var currentStreak = 0
-        var lastDate: Date?
+        var maxStreak = 1
+        var currentStreak = 1
         
-        for assessment in sortedAssessments {
-            let assessmentDay = calendar.startOfDay(for: assessment.date)
+        for i in 1..<uniqueDates.count {
+            let prev = uniqueDates[i-1]
+            let curr = uniqueDates[i]
+            let gap = calendar.dateComponents([.day], from: prev, to: curr).day ?? 0
             
-            if let last = lastDate {
-                let lastDay = calendar.startOfDay(for: last)
-                let daysBetween = calendar.dateComponents([.day], from: lastDay, to: assessmentDay).day ?? 0
-                
-                if daysBetween == 1 {
-                    // Consecutive day
-                    currentStreak += 1
-                } else if daysBetween > 1 {
-                    // Gap found, reset
-                    maxStreak = max(maxStreak, currentStreak)
-                    currentStreak = 1
-                }
-                // If same day, skip (don't reset streak)
+            if gap == 1 {
+                currentStreak += 1
             } else {
+                maxStreak = max(maxStreak, currentStreak)
                 currentStreak = 1
             }
-            
-            lastDate = assessmentDay
         }
         
         return max(maxStreak, currentStreak)

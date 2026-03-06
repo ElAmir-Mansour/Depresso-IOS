@@ -66,6 +66,7 @@ struct AppFeature {
     @Dependency(\.authenticationClient) var authenticationClient
     @Dependency(\.modelContext) var modelContext
     @Dependency(\.mainQueue) var mainQueue
+    @Dependency(\.notificationClient) var notificationClient
 
     @MainActor
     var body: some ReducerOf<Self> {
@@ -164,8 +165,32 @@ struct AppFeature {
                 UserDefaults.standard.set(true, forKey: "hasCompletedOnboarding")
                 state.onboardingState = nil
                 
+                // Request notification permission after onboarding (optimal time)
                 // Trigger dashboard refresh to request HealthKit after onboarding
                 return .merge(
+                    .run { [notificationClient] send in
+                        // Request permission if not already requested
+                        let status = await notificationClient.getAuthorizationStatus()
+                        if status == .notDetermined {
+                            do {
+                                let granted = try await notificationClient.requestAuthorization()
+                                if granted {
+                                    // Set up default daily reminder at 9 AM
+                                    let reminderTime = Calendar.current.date(bySettingHour: 9, minute: 0, second: 0, of: Date()) ?? Date()
+                                    try await notificationClient.scheduleDailyReminder(reminderTime)
+                                    
+                                    // Save preferences
+                                    await MainActor.run {
+                                        UserDefaults.standard.set(true, forKey: "notifications_enabled")
+                                        UserDefaults.standard.set(true, forKey: "streak_warnings_enabled")
+                                        UserDefaults.standard.set(reminderTime, forKey: "daily_reminder_time")
+                                    }
+                                }
+                            } catch {
+                                print("Failed to request notification permission: \(error)")
+                            }
+                        }
+                    },
                     .send(.checkAchievements),
                     .send(.dashboard(.refresh))
                 )
@@ -228,6 +253,28 @@ struct AppFeature {
                 if let first = types.first {
                     let def = first.definition
                     state.achievementAlert = AlertState { TextState("Achievement Unlocked! 🏆") } message: { TextState("You've earned the '\(def.title)' badge: \(def.detail)") }
+                    
+                    // Send notification for achievement
+                    return .merge(
+                        .run { [notificationClient] send in
+                            // Check if notifications are enabled
+                            let notificationsEnabled = await MainActor.run {
+                                UserDefaults.standard.bool(forKey: "notifications_enabled")
+                            }
+                            
+                            if notificationsEnabled {
+                                do {
+                                    try await notificationClient.sendAchievementNotification(def.title, def.detail)
+                                } catch {
+                                    print("Failed to send achievement notification: \(error)")
+                                }
+                            }
+                        },
+                        .run { send in
+                            try await self.mainQueue.sleep(for: .seconds(5))
+                            await send(.hideConfetti)
+                        }
+                    )
                 }
                 return .run { send in
                     try await self.mainQueue.sleep(for: .seconds(5))
@@ -247,7 +294,24 @@ struct AppFeature {
             case .community(.postSavedSuccessfully):
                 return .send(.checkAchievements)
             case .dashboard(.destination(.presented(.dailyAssessment(.delegate(.assessmentCompleted))))):
-                return .send(.checkAchievements)
+                // Check achievements after completing assessment
+                // Also schedule streak warning for tomorrow if enabled
+                return .merge(
+                    .send(.checkAchievements),
+                    .run { [notificationClient, state] send in
+                        let streakWarningsEnabled = await MainActor.run {
+                            UserDefaults.standard.bool(forKey: "streak_warnings_enabled")
+                        }
+                        
+                        if streakWarningsEnabled && state.dashboardState.currentStreak >= 3 {
+                            do {
+                                try await notificationClient.scheduleStreakWarning(state.dashboardState.currentStreak)
+                            } catch {
+                                print("Failed to schedule streak warning: \(error)")
+                            }
+                        }
+                    }
+                )
 
             default:
                 return .none
