@@ -56,7 +56,8 @@ async function tryGenerateWithModel(modelName, contents) {
             {
                 headers: {
                     'Content-Type': 'application/json'
-                }
+                },
+                timeout: 25000 // 25 second timeout per model attempt
             }
         );
 
@@ -71,6 +72,7 @@ async function tryGenerateWithModel(modelName, contents) {
     } catch (error) {
         const errorData = error.response?.data?.error;
         const statusCode = error.response?.status;
+        const isTimeout = error.code === 'ECONNABORTED' || error.code === 'ETIMEDOUT';
         
         // Check if it's a rate limit error (429 or 503) OR model not found (404)
         const isRateLimit = statusCode === 429 || statusCode === 503 || 
@@ -85,6 +87,7 @@ async function tryGenerateWithModel(modelName, contents) {
             success: false,
             isRateLimit,
             isModelNotFound,
+            isTimeout,
             error: errorData?.message || error.message,
             code: errorData?.code || statusCode
         };
@@ -125,8 +128,8 @@ exports.generateResponse = async (history) => {
         
         lastError = result;
         
-        // If rate limit or model not found, try next model
-        if (!result.isRateLimit && !result.isModelNotFound) {
+        // If rate limit, model not found, or timeout - try next model
+        if (!result.isRateLimit && !result.isModelNotFound && !result.isTimeout) {
             console.error(`Non-recoverable error with ${modelName}:`, result.error);
             break;
         }
@@ -135,6 +138,8 @@ exports.generateResponse = async (history) => {
             console.log(`Rate limit hit on ${modelName}, trying next model...`);
         } else if (result.isModelNotFound) {
             console.log(`Model ${modelName} not available, trying next model...`);
+        } else if (result.isTimeout) {
+            console.log(`Timeout on ${modelName}, trying next model...`);
         }
     }
     
