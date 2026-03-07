@@ -1,7 +1,19 @@
 const axios = require('axios');
 
 // Gemini API Configuration
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+let currentKeyIndex = 0;
+const getApiKeys = () => {
+    const rawKeys = process.env.GEMINI_API_KEY || '';
+    return rawKeys.split(',').map(k => k.trim()).filter(k => k.length > 0);
+};
+
+const getNextApiKey = () => {
+    const keys = getApiKeys();
+    if (keys.length === 0) return null;
+    const key = keys[currentKeyIndex];
+    currentKeyIndex = (currentKeyIndex + 1) % keys.length;
+    return key;
+};
 
 // Available Gemini models in priority order (free tier friendly)
 // Using v1beta API which supports system_instruction
@@ -14,22 +26,36 @@ const AVAILABLE_MODELS = [
 
 let currentModelIndex = 0;
 
-console.log('AI Service - Has API Key:', !!GEMINI_API_KEY);
-console.log('AI Service - Key starts with:', GEMINI_API_KEY ? GEMINI_API_KEY.substring(0, 15) + '...' : 'MISSING');
-console.log('AI Service - Available models:', AVAILABLE_MODELS.length);
+// Log on first use, not module load
+let hasLoggedKey = false;
+function logKeyStatus() {
+    if (!hasLoggedKey) {
+        const keys = getApiKeys();
+        console.log('AI Service - Keys loaded:', keys.length);
+        if (keys.length > 0) {
+            console.log('AI Service - First key starts with:', keys[0].substring(0, 15) + '...');
+        }
+        console.log('AI Service - Available models:', AVAILABLE_MODELS.length);
+        hasLoggedKey = true;
+    }
+}
 
 const SYSTEM_INSTRUCTION = process.env.AI_SYSTEM_PROMPT || 'You are a compassionate AI companion for a mental wellness app. You provide supportive, empathetic responses to users sharing their thoughts and feelings. This is a safe, therapeutic context for discussing mental health, emotions, and personal challenges. Respond with care, validation, and encouragement.';
 
 /**
  * Try to generate a response with the current model, fallback to next model on rate limit
  */
-async function tryGenerateWithModel(modelName, contents) {
+async function tryGenerateWithModel(modelName, contents, apiKey) {
+    if (!apiKey) {
+        return { success: false, error: 'No API keys configured', isInvalidKey: true };
+    }
+    
     // Use v1beta API which supports system_instruction
     const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent`;
     
     try {
         const response = await axios.post(
-            `${GEMINI_API_URL}?key=${GEMINI_API_KEY}`,
+            `${GEMINI_API_URL}?key=${apiKey}`,
             {
                 system_instruction: {
                     parts: [{ text: SYSTEM_INSTRUCTION }]
@@ -67,6 +93,8 @@ async function tryGenerateWithModel(modelName, contents) {
         const isRateLimit = statusCode === 429 || statusCode === 503 || 
                            errorData?.message?.toLowerCase().includes('rate limit') ||
                            errorData?.message?.toLowerCase().includes('quota');
+                           
+        const isInvalidKey = statusCode === 400 && (errorData?.message?.toLowerCase().includes('api key') || errorData?.status === 'INVALID_ARGUMENT');
         
         const isModelNotFound = statusCode === 404 || 
                                errorData?.message?.toLowerCase().includes('not found') ||
@@ -77,6 +105,7 @@ async function tryGenerateWithModel(modelName, contents) {
             isRateLimit,
             isModelNotFound,
             isTimeout,
+            isInvalidKey,
             error: errorData?.message || error.message,
             code: errorData?.code || statusCode
         };
@@ -89,6 +118,8 @@ async function tryGenerateWithModel(modelName, contents) {
  * @returns {Promise<string>} - The AI's response content
  */
 exports.generateResponse = async (history) => {
+    logKeyStatus(); // Log key status on first use
+    
     // Convert history to Gemini format
     const contents = history.map(msg => ({
         role: msg.sender === 'assistant' ? 'model' : 'user',
@@ -97,49 +128,49 @@ exports.generateResponse = async (history) => {
 
     let lastError = null;
     let attemptedModels = [];
+    const keys = getApiKeys();
+    const maxAttempts = Math.max(AVAILABLE_MODELS.length * keys.length, 1);
     
-    // Try all available models
-    for (let i = 0; i < AVAILABLE_MODELS.length; i++) {
-        const modelIndex = (currentModelIndex + i) % AVAILABLE_MODELS.length;
-        const modelName = AVAILABLE_MODELS[modelIndex];
-        attemptedModels.push(modelName);
+    // Try combinations of keys and models
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+        const apiKey = getNextApiKey();
+        const modelName = AVAILABLE_MODELS[currentModelIndex];
+        attemptedModels.push(`${modelName} (Key ${currentKeyIndex})`);
         
-        console.log(`Attempting with model: ${modelName}`);
+        console.log(`Attempting with model: ${modelName} and key index: ${currentKeyIndex === 0 ? keys.length - 1 : currentKeyIndex - 1}`);
         
-        const result = await tryGenerateWithModel(modelName, contents);
+        const result = await tryGenerateWithModel(modelName, contents, apiKey);
         
         if (result.success) {
-            // Success! Update current model index for next time
-            currentModelIndex = modelIndex;
             console.log(`✓ Success with model: ${modelName}`);
             return result.content;
         }
         
         lastError = result;
         
-        // If rate limit, model not found, or timeout - try next model
-        if (!result.isRateLimit && !result.isModelNotFound && !result.isTimeout) {
+        if (result.isRateLimit) {
+            console.log(`⏱️  Rate limit hit on ${modelName}, trying next model/key...`);
+            currentModelIndex = (currentModelIndex + 1) % AVAILABLE_MODELS.length;
+            await new Promise(resolve => setTimeout(resolve, 1000));
+        } else if (result.isInvalidKey) {
+            console.log(`❌ API Key is invalid or expired, trying next key...`);
+        } else if (result.isModelNotFound) {
+            console.log(`❌ Model ${modelName} not available, trying next model...`);
+            currentModelIndex = (currentModelIndex + 1) % AVAILABLE_MODELS.length;
+        } else if (result.isTimeout) {
+            console.log(`⏳ Timeout on ${modelName}, trying next model/key...`);
+        } else {
             console.error(`Non-recoverable error with ${modelName}:`, result.error);
             break;
         }
-        
-        if (result.isRateLimit) {
-            console.log(`⏱️  Rate limit hit on ${modelName}, trying next model...`);
-            // Small delay before trying next model to avoid cascading rate limits
-            await new Promise(resolve => setTimeout(resolve, 1000));
-        } else if (result.isModelNotFound) {
-            console.log(`❌ Model ${modelName} not available, trying next model...`);
-        } else if (result.isTimeout) {
-            console.log(`⏳ Timeout on ${modelName}, trying next model...`);
-        }
     }
     
-    // All models failed
-    console.error('All models failed. Attempted:', attemptedModels);
+    // All models/keys failed
+    console.error('All attempts failed. Tried combinations:', attemptedModels);
     
     const enhancedError = new Error('AI Service Error');
     enhancedError.code = lastError?.code || 500;
-    enhancedError.details = lastError?.error || 'All AI models unavailable';
+    enhancedError.details = lastError?.error || 'All AI models/keys unavailable';
     enhancedError.attemptedModels = attemptedModels;
     throw enhancedError;
 };
