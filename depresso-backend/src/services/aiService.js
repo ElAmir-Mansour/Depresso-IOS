@@ -16,12 +16,17 @@ const getNextApiKey = () => {
 };
 
 // Available Gemini models in priority order (free tier friendly)
-// Using v1beta API which supports system_instruction
-// Based on actual API testing - these models work!
+// Updated March 7, 2026 - Using latest available models
+// Best options based on your rate limits:
+// - Gemini 3.1 Flash Lite: 15 RPM, 250K TPM, 500 RPD (BEST for high volume)
+// - Gemini 2.5 Flash Lite: 10 RPM, 250K TPM, 20 RPD
+// - Gemini 3 Flash: 5 RPM, 250K TPM, 20 RPD
+// - Gemini 2.5 Flash: 5 RPM, 250K TPM, 20 RPD (currently being used)
 const AVAILABLE_MODELS = [
-    'gemini-1.5-flash',      // ✅ High free tier limit (15 RPM)
-    'gemini-2.5-flash',      // ✅ Tested and working
-    'gemini-flash-latest'    // ✅ Tested and working (fallback)
+    'gemini-3.1-flash-lite',  // ✅ BEST: 15 RPM, 500 RPD
+    'gemini-2.5-flash-lite',  // ✅ Good: 10 RPM, 20 RPD
+    'gemini-3-flash',         // ✅ Backup: 5 RPM, 20 RPD
+    'gemini-2.5-flash'        // ✅ Fallback: 5 RPM, 20 RPD (currently used)
 ];
 
 let currentModelIndex = 0;
@@ -50,16 +55,14 @@ async function tryGenerateWithModel(modelName, contents, apiKey) {
         return { success: false, error: 'No API keys configured', isInvalidKey: true };
     }
     
-    // Use v1beta API which supports system_instruction
-    const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent`;
+    // Try v1 API first (more stable), fallback to v1beta
+    const API_VERSIONS = ['v1', 'v1beta'];
     
-    try {
-        const response = await axios.post(
-            `${GEMINI_API_URL}?key=${apiKey}`,
-            {
-                system_instruction: {
-                    parts: [{ text: SYSTEM_INSTRUCTION }]
-                },
+    for (const apiVersion of API_VERSIONS) {
+        const GEMINI_API_URL = `https://generativelanguage.googleapis.com/${apiVersion}/models/${modelName}:generateContent`;
+        
+        try {
+            const requestBody = {
                 contents: contents,
                 generationConfig: {
                     temperature: 0.7,
@@ -67,49 +70,75 @@ async function tryGenerateWithModel(modelName, contents, apiKey) {
                     topP: 0.95,
                     maxOutputTokens: 1024,
                 }
-            },
-            {
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                timeout: 25000 // 25 second timeout per model attempt
+            };
+            
+            // Add system_instruction only for v1beta (v1 doesn't support it)
+            if (apiVersion === 'v1beta') {
+                requestBody.system_instruction = {
+                    parts: [{ text: SYSTEM_INSTRUCTION }]
+                };
             }
-        );
+            
+            const response = await axios.post(
+                `${GEMINI_API_URL}?key=${apiKey}`,
+                requestBody,
+                {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    timeout: 25000 // 25 second timeout per model attempt
+                }
+            );
 
-        const aiContent = response.data.candidates[0]?.content?.parts[0]?.text?.trim();
-        
-        if (!aiContent) {
-            throw new Error('Invalid AI response format');
+            const aiContent = response.data.candidates[0]?.content?.parts[0]?.text?.trim();
+            
+            if (!aiContent) {
+                throw new Error('Invalid AI response format');
+            }
+            
+            return { success: true, content: aiContent, model: modelName, apiVersion };
+            
+        } catch (error) {
+            const errorData = error.response?.data?.error;
+            const statusCode = error.response?.status;
+            
+            // If this API version failed, try next one
+            if (apiVersion === 'v1' && API_VERSIONS.length > 1) {
+                continue;
+            }
+            
+            // Both versions failed, return error
+            const isTimeout = error.code === 'ECONNABORTED' || error.code === 'ETIMEDOUT';
+            
+            // Check if it's a rate limit error (429 or 503) OR model not found (404)
+            const isRateLimit = statusCode === 429 || statusCode === 503 || 
+                               errorData?.message?.toLowerCase().includes('rate limit') ||
+                               errorData?.message?.toLowerCase().includes('quota');
+                               
+            const isInvalidKey = statusCode === 400 && (errorData?.message?.toLowerCase().includes('api key') || errorData?.status === 'INVALID_ARGUMENT');
+            
+            const isModelNotFound = statusCode === 404 || 
+                                   errorData?.message?.toLowerCase().includes('not found') ||
+                                   errorData?.message?.toLowerCase().includes('not supported');
+            
+            return {
+                success: false,
+                isRateLimit,
+                isModelNotFound,
+                isTimeout,
+                isInvalidKey,
+                error: errorData?.message || error.message,
+                code: errorData?.code || statusCode
+            };
         }
-        
-        return { success: true, content: aiContent, model: modelName };
-        
-    } catch (error) {
-        const errorData = error.response?.data?.error;
-        const statusCode = error.response?.status;
-        const isTimeout = error.code === 'ECONNABORTED' || error.code === 'ETIMEDOUT';
-        
-        // Check if it's a rate limit error (429 or 503) OR model not found (404)
-        const isRateLimit = statusCode === 429 || statusCode === 503 || 
-                           errorData?.message?.toLowerCase().includes('rate limit') ||
-                           errorData?.message?.toLowerCase().includes('quota');
-                           
-        const isInvalidKey = statusCode === 400 && (errorData?.message?.toLowerCase().includes('api key') || errorData?.status === 'INVALID_ARGUMENT');
-        
-        const isModelNotFound = statusCode === 404 || 
-                               errorData?.message?.toLowerCase().includes('not found') ||
-                               errorData?.message?.toLowerCase().includes('not supported');
-        
-        return {
-            success: false,
-            isRateLimit,
-            isModelNotFound,
-            isTimeout,
-            isInvalidKey,
-            error: errorData?.message || error.message,
-            code: errorData?.code || statusCode
-        };
     }
+    
+    // If we get here, both API versions failed
+    return {
+        success: false,
+        error: 'All API versions failed',
+        isModelNotFound: true
+    };
 }
 
 /**
@@ -120,6 +149,31 @@ async function tryGenerateWithModel(modelName, contents, apiKey) {
 exports.generateResponse = async (history) => {
     logKeyStatus(); // Log key status on first use
     
+    // FALLBACK MODE: Use canned responses if keys are expired
+    const USE_FALLBACK = process.env.USE_AI_FALLBACK === 'true';
+    const keys = getApiKeys();
+    
+    if (USE_FALLBACK || keys.length === 0) {
+        console.log('⚠️ Using fallback responses (no valid API keys)');
+        
+        const compassionateResponses = [
+            "I hear you. It's completely valid to feel this way. Would you like to tell me more about what's on your mind?",
+            "Thank you for sharing that with me. Your feelings are important and I'm here to listen. How are you taking care of yourself today?",
+            "That sounds challenging. Remember, it's okay to feel overwhelmed sometimes. What's one small thing that might help you feel a bit better right now?",
+            "I appreciate you opening up to me. You're doing great by journaling and reflecting on your thoughts. Every entry is a step forward.",
+            "It takes courage to acknowledge these feelings. What's one positive thing, even if small, from your day that you can recognize?",
+            "I'm glad you're here and sharing with me. Your journey matters. What would make today feel a little easier?",
+            "Those feelings are real and they matter. Sometimes just expressing them helps. How long have you been feeling this way?",
+            "Thank you for trusting me with these thoughts. You're not alone in this. What support do you have around you?",
+            "I can sense this is weighing on you. It's okay to not be okay. What's one thing you're looking forward to?",
+            "Your awareness of these patterns shows real growth. Keep being kind to yourself. What do you need most right now?"
+        ];
+        
+        // Pick response based on conversation length (feels more natural)
+        const index = history.length % compassionateResponses.length;
+        return compassionateResponses[index];
+    }
+    
     // Convert history to Gemini format
     const contents = history.map(msg => ({
         role: msg.sender === 'assistant' ? 'model' : 'user',
@@ -128,7 +182,6 @@ exports.generateResponse = async (history) => {
 
     let lastError = null;
     let attemptedModels = [];
-    const keys = getApiKeys();
     const maxAttempts = Math.max(AVAILABLE_MODELS.length * keys.length, 1);
     
     // Try combinations of keys and models
