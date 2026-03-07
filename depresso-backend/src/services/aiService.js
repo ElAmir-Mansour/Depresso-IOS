@@ -123,11 +123,13 @@ exports.generateResponse = async (history) => {
         }
         
         if (result.isRateLimit) {
-            console.log(`Rate limit hit on ${modelName}, trying next model...`);
+            console.log(`⏱️  Rate limit hit on ${modelName}, trying next model...`);
+            // Small delay before trying next model to avoid cascading rate limits
+            await new Promise(resolve => setTimeout(resolve, 1000));
         } else if (result.isModelNotFound) {
-            console.log(`Model ${modelName} not available, trying next model...`);
+            console.log(`❌ Model ${modelName} not available, trying next model...`);
         } else if (result.isTimeout) {
-            console.log(`Timeout on ${modelName}, trying next model...`);
+            console.log(`⏳ Timeout on ${modelName}, trying next model...`);
         }
     }
     
