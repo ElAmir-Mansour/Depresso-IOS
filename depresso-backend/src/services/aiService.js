@@ -4,13 +4,11 @@ const axios = require('axios');
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
 // Available Gemini models in priority order (free tier friendly)
-// Using exact model names from Google AI Studio
+// Using ONLY models confirmed to work with v1 API
 const AVAILABLE_MODELS = [
-    'gemini-2.0-flash-exp',
-    'gemini-1.5-flash-latest',
-    'gemini-1.5-flash-002',
-    'gemini-1.5-flash-8b-latest',
-    'gemini-pro'
+    'gemini-1.5-flash',
+    'gemini-1.5-pro',
+    'gemini-1.0-pro'
 ];
 
 let currentModelIndex = 0;
