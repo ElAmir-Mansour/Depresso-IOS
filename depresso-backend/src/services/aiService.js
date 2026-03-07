@@ -25,7 +25,8 @@ const SYSTEM_INSTRUCTION = process.env.AI_SYSTEM_PROMPT || 'You are a compassion
  * Try to generate a response with the current model, fallback to next model on rate limit
  */
 async function tryGenerateWithModel(modelName, contents) {
-    const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent`;
+    // Use v1 API instead of v1beta for better model support
+    const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1/models/${modelName}:generateContent`;
     
     try {
         const response = await axios.post(
