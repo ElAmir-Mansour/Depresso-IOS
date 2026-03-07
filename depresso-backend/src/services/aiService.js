@@ -2,26 +2,31 @@ const axios = require('axios');
 
 // Gemini API Configuration
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-1.5-flash';
-const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
+
+// Available Gemini models in priority order (free tier friendly)
+// Using exact model names from Google AI Studio
+const AVAILABLE_MODELS = [
+    'gemini-2.0-flash-exp',
+    'gemini-1.5-flash-latest',
+    'gemini-1.5-flash-002',
+    'gemini-1.5-flash-8b-latest',
+    'gemini-pro'
+];
+
+let currentModelIndex = 0;
 
 console.log('AI Service - Has API Key:', !!GEMINI_API_KEY);
 console.log('AI Service - Key starts with:', GEMINI_API_KEY ? GEMINI_API_KEY.substring(0, 15) + '...' : 'MISSING');
+console.log('AI Service - Available models:', AVAILABLE_MODELS.length);
 
 const SYSTEM_INSTRUCTION = process.env.AI_SYSTEM_PROMPT || 'You are a compassionate AI companion for a mental wellness app. You provide supportive, empathetic responses to users sharing their thoughts and feelings. This is a safe, therapeutic context for discussing mental health, emotions, and personal challenges. Respond with care, validation, and encouragement.';
 
 /**
- * Generates a response from the Gemini AI model.
- * @param {Array} history - Array of previous messages { sender: 'user'|'assistant', content: string }
- * @returns {Promise<string>} - The AI's response content
+ * Try to generate a response with the current model, fallback to next model on rate limit
  */
-exports.generateResponse = async (history) => {
-    // Convert history to Gemini format
-    const contents = history.map(msg => ({
-        role: msg.sender === 'assistant' ? 'model' : 'user',
-        parts: [{ text: msg.content }]
-    }));
-
+async function tryGenerateWithModel(modelName, contents) {
+    const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent`;
+    
     try {
         const response = await axios.post(
             `${GEMINI_API_URL}?key=${GEMINI_API_KEY}`,
@@ -45,25 +50,89 @@ exports.generateResponse = async (history) => {
         );
 
         const aiContent = response.data.candidates[0]?.content?.parts[0]?.text?.trim();
-
+        
         if (!aiContent) {
             throw new Error('Invalid AI response format');
         }
-
-        return aiContent;
-
+        
+        return { success: true, content: aiContent, model: modelName };
+        
     } catch (error) {
-        console.error('Gemini API Error:', error.response?.data || error.message);
-
-        // Enhance error with context
-        if (error.response && error.response.data) {
-            const errorData = error.response.data;
-            const enhancedError = new Error('AI Service Error');
-            enhancedError.code = errorData.error?.code;
-            enhancedError.details = errorData.error?.message || 'Gemini API error';
-            enhancedError.isContentFilter = errorData.error?.status === 'INVALID_ARGUMENT';
-            throw enhancedError;
-        }
-        throw error;
+        const errorData = error.response?.data?.error;
+        const statusCode = error.response?.status;
+        
+        // Check if it's a rate limit error (429 or 503) OR model not found (404)
+        const isRateLimit = statusCode === 429 || statusCode === 503 || 
+                           errorData?.message?.toLowerCase().includes('rate limit') ||
+                           errorData?.message?.toLowerCase().includes('quota');
+        
+        const isModelNotFound = statusCode === 404 || 
+                               errorData?.message?.toLowerCase().includes('not found') ||
+                               errorData?.message?.toLowerCase().includes('not supported');
+        
+        return {
+            success: false,
+            isRateLimit,
+            isModelNotFound,
+            error: errorData?.message || error.message,
+            code: errorData?.code || statusCode
+        };
     }
+}
+
+/**
+ * Generates a response from the Gemini AI model with automatic fallback.
+ * @param {Array} history - Array of previous messages { sender: 'user'|'assistant', content: string }
+ * @returns {Promise<string>} - The AI's response content
+ */
+exports.generateResponse = async (history) => {
+    // Convert history to Gemini format
+    const contents = history.map(msg => ({
+        role: msg.sender === 'assistant' ? 'model' : 'user',
+        parts: [{ text: msg.content }]
+    }));
+
+    let lastError = null;
+    let attemptedModels = [];
+    
+    // Try all available models
+    for (let i = 0; i < AVAILABLE_MODELS.length; i++) {
+        const modelIndex = (currentModelIndex + i) % AVAILABLE_MODELS.length;
+        const modelName = AVAILABLE_MODELS[modelIndex];
+        attemptedModels.push(modelName);
+        
+        console.log(`Attempting with model: ${modelName}`);
+        
+        const result = await tryGenerateWithModel(modelName, contents);
+        
+        if (result.success) {
+            // Success! Update current model index for next time
+            currentModelIndex = modelIndex;
+            console.log(`✓ Success with model: ${modelName}`);
+            return result.content;
+        }
+        
+        lastError = result;
+        
+        // If rate limit or model not found, try next model
+        if (!result.isRateLimit && !result.isModelNotFound) {
+            console.error(`Non-recoverable error with ${modelName}:`, result.error);
+            break;
+        }
+        
+        if (result.isRateLimit) {
+            console.log(`Rate limit hit on ${modelName}, trying next model...`);
+        } else if (result.isModelNotFound) {
+            console.log(`Model ${modelName} not available, trying next model...`);
+        }
+    }
+    
+    // All models failed
+    console.error('All models failed. Attempted:', attemptedModels);
+    
+    const enhancedError = new Error('AI Service Error');
+    enhancedError.code = lastError?.code || 500;
+    enhancedError.details = lastError?.error || 'All AI models unavailable';
+    enhancedError.attemptedModels = attemptedModels;
+    throw enhancedError;
 };
