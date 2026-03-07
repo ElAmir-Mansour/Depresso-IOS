@@ -64,6 +64,9 @@ struct InsightsFeature {
                 return .run { [period = state.selectedPeriod] send in
                     await send(.dataLoaded(Result {
                         let userId = await MainActor.run { UserManager.shared.userId }
+                        
+                        print("🔍 Insights: Loading data for user: \(userId ?? "nil")")
+                        
                         guard let userId = userId, !userId.isEmpty else {
                             throw InsightsError.noUserId
                         }
@@ -72,11 +75,14 @@ struct InsightsFeature {
                         async let insights = APIClient.getAnalysisInsights(userId: userId)
                         async let communityStats = APIClient.getCommunityStats()
                         
-                        return try await (trends, insights, communityStats)
+                        let result = try await (trends, insights, communityStats)
+                        print("✅ Insights: Data loaded - \(result.0.sentimentTimeline.count) timeline entries, \(result.1.overview.totalEntries) total entries")
+                        return result
                     }))
                 }
                 
             case .dataLoaded(.success(let (trends, insights, communityStats))):
+                print("✅ Insights: Successfully processed data")
                 state.trends = trends
                 state.insights = insights
                 state.communityStats = communityStats
@@ -84,6 +90,7 @@ struct InsightsFeature {
                 return .none
                 
             case .dataLoaded(.failure(let error)):
+                print("❌ Insights: Failed to load - \(error.localizedDescription)")
                 state.errorMessage = "Failed to load insights: \(error.localizedDescription)"
                 state.isLoading = false
                 return .none

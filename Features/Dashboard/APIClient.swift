@@ -4,7 +4,8 @@ import ComposableArchitecture
 
 // MARK: - API Configuration
 enum APIConfig {
-    // 🌍 PRODUCTION: Vercel deployment (CURRENT - WORKING ✅)
+    // 🌍 PRODUCTION: Vercel deployment (CURRENT)
+    // NOTE: After updating Vercel with new keys, this will work
     static let baseURL = "https://depresso-ios.vercel.app/api/v1"
     
     // 💻 SIMULATOR: Local testing
@@ -71,33 +72,51 @@ struct APIClient {
         }
         
         // Step 4: Make the network call using custom session
-        let (data, response) = try await session.data(for: request)
-        
-        // Step 5: Check response status
-        guard let httpResponse = response as? HTTPURLResponse else {
-            throw APIError.networkError("Invalid response")
-        }
-        
-        guard (200...299).contains(httpResponse.statusCode) else {
-            let errorMessage = String(data: data, encoding: .utf8) ?? "Unknown error"
-            throw APIError.serverError(httpResponse.statusCode, errorMessage)
-        }
-        
-        // Step 6: Handle 204 No Content
-        if httpResponse.statusCode == 204 || data.isEmpty {
-            // For empty responses, return empty EmptyResponse
-            if T.self == EmptyResponse.self {
-                return EmptyResponse() as! T
-            }
-        }
-        
-        // Step 7: Decode the response
         do {
-            let decoder = JSONDecoder()
-            decoder.dateDecodingStrategy = .iso8601
-            return try decoder.decode(T.self, from: data)
+            let (data, response) = try await session.data(for: request)
+            
+            // Step 5: Check response status
+            guard let httpResponse = response as? HTTPURLResponse else {
+                throw APIError.networkError("Invalid response")
+            }
+            
+            // Debug logging
+            if !endpoint.contains("/metrics/") { // Don't log frequent metrics calls
+                print("🌐 API [\(httpResponse.statusCode)] \(endpoint)")
+            }
+            
+            guard (200...299).contains(httpResponse.statusCode) else {
+                let errorMessage = String(data: data, encoding: .utf8) ?? "Unknown error"
+                print("❌ API Error [\(httpResponse.statusCode)] \(endpoint): \(errorMessage.prefix(200))")
+                throw APIError.serverError(httpResponse.statusCode, errorMessage)
+            }
+            
+            // Step 6: Handle 204 No Content
+            if httpResponse.statusCode == 204 || data.isEmpty {
+                // For empty responses, return empty EmptyResponse
+                if T.self == EmptyResponse.self {
+                    return EmptyResponse() as! T
+                }
+            }
+            
+            // Step 7: Decode the response
+            do {
+                let decoder = JSONDecoder()
+                decoder.dateDecodingStrategy = .iso8601
+                return try decoder.decode(T.self, from: data)
+            } catch {
+                // Enhanced error logging
+                let responseString = String(data: data, encoding: .utf8) ?? "<binary data>"
+                print("❌ APIClient: Decoding failed for \(endpoint)")
+                print("   Response (\(data.count) bytes): \(responseString.prefix(500))")
+                print("   Error: \(error)")
+                throw APIError.decodingError(error.localizedDescription)
+            }
+        } catch let error as APIError {
+            throw error
         } catch {
-            throw APIError.decodingError(error.localizedDescription)
+            print("❌ Network error for \(endpoint): \(error.localizedDescription)")
+            throw APIError.networkError(error.localizedDescription)
         }
     }
     
@@ -658,6 +677,13 @@ struct AnalysisContext: Codable {
     let sessionDuration: Double?
     let editCount: Int?
     let timeOfDay: String?
+    
+    enum CodingKeys: String, CodingKey {
+        case typingSpeed = "typing_speed"
+        case sessionDuration = "session_duration"
+        case editCount = "edit_count"
+        case timeOfDay = "time_of_day"
+    }
 }
 
 struct AnalyzedEntryDTO: Codable {
@@ -751,7 +777,7 @@ struct EmotionFrequencyDTO: Codable, Equatable {
 }
 
 struct TimeOfDayAnalysisDTO: Codable, Equatable {
-    let timeOfDay: String
+    let timeOfDay: String?
     let avgSentiment: Double
     let frequency: Int
 

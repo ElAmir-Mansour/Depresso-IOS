@@ -138,17 +138,26 @@ struct AICompanionJournalFeature {
                 let unsynced = state.messages.filter { $0.isFromCurrentUser && !$0.isSynced }
                 guard !unsynced.isEmpty else { return .none }
                 
+                print("🔄 Syncing \(unsynced.count) unsynced messages to backend...")
+                
                 return .run { [aiClient, modelContext] send in
                     for message in unsynced {
                         do {
-                            let responseText = try await aiClient.generateResponse([], message.content, nil)
+                            // Sync to backend for analysis
+                            _ = try await APIClient.submitForAnalysis(
+                                userId: message.userId,
+                                source: "ai_chat",
+                                content: message.content,
+                                originalId: message.id.uuidString,
+                                context: nil
+                            )
+                            
                             await MainActor.run {
                                 message.isSynced = true
-                                let aiMessage = ChatMessage(userId: message.userId, content: responseText, isFromCurrentUser: false, isSynced: true)
-                                modelContext.context.insert(aiMessage)
                                 try? modelContext.context.save()
-                                send(.aiMessageSaved(.success(aiMessage)))
                             }
+                            
+                            print("✅ Synced message \(message.id)")
                         } catch {
                             print("⚠️ Failed to sync message \(message.id): \(error)")
                         }
@@ -211,6 +220,11 @@ struct AICompanionJournalFeature {
                 let wordCount = messageContent.split(whereSeparator: \.isWhitespace).count
                 state.currentWPM = state.currentSessionDuration > 0 ? (Double(wordCount) / state.currentSessionDuration) * 60.0 : 0
 
+                // Capture context for backend sync
+                let contextTypingSpeed = state.currentWPM
+                let contextSessionDuration = state.currentSessionDuration
+                let contextEditCount = state.currentEditCountForSubmission
+
                 state.textInput = ""
                 state.isSendingMessage = true
                 state.journalSessionStartDate = Date()
@@ -239,7 +253,6 @@ struct AICompanionJournalFeature {
                         let dailyMetrics = DailyMetrics(steps: steps, activeEnergy: energy, heartRate: heartRate)
 
                         await MainActor.run {
-                            userMessage.isSynced = true
                             let aiMessage = ChatMessage(userId: currentUserId, content: responseText, isFromCurrentUser: false, isSynced: true)
                             modelContext.context.insert(aiMessage)
                             try? modelContext.context.save()
@@ -252,6 +265,34 @@ struct AICompanionJournalFeature {
                         }
 
                         await send(.submissionDataLoaded(.success(dailyMetrics)))
+                        
+                        // Sync to backend for analysis (non-blocking)
+                        Task {
+                            do {
+                                _ = try await APIClient.submitForAnalysis(
+                                    userId: currentUserId,
+                                    source: "ai_chat",
+                                    content: messageContent,
+                                    originalId: userMessage.id.uuidString,
+                                    context: AnalysisContext(
+                                        typingSpeed: contextTypingSpeed,
+                                        sessionDuration: contextSessionDuration,
+                                        editCount: contextEditCount,
+                                        timeOfDay: getCurrentTimeOfDay()
+                                    )
+                                )
+                                
+                                // Mark as successfully synced
+                                await MainActor.run {
+                                    userMessage.isSynced = true
+                                    try? modelContext.context.save()
+                                }
+                                
+                                print("✅ Journal message synced to backend: \(userMessage.id)")
+                            } catch {
+                                print("❌ Failed to sync message to backend: \(error.localizedDescription)")
+                            }
+                        }
 
                     } catch {
                         print("❌ Sync/AI Error: \(error)")
@@ -420,5 +461,20 @@ struct AICompanionJournalFeature {
         }
         .ifLet(\.$alert, action: \.alert)
         .ifLet(\.$destination, action: \.destination)
+    }
+    
+    // MARK: - Helper Functions
+    private func getCurrentTimeOfDay() -> String {
+        let hour = Calendar.current.component(.hour, from: Date())
+        switch hour {
+        case 5..<12:
+            return "morning"
+        case 12..<17:
+            return "afternoon"
+        case 17..<21:
+            return "evening"
+        default:
+            return "night"
+        }
     }
 }

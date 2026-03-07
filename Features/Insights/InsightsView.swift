@@ -330,7 +330,7 @@ struct InsightsView: View {
                                         .stroke(sentimentColor(item.avgSentiment).opacity(0.5), lineWidth: 1)
                                 )
                             
-                            Text(item.timeOfDay.capitalized)
+                            Text((item.timeOfDay ?? "unknown").capitalized)
                                 .font(.system(size: 10))
                                 .foregroundStyle(.secondary)
                         }
