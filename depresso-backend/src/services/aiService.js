@@ -7,6 +7,7 @@ const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 // Using v1beta API which supports system_instruction
 // Based on actual API testing - these models work!
 const AVAILABLE_MODELS = [
+    'gemini-1.5-flash',      // ✅ High free tier limit (15 RPM)
     'gemini-2.5-flash',      // ✅ Tested and working
     'gemini-flash-latest'    // ✅ Tested and working (fallback)
 ];

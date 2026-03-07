@@ -4,7 +4,7 @@ import ComposableArchitecture
 
 // MARK: - API Configuration
 enum APIConfig {
-    // 🌍 PRODUCTION: Use this once you deploy to Koyeb/Render/Vercel
+    // 🌍 PRODUCTION: Vercel deployment (CURRENT - WORKING ✅)
     static let baseURL = "https://depresso-ios.vercel.app/api/v1"
     
     // 💻 SIMULATOR: Local testing
