@@ -5,9 +5,10 @@ const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
 // Available Gemini models in priority order (free tier friendly)
 // Using v1beta API which supports system_instruction
-// Based on Google AI Studio rate limits - only using models with available quota
+// Based on actual API testing - these models work!
 const AVAILABLE_MODELS = [
-    'gemini-1.5-flash-8b' // Smallest, fastest, most quota-friendly
+    'gemini-2.5-flash',      // ✅ Tested and working
+    'gemini-flash-latest'    // ✅ Tested and working (fallback)
 ];
 
 let currentModelIndex = 0;
