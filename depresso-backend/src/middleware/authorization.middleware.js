@@ -26,11 +26,12 @@ const validateUserOwnership = (req, res, next) => {
 
 /**
  * Check if resource belongs to authenticated user (by query lookup)
+ * Checks both internal UUID and Apple User ID for robust ownership validation
  */
 const validateResourceOwnership = (resourceType, idParam = 'id') => {
     return async (req, res, next) => {
         if (!req.userId) {
-            // No auth - will be handled by authenticateToken
+            // No auth - skip validation or let authenticateToken handle it
             return next();
         }
 
@@ -41,10 +42,21 @@ const validateResourceOwnership = (resourceType, idParam = 'id') => {
             let query;
             switch(resourceType) {
                 case 'journal':
-                    query = 'SELECT user_id FROM JournalEntries WHERE id = $1';
+                    // Join with Users to check against both IDs
+                    query = `
+                        SELECT je.user_id, u.apple_user_id 
+                        FROM JournalEntries je
+                        JOIN Users u ON je.user_id = u.id
+                        WHERE je.id = $1
+                    `;
                     break;
                 case 'post':
-                    query = 'SELECT user_id FROM CommunityPosts WHERE id = $1';
+                    query = `
+                        SELECT cp.user_id, u.apple_user_id 
+                        FROM CommunityPosts cp
+                        JOIN Users u ON cp.user_id = u.id
+                        WHERE cp.id = $1
+                    `;
                     break;
                 default:
                     return next();
@@ -56,7 +68,12 @@ const validateResourceOwnership = (resourceType, idParam = 'id') => {
                 return res.status(404).json({ error: 'Resource not found' });
             }
             
-            if (result.rows[0].user_id !== req.userId) {
+            const row = result.rows[0];
+            const isOwner = row.user_id === req.userId || 
+                          (req.appleUserId && row.apple_user_id === req.appleUserId);
+            
+            if (!isOwner) {
+                console.warn(`🔒 Access denied for user ${req.userId} to ${resourceType} ${resourceId}`);
                 return res.status(403).json({ error: 'Forbidden' });
             }
             

@@ -64,7 +64,7 @@ extension CloudAIClient: DependencyKey {
     private static func getOrCreateJournalEntry(userId: String) async throws -> Int {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd"
-        let todayKey = "journal_entry_\(dateFormatter.string(from: Date()))"
+        let todayKey = "journal_entry_\(userId)_\(dateFormatter.string(from: Date()))"
         if let storedId = UserDefaults.standard.object(forKey: todayKey) as? Int {
             return storedId
         }
