@@ -29,13 +29,23 @@ async function tryGenerateWithModel(modelName, contents) {
     const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1/models/${modelName}:generateContent`;
     
     try {
+        // v1 API doesn't support system_instruction, so prepend it to first message
+        const contentsWithSystem = [
+            {
+                role: 'user',
+                parts: [{ text: SYSTEM_INSTRUCTION }]
+            },
+            {
+                role: 'model',
+                parts: [{ text: 'I understand. I will provide compassionate, supportive responses.' }]
+            },
+            ...contents
+        ];
+        
         const response = await axios.post(
             `${GEMINI_API_URL}?key=${GEMINI_API_KEY}`,
             {
-                system_instruction: {
-                    parts: [{ text: SYSTEM_INSTRUCTION }]
-                },
-                contents: contents,
+                contents: contentsWithSystem,
                 generationConfig: {
                     temperature: 0.7,
                     topK: 40,
