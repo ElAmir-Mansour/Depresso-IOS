@@ -4,7 +4,7 @@ const axios = require('axios');
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
 // Available Gemini models in priority order (free tier friendly)
-// Using ONLY models confirmed to work with v1 API
+// Using v1beta API which supports system_instruction
 const AVAILABLE_MODELS = [
     'gemini-1.5-flash',
     'gemini-1.5-pro',
@@ -23,27 +23,17 @@ const SYSTEM_INSTRUCTION = process.env.AI_SYSTEM_PROMPT || 'You are a compassion
  * Try to generate a response with the current model, fallback to next model on rate limit
  */
 async function tryGenerateWithModel(modelName, contents) {
-    // Use v1 API instead of v1beta for better model support
-    const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1/models/${modelName}:generateContent`;
+    // Use v1beta API which supports system_instruction
+    const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent`;
     
     try {
-        // v1 API doesn't support system_instruction, so prepend it to first message
-        const contentsWithSystem = [
-            {
-                role: 'user',
-                parts: [{ text: SYSTEM_INSTRUCTION }]
-            },
-            {
-                role: 'model',
-                parts: [{ text: 'I understand. I will provide compassionate, supportive responses.' }]
-            },
-            ...contents
-        ];
-        
         const response = await axios.post(
             `${GEMINI_API_URL}?key=${GEMINI_API_KEY}`,
             {
-                contents: contentsWithSystem,
+                system_instruction: {
+                    parts: [{ text: SYSTEM_INSTRUCTION }]
+                },
+                contents: contents,
                 generationConfig: {
                     temperature: 0.7,
                     topK: 40,
