@@ -45,4 +45,4 @@ You have the right to access, correct, or delete your data at any time. For user
 
 ## 6. Contact Us
 If you have any questions about this Privacy Policy or our data practices, please contact us at:
-[Your Support URL or Email]
+elamirmansour@outlook.com
