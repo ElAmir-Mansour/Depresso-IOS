@@ -108,7 +108,10 @@ exports.getTrends = async (req, res) => {
         );
         
         res.json({
-            sentimentTimeline: sentimentTimeline.rows,
+            sentimentTimeline: sentimentTimeline.rows.map(row => ({
+                ...row,
+                date: row.date ? new Date(row.date).toISOString().split('.')[0] + 'Z' : new Date().toISOString().split('.')[0] + 'Z'
+            })),
             cbtPatterns: cbtFrequency.rows,
             emotions: emotionDist.rows
         });
