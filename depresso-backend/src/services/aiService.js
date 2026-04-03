@@ -227,3 +227,58 @@ exports.generateResponse = async (history) => {
     enhancedError.attemptedModels = attemptedModels;
     throw enhancedError;
 };
+
+/**
+ * Generates vector embeddings for a given text using the Gemini embedding model.
+ * @param {string} text - The text to embed
+ * @returns {Promise<Array<number>>} - A 768-dimensional float array
+ */
+exports.generateEmbedding = async (text) => {
+    if (!text || text.trim() === '') {
+        return null; // Don't embed empty strings
+    }
+    
+    const USE_FALLBACK = process.env.USE_AI_FALLBACK === 'true';
+    if (USE_FALLBACK) {
+        // Return a zero-vector if in fallback mode to avoid breaking the DB insert
+        return new Array(768).fill(0);
+    }
+    
+    const apiKey = getApiKeys()[0] || process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+        throw new Error('No API keys configured for embeddings');
+    }
+    
+    const EMBEDDING_MODEL = 'text-embedding-004';
+    const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${EMBEDDING_MODEL}:embedContent`;
+    
+    try {
+        const response = await axios.post(
+            `${GEMINI_API_URL}?key=${apiKey}`,
+            {
+                model: `models/${EMBEDDING_MODEL}`,
+                content: {
+                    parts: [{ text: text }]
+                }
+            },
+            {
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                timeout: 10000 // 10 second timeout for embeddings
+            }
+        );
+
+        const embedding = response.data.embedding?.values;
+        
+        if (!embedding || !Array.isArray(embedding)) {
+            throw new Error('Invalid embedding response format');
+        }
+        
+        return embedding;
+        
+    } catch (error) {
+        console.error('Embedding Generation Error:', error.response?.data?.error?.message || error.message);
+        throw error;
+    }
+};

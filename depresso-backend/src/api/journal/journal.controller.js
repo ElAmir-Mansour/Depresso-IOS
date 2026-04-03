@@ -80,6 +80,14 @@ exports.addMessageToEntry = async (req, res) => {
         return res.status(400).json({ error: 'Valid entryId is required.' });
     }
 
+    // --- PHASE 0: Generate Embeddings for RAG (No DB Lock) ---
+    let userEmbedding = null;
+    try {
+        userEmbedding = await aiService.generateEmbedding(content);
+    } catch (e) {
+        console.error('Failed to generate embedding:', e);
+    }
+
     const client = await pool.connect();
     let historyRows = [];
 
@@ -88,18 +96,37 @@ exports.addMessageToEntry = async (req, res) => {
         await client.query('BEGIN');
 
         // 1. Save the user's message
+        const embeddingStr = userEmbedding ? `[${userEmbedding.join(',')}]` : null;
         await client.query(
-            'INSERT INTO AIChatMessages (entry_id, user_id, sender, content) VALUES ($1, $2, $3, $4)',
-            [entryId, userId, sender, content]
+            'INSERT INTO AIChatMessages (entry_id, user_id, sender, content, embedding) VALUES ($1, $2, $3, $4, $5)',
+            [entryId, userId, sender, content, embeddingStr]
         );
 
         // 2. Fetch conversation history (Limit to last 20 for speed/context window)
-        // We fetch DESC to get the recent ones, then reverse them for the AI
         const historyResult = await client.query(
             'SELECT sender, content FROM AIChatMessages WHERE entry_id = $1 ORDER BY created_at DESC LIMIT 20',
             [entryId]
         );
         historyRows = historyResult.rows.reverse();
+
+        // 3. Fetch RAG Context (similar past messages from other entries)
+        if (embeddingStr) {
+            const ragResult = await client.query(
+                `SELECT content FROM AIChatMessages 
+                 WHERE user_id = $1 AND entry_id != $2 AND sender = 'user' AND embedding IS NOT NULL 
+                 ORDER BY embedding <=> $3 LIMIT 3`,
+                [userId, entryId, embeddingStr]
+            );
+            
+            if (ragResult.rows.length > 0) {
+                const pastContext = ragResult.rows.map(r => r.content).join(' | ');
+                // Inject the context as a hidden system message at the start of the history
+                historyRows.unshift({
+                    sender: 'user', // We pretend the user is providing this context
+                    content: `[SYSTEM: Relevant past thoughts from this user: "${pastContext}"]`
+                });
+            }
+        }
 
         await client.query('COMMIT');
     } catch (error) {

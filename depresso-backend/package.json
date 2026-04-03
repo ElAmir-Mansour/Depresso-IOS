@@ -8,11 +8,12 @@
     "dev": "nodemon src/server.js"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "async": "^3.2.6",
     "axios": "^1.6.2",
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",
-    "dotenv": "^16.3.1",
+    "dotenv": "^16.6.1",
     "express": "^4.19.2",
     "express-rate-limit": "^8.2.1",
     "jsonwebtoken": "^9.0.3",
@@ -20,7 +21,8 @@
     "node-rsa": "^1.1.1",
     "pg": "^8.11.3",
     "uuid": "^9.0.1",
-    "winston": "^3.18.3"
+    "winston": "^3.18.3",
+    "ws": "^8.19.0"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
