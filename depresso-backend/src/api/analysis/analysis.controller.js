@@ -235,7 +235,7 @@ exports.getInsights = async (req, res) => {
             correlations: {
                 mood_activity_corr: parseFloat(corrData.correlation_coefficient) || 0,
                 mood_boost_pct: corrData.mood_high_activity && corrData.mood_low_activity ? 
-                    ((corrData.mood_high_activity - corrData.mood_low_activity) / corrData.mood_low_activity * 100).toFixed(1) : 0
+                    parseFloat(((corrData.mood_high_activity - corrData.mood_low_activity) / corrData.mood_low_activity * 100).toFixed(1)) : 0
             },
             timeOfDayAnalysis: timeOfDay.rows,
             topDistortions: topDistortions.rows,
