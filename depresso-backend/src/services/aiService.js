@@ -71,7 +71,12 @@ async function tryGenerateWithModel(modelName, contents, apiKey, fileSearchStore
             config: config
         });
         
-        const aiContent = response.text;
+        // Strip out Google Gemini's native RAG citation brackets (e.g., [1], [1.3], [1.3, 1.4])
+        // The regex matches brackets containing numbers, dots, spaces, and commas.
+        let aiContent = response.text;
+        if (aiContent) {
+            aiContent = aiContent.replace(/\[[\d\.\s,]+\]/g, '');
+        }
         
         if (!aiContent) {
             throw new Error('Invalid AI response format');

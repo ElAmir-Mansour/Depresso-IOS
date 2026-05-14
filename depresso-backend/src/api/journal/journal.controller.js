@@ -101,6 +101,23 @@ exports.addMessageToEntry = async (req, res) => {
         );
         historyRows = historyResult.rows.reverse();
 
+        // 3. Fetch past context to simulate memory (Last 15 user messages across other entries)
+        const pastContextResult = await client.query(
+            `SELECT content FROM AIChatMessages 
+             WHERE user_id = $1 AND entry_id != $2 AND sender = 'user' 
+             ORDER BY created_at DESC LIMIT 15`,
+            [userId, entryId]
+        );
+        
+        if (pastContextResult.rows.length > 0) {
+            const pastContext = pastContextResult.rows.map(r => r.content).join(' | ');
+            // Inject the context as a hidden system message at the start of the history
+            historyRows.unshift({
+                sender: 'user',
+                content: `[SYSTEM MEMORY CONTEXT - DO NOT ACKNOWLEDGE THIS DIRECTLY: Here are some recent thoughts, facts, and context I have shared with you in the past: "${pastContext}"]`
+            });
+        }
+
         await client.query('COMMIT');
     } catch (error) {
         await client.query('ROLLBACK');
