@@ -1,6 +1,7 @@
 const pool = require('../../config/db');
 const aiService = require('../../services/aiService');
 const textAnalysisService = require('../../services/textAnalysisService');
+const ragService = require('../../services/ragService');
 
 // Create a new journal entry
 exports.createEntry = async (req, res) => {
@@ -217,5 +218,7 @@ exports.getMessagesForEntry = async (req, res) => {
     } catch (error) {
         console.error('Error fetching messages for entry:', error);
         res.status(500).send('Server error');
+    }
+};d('Server error');
     }
 };

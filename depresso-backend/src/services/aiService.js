@@ -1,4 +1,4 @@
-const axios = require('axios');
+const { GoogleGenAI } = require('@google/genai');
 
 // Gemini API Configuration
 let currentKeyIndex = 0;
@@ -16,22 +16,15 @@ const getNextApiKey = () => {
 };
 
 // Available Gemini models in priority order (free tier friendly)
-// Updated March 7, 2026 - Using latest available models
-// Best options based on your rate limits:
-// - Gemini 3.1 Flash Lite: 15 RPM, 250K TPM, 500 RPD (BEST for high volume)
-// - Gemini 2.5 Flash Lite: 10 RPM, 250K TPM, 20 RPD
-// - Gemini 3 Flash: 5 RPM, 250K TPM, 20 RPD
-// - Gemini 2.5 Flash: 5 RPM, 250K TPM, 20 RPD (currently being used)
 const AVAILABLE_MODELS = [
-    'gemini-3.1-flash-lite',  // ✅ BEST: 15 RPM, 500 RPD
-    'gemini-2.5-flash-lite',  // ✅ Good: 10 RPM, 20 RPD
-    'gemini-3-flash',         // ✅ Backup: 5 RPM, 20 RPD
-    'gemini-2.5-flash'        // ✅ Fallback: 5 RPM, 20 RPD (currently used)
+    'gemini-3.1-flash-lite',
+    'gemini-2.5-flash-lite',
+    'gemini-3-flash',
+    'gemini-2.5-flash'
 ];
 
 let currentModelIndex = 0;
 
-// Log on first use, not module load
 let hasLoggedKey = false;
 function logKeyStatus() {
     if (!hasLoggedKey) {
@@ -45,111 +38,84 @@ function logKeyStatus() {
     }
 }
 
-const SYSTEM_INSTRUCTION = process.env.AI_SYSTEM_PROMPT || 'You are a compassionate AI companion for a mental wellness app. You provide supportive, empathetic responses to users sharing their thoughts and feelings. This is a safe, therapeutic context for discussing mental health, emotions, and personal challenges. Respond with care, validation, and encouragement.';
+const SYSTEM_INSTRUCTION = process.env.AI_SYSTEM_PROMPT || 'You are a compassionate AI companion for a mental wellness app. You provide supportive, empathetic responses to users sharing their thoughts and feelings. This is a safe, therapeutic context for discussing mental health, emotions, and personal challenges. Respond with care, validation, and encouragement. If you offer therapeutic advice or grounding exercises, ALWAYS search the clinical knowledge base (your File Search tool) and ground your advice in established Cognitive Behavioral Therapy (CBT) practices. Cite your sources using page numbers if available (e.g., "According to standard CBT practices (Source Guide, p. 12)...").';
 
-/**
- * Try to generate a response with the current model, fallback to next model on rate limit
- */
-async function tryGenerateWithModel(modelName, contents, apiKey) {
+async function tryGenerateWithModel(modelName, contents, apiKey, fileSearchStoreName = null) {
     if (!apiKey) {
         return { success: false, error: 'No API keys configured', isInvalidKey: true };
     }
     
-    // Try v1 API first (more stable), fallback to v1beta
-    const API_VERSIONS = ['v1', 'v1beta'];
-    
-    for (const apiVersion of API_VERSIONS) {
-        const GEMINI_API_URL = `https://generativelanguage.googleapis.com/${apiVersion}/models/${modelName}:generateContent`;
+    try {
+        const ai = new GoogleGenAI({ apiKey: apiKey });
         
-        try {
-            const requestBody = {
-                contents: contents,
-                generationConfig: {
-                    temperature: 0.7,
-                    topK: 40,
-                    topP: 0.95,
-                    maxOutputTokens: 1024,
-                }
-            };
-            
-            // Add system_instruction only for v1beta (v1 doesn't support it)
-            if (apiVersion === 'v1beta') {
-                requestBody.system_instruction = {
-                    parts: [{ text: SYSTEM_INSTRUCTION }]
-                };
-            }
-            
-            const response = await axios.post(
-                `${GEMINI_API_URL}?key=${apiKey}`,
-                requestBody,
-                {
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    timeout: 25000 // 25 second timeout per model attempt
-                }
-            );
+        const config = {
+            temperature: 0.7,
+            topK: 40,
+            topP: 0.95,
+            maxOutputTokens: 1024,
+            systemInstruction: SYSTEM_INSTRUCTION
+        };
 
-            const aiContent = response.data.candidates[0]?.content?.parts[0]?.text?.trim();
-            
-            if (!aiContent) {
-                throw new Error('Invalid AI response format');
-            }
-            
-            return { success: true, content: aiContent, model: modelName, apiVersion };
-            
-        } catch (error) {
-            const errorData = error.response?.data?.error;
-            const statusCode = error.response?.status;
-            
-            // If this API version failed, try next one
-            if (apiVersion === 'v1' && API_VERSIONS.length > 1) {
-                continue;
-            }
-            
-            // Both versions failed, return error
-            const isTimeout = error.code === 'ECONNABORTED' || error.code === 'ETIMEDOUT';
-            
-            // Check if it's a rate limit error (429 or 503) OR model not found (404)
-            const isRateLimit = statusCode === 429 || statusCode === 503 || 
-                               errorData?.message?.toLowerCase().includes('rate limit') ||
-                               errorData?.message?.toLowerCase().includes('quota');
-                               
-            const isInvalidKey = statusCode === 400 && (errorData?.message?.toLowerCase().includes('api key') || errorData?.status === 'INVALID_ARGUMENT');
-            
-            const isModelNotFound = statusCode === 404 || 
-                                   errorData?.message?.toLowerCase().includes('not found') ||
-                                   errorData?.message?.toLowerCase().includes('not supported');
-            
-            return {
-                success: false,
-                isRateLimit,
-                isModelNotFound,
-                isTimeout,
-                isInvalidKey,
-                error: errorData?.message || error.message,
-                code: errorData?.code || statusCode
-            };
+        // If a file search store is provided, attach the tool
+        if (fileSearchStoreName) {
+            config.tools = [{
+                fileSearch: {
+                    fileSearchStoreNames: [fileSearchStoreName]
+                }
+            }];
         }
+        
+        const response = await ai.models.generateContent({
+            model: modelName,
+            contents: contents,
+            config: config
+        });
+        
+        const aiContent = response.text;
+        
+        if (!aiContent) {
+            throw new Error('Invalid AI response format');
+        }
+        
+        return { success: true, content: aiContent, model: modelName };
+        
+    } catch (error) {
+        const statusCode = error.status || error.response?.status;
+        const errorMessage = error.message?.toLowerCase() || '';
+        
+        const isTimeout = error.code === 'ECONNABORTED' || error.code === 'ETIMEDOUT' || errorMessage.includes('timeout');
+        
+        const isRateLimit = statusCode === 429 || statusCode === 503 || 
+                           errorMessage.includes('rate limit') ||
+                           errorMessage.includes('quota');
+                           
+        const isInvalidKey = statusCode === 400 && (errorMessage.includes('api key') || error.statusText === 'INVALID_ARGUMENT');
+        
+        const isModelNotFound = statusCode === 404 || 
+                               errorMessage.includes('not found') ||
+                               errorMessage.includes('not supported');
+        
+        return {
+            success: false,
+            isRateLimit,
+            isModelNotFound,
+            isTimeout,
+            isInvalidKey,
+            error: error.message,
+            code: statusCode
+        };
     }
-    
-    // If we get here, both API versions failed
-    return {
-        success: false,
-        error: 'All API versions failed',
-        isModelNotFound: true
-    };
 }
 
 /**
  * Generates a response from the Gemini AI model with automatic fallback.
  * @param {Array} history - Array of previous messages { sender: 'user'|'assistant', content: string }
+ * @param {string} fileSearchStoreName - Optional ID of a FileSearchStore to use for RAG
  * @returns {Promise<string>} - The AI's response content
  */
-exports.generateResponse = async (history) => {
-    logKeyStatus(); // Log key status on first use
+exports.generateResponse = async (history, fileSearchStoreName = null) => {
+    logKeyStatus();
     
-    // FALLBACK MODE: Use canned responses if keys are expired
     const USE_FALLBACK = process.env.USE_AI_FALLBACK === 'true';
     const keys = getApiKeys();
     
@@ -169,7 +135,6 @@ exports.generateResponse = async (history) => {
             "Your awareness of these patterns shows real growth. Keep being kind to yourself. What do you need most right now?"
         ];
         
-        // Pick response based on conversation length (feels more natural)
         const index = history.length % compassionateResponses.length;
         return compassionateResponses[index];
     }
@@ -184,7 +149,6 @@ exports.generateResponse = async (history) => {
     let attemptedModels = [];
     const maxAttempts = Math.max(AVAILABLE_MODELS.length * keys.length, 1);
     
-    // Try combinations of keys and models
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
         const apiKey = getNextApiKey();
         const modelName = AVAILABLE_MODELS[currentModelIndex];
@@ -192,7 +156,7 @@ exports.generateResponse = async (history) => {
         
         console.log(`Attempting with model: ${modelName} and key index: ${currentKeyIndex === 0 ? keys.length - 1 : currentKeyIndex - 1}`);
         
-        const result = await tryGenerateWithModel(modelName, contents, apiKey);
+        const result = await tryGenerateWithModel(modelName, contents, apiKey, fileSearchStoreName);
         
         if (result.success) {
             console.log(`✓ Success with model: ${modelName}`);
@@ -218,7 +182,6 @@ exports.generateResponse = async (history) => {
         }
     }
     
-    // All models/keys failed
     console.error('All attempts failed. Tried combinations:', attemptedModels);
     
     const enhancedError = new Error('AI Service Error');
@@ -228,19 +191,13 @@ exports.generateResponse = async (history) => {
     throw enhancedError;
 };
 
-/**
- * Generates vector embeddings for a given text using the Gemini embedding model.
- * @param {string} text - The text to embed
- * @returns {Promise<Array<number>>} - A 768-dimensional float array
- */
 exports.generateEmbedding = async (text) => {
     if (!text || text.trim() === '') {
-        return null; // Don't embed empty strings
+        return null;
     }
     
     const USE_FALLBACK = process.env.USE_AI_FALLBACK === 'true';
     if (USE_FALLBACK) {
-        // Return a zero-vector if in fallback mode to avoid breaking the DB insert
         return new Array(768).fill(0);
     }
     
@@ -250,26 +207,16 @@ exports.generateEmbedding = async (text) => {
     }
     
     const EMBEDDING_MODEL = 'text-embedding-004';
-    const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${EMBEDDING_MODEL}:embedContent`;
     
     try {
-        const response = await axios.post(
-            `${GEMINI_API_URL}?key=${apiKey}`,
-            {
-                model: `models/${EMBEDDING_MODEL}`,
-                content: {
-                    parts: [{ text: text }]
-                }
-            },
-            {
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                timeout: 10000 // 10 second timeout for embeddings
-            }
-        );
+        const ai = new GoogleGenAI({ apiKey: apiKey });
+        
+        const response = await ai.models.embedContent({
+            model: EMBEDDING_MODEL,
+            contents: text
+        });
 
-        const embedding = response.data.embedding?.values;
+        const embedding = response.embeddings?.[0]?.values;
         
         if (!embedding || !Array.isArray(embedding)) {
             throw new Error('Invalid embedding response format');
@@ -278,7 +225,7 @@ exports.generateEmbedding = async (text) => {
         return embedding;
         
     } catch (error) {
-        console.error('Embedding Generation Error:', error.response?.data?.error?.message || error.message);
+        console.error('Embedding Generation Error:', error.message);
         throw error;
     }
 };

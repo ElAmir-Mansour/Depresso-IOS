@@ -2,6 +2,7 @@ const http = require('http');
 const { WebSocketServer } = require('ws');
 const app = require('./app');
 const liveAiService = require('./services/liveAiService');
+const ragService = require('./services/ragService');
 
 const port = process.env.PORT || 3000;
 const host = '0.0.0.0'; // Listen on all network interfaces
@@ -18,8 +19,11 @@ wss.on('connection', (ws, req) => {
     liveAiService.setupLiveSession(ws);
 });
 
-server.listen(port, host, () => {
+server.listen(port, host, async () => {
   console.log(`Server running on ${host}:${port}`);
   console.log(`Access from iPhone using: http://192.168.1.6:${port}`);
   console.log(`WebSocket endpoint: ws://localhost:${port}/live-session`);
+  
+  // Initialize RAG Stores
+  await ragService.initStores();
 });

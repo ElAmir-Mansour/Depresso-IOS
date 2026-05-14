@@ -1,4 +1,3 @@
-const { GoogleGenerativeAI } = require("@google/generative-ai");
 const WebSocket = require("ws");
 
 // We MUST use the exact Live API model variant for real-time speech
@@ -14,8 +13,7 @@ class LiveAiService {
             console.error("🔴 CRITICAL: No GEMINI_API_KEY found in environment.");
         }
 
-        this.genAI = new GoogleGenerativeAI(this.apiKey);
-        console.log("✅ LiveAiService Initialized with Google GenAI SDK");
+        console.log("✅ LiveAiService Initialized (WebSocket Only)");
     }
 
     /**
