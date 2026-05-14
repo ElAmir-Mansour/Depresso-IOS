@@ -113,7 +113,8 @@ exports.addMessageToEntry = async (req, res) => {
     // --- PHASE 2: Generate AI Response (Slow External Call - No DB Lock) ---
     let aiContent;
     try {
-        aiContent = await aiService.generateResponse(historyRows);
+        const clinicalStoreId = ragService.getClinicalStoreName();
+        aiContent = await aiService.generateResponse(historyRows, clinicalStoreId);
     } catch (error) {
         console.error('AI Service Error:', error);
         
@@ -190,7 +191,5 @@ exports.getMessagesForEntry = async (req, res) => {
     } catch (error) {
         console.error('Error fetching messages for entry:', error);
         res.status(500).send('Server error');
-    }
-};d('Server error');
     }
 };
